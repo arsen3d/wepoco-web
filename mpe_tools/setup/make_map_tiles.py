@@ -1,5 +1,11 @@
 #!/bin/env python
+# $Id$
 #
+# Michael Saunby. For Wepoco.
+#
+# $Author$
+# $Date$
+
 
 datadir='/home/mike/wepoco/data/mpe/'
 mapdir = datadir + "map/"
@@ -84,19 +90,9 @@ def google_proj(x, y, zoom, tile_size):
     lon_0=0.0
     lat_0=0.0
     to_meter= 156800 * pow(2,-zoom)
-    if zoom == 3:
-        y_0 = tile_size * to_meter * (y-3) 
-        x_0 = tile_size * to_meter * (4-x)
-    elif zoom == 4:
-        y_0 = tile_size * to_meter * (y-7) 
-        x_0 = tile_size * to_meter * (8-x)
-    elif zoom == 5:
-        y_0 = tile_size * to_meter * (y-15)
-        x_0 = tile_size * to_meter * (16-x)
-    else:
-        y_0 = 0
-        x_0 = 0
-        pass
+
+    y_0 = tile_size * to_meter * ((y+1)-(2**(zoom-1))) 
+    x_0 = tile_size * to_meter * ((2**(zoom-1))-x)
     
     projfn = proj4.Projection(proj=proj,
                               lat_0=lat_0,
@@ -128,9 +124,13 @@ def reproj_msat_lut(destdir, x, y, zoom):
     for row in range(outheight):
         for col in range(outwidth):
             lonlat = projfn.inv((col,(outheight-1)-row))
-            (msatx,msaty) = met_fwd(lonlat)
-            matrix.append((met_cols-1)-int(msatx))
-            matrix.append((met_rows-1)-int(msaty))
+            try:
+                (msatx,msaty) = met_fwd(lonlat)
+                matrix.append((met_cols-1)-int(msatx))
+                matrix.append((met_rows-1)-int(msaty))
+            except:
+                matrix.append(0)
+                matrix.append(0)
             pass
         pass
     matrixname = "%d/%d_%d.msat_lut" % (zoom, x, y)
@@ -151,9 +151,13 @@ def reproj_msg_lut(destdir, x, y, zoom):
     for row in range(outheight):
         for col in range(outwidth):
             lonlat = projfn.inv((col,(outheight-1)-row))
-            (msatx,msaty) = met_fwd(lonlat)
-            matrix.append((met_cols-1)-int(msatx))
-            matrix.append((met_rows-1)-int(msaty))
+            try:
+                (msatx,msaty) = met_fwd(lonlat)
+                matrix.append((met_cols-1)-int(msatx))
+                matrix.append((met_rows-1)-int(msaty))
+            except:
+                matrix.append(0)
+                matrix.append(0)
             pass
         pass
     matrixname = "%d/%d_%d.msg_lut" % (zoom, x, y)
@@ -163,7 +167,7 @@ def reproj_msg_lut(destdir, x, y, zoom):
 
 def prepare_tiles( zoom, x_min, y_min, x_max, y_max ):
     try:
-        os.mkdir( mapdir + "%d" % (zoom) )
+        #os.mkdir( mapdir + "%d" % (zoom) )
         os.mkdir( lutdir + "%d" % (zoom) )
     except:
         print "dirs exist"
@@ -181,17 +185,14 @@ if __name__ == "__main__":
     import proj4
 
     try:
-        os.mkdir( mapdir )
+        #os.mkdir( mapdir )
         os.mkdir( lutdir )
     except:
         print "dirs exist"
         pass
     
+    prepare_tiles(zoom=2, x_min=1, y_min=1, x_max=3, y_max=3 )
     prepare_tiles(zoom=3, x_min=3, y_min=3, x_max=6, y_max=5 )
     prepare_tiles(zoom=4, x_min=7, y_min=6, x_max=11, y_max=10 )
     prepare_tiles(zoom=5, x_min=14, y_min=12, x_max=21, y_max=20 )
-
-
-
-
 
