@@ -1,9 +1,20 @@
 #!/usr/bin/python
 # Michael Saunby. For Wepoco.
-# $Date$
 #
-
 ##############################################################################  
+
+# Settings for the local processing server
+my_datadir='/home/mike/wepoco/data/mpe/'
+
+
+# Settings for the remote web server 
+my_site='www.wepoco.com'
+my_untar='/maps/untar.php?tgz='
+my_ftp_host='' # e.g. saunby.net
+my_ftp_user='' ' e.g. wepoco
+my_ftp_passwd='' e.g. password1
+
+#############################################################################
 
 force = False
 
@@ -11,15 +22,13 @@ import sys, os, string, httplib
 from fn_mk_tiledir import mk_tiledir
 
 def untar( tarfile ):
-    site='www.wepoco.com'
-    url='/maps/untar.php?tgz='
-    conn = httplib.HTTPConnection( site )
-    conn.request( 'GET', url + tarfile )
+    conn = httplib.HTTPConnection( my_site )
+    conn.request( 'GET', my_untar + tarfile )
     r1 = conn.getresponse()
     return 0
 
 def run():
-    datadir='/home/mike/wepoco/data/mpe/'
+    datadir=my_datadir
     config = 'acc.out'
 
     try:
@@ -49,13 +58,9 @@ def run():
     try:
         from ftplib import FTP
 
-        user = "wepoco%saunby.net"
-        host = "saunby.net"
-        passwd = "w34h72"
-
         arfile = file( datadir + archive, "rb" )
-        ftp = FTP( host )
-        ftp.login( user, passwd )
+        ftp = FTP( my_ftp_host )
+        ftp.login( my_ftp_user, my_ftp_passwd )
         ftp.cwd( "mpe" )
         ftp.storbinary("STOR " + archive, arfile )
         arfile.close()
