@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # Michael Saunby. For Wepoco.
-# $Date$
 #
+# $Author$
+# $Date$
 
 import os, string
 
@@ -11,7 +12,7 @@ def mk_tiledir( datadir, sumname ):
     # must have subdirs for each zoom level
     try:
         os.mkdir( datadir + tiledir )
-        for zoom in [3,4,5]:
+        for zoom in [1,2,3,4,5]:
             os.mkdir( datadir + tiledir + "%d" % (zoom) )
             pass
         pass

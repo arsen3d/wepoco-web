@@ -16,6 +16,7 @@ msgwidth = 3712; msgheight = 3712
 
 #lut_suffix = '.msat_lut'
 lut_suffix = '.msg_lut'
+tile_suffix = '.png'
 mapconfig = 'map.list'
 
 
@@ -66,7 +67,7 @@ from fn_mk_tiledir import mk_tiledir
 def run( workdir = '/home/mike/wepoco/data/mpe/', sumname=None ):
     bindir='/home/mike/wepoco/bin/'
     datadir='/home/mike/wepoco/data/mpe/'
-    mapdir=datadir + 'map/'
+    #mapdir=datadir + 'map/'
     lutdir=datadir + 'lut/'
     config = 'acc.out'
 
@@ -100,15 +101,18 @@ def run( workdir = '/home/mike/wepoco/data/mpe/', sumname=None ):
 
     # Create new images
     try:
-        mapconf = file( mapdir + mapconfig, 'r' )
-        for mapname in mapconf:
+        lutconf = file( lutdir + mapconfig, 'r' )
+    except:
+        return (4, 'Failed to open map config file' )
+    if True:
+        for mapname in lutconf:
             mapname = string.strip( mapname )
             words = string.split( mapname, '.' )
             lutname = words[0] + lut_suffix
-            tilename = mapname  # i.e. also a png file, but dest dir will be different */
+            tilename = words[0] + tile_suffix
             try:
                 if force:
-                    print "processing", mapname, lutname
+                    print "processing", tilename
                     pass
                 lutf = file( lutdir + lutname, 'rb' )
                 (rc, msg) = reproj( satimg, lutf, workdir + tiledir + tilename )
@@ -120,9 +124,7 @@ def run( workdir = '/home/mike/wepoco/data/mpe/', sumname=None ):
                 return (5, 'Failed when processing %s' % (lutname))
             pass
         pass
-    except:
-        return (4, 'Failed to open map config file' )
-            
+    
     return (0, 'OK')
 
 if __name__ == "__main__":
