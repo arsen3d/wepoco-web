@@ -109,7 +109,7 @@ def map_tile(destdir, x, y, zoom):
     outheight = tile_size
     img = proj4_map(projfn,(outwidth, outheight))
     tilename = "%d/%d_%d.png" % (zoom, x, y)
-    img.save( destdir + tilename )
+    img.save( destdir + tilename, transparency=255 )
 
 def reproj_msat_lut(destdir, x, y, zoom):
     import metcoords, array
@@ -167,7 +167,7 @@ def reproj_msg_lut(destdir, x, y, zoom):
 
 def prepare_tiles( zoom, x_min, y_min, x_max, y_max ):
     try:
-        #os.mkdir( mapdir + "%d" % (zoom) )
+        os.mkdir( mapdir + "%d" % (zoom) )
         os.mkdir( lutdir + "%d" % (zoom) )
     except:
         print "dirs exist"
@@ -175,7 +175,7 @@ def prepare_tiles( zoom, x_min, y_min, x_max, y_max ):
     for y in range(y_min,y_max):
         for x in range(x_min,x_max):
             print "generating map and lut for", x, y, zoom
-            #map_tile( mapdir, x, y, zoom )
+            map_tile( mapdir, x, y, zoom )
             reproj_msg_lut( lutdir, x, y, zoom )
             pass
         pass
@@ -185,14 +185,13 @@ if __name__ == "__main__":
     import proj4
 
     try:
-        #os.mkdir( mapdir )
+        os.mkdir( mapdir )
         os.mkdir( lutdir )
     except:
         print "dirs exist"
         pass
     
     prepare_tiles(zoom=2, x_min=1, y_min=1, x_max=3, y_max=3 )
-    prepare_tiles(zoom=3, x_min=3, y_min=3, x_max=6, y_max=5 )
-    prepare_tiles(zoom=4, x_min=7, y_min=6, x_max=11, y_max=10 )
-    prepare_tiles(zoom=5, x_min=14, y_min=12, x_max=21, y_max=20 )
-
+    prepare_tiles(zoom=3, x_min=2, y_min=2, x_max=6, y_max=6 )
+    prepare_tiles(zoom=4, x_min=5, y_min=4, x_max=11, y_max=10 )
+    prepare_tiles(zoom=5, x_min=12, y_min=10, x_max=21, y_max=20 )
