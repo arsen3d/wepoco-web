@@ -1,0 +1,112 @@
+<script language="JavaScript" type="text/JavaScript">
+<!--
+function MM_reloadPage(init) {  //reloads the window if Nav4 resized
+  if (init==true) with (navigator) {if ((appName=="Netscape")&&(parseInt(appVersion)==4)) {
+    document.MM_pgW=innerWidth; document.MM_pgH=innerHeight; onresize=MM_reloadPage; }}
+  else if (innerWidth!=document.MM_pgW || innerHeight!=document.MM_pgH) location.reload();
+}
+MM_reloadPage(true);
+
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+
+function MM_nbGroup(event, grpName) { //v6.0
+  var i,img,nbArr,args=MM_nbGroup.arguments;
+  if (event == "init" && args.length > 2) {
+    if ((img = MM_findObj(args[2])) != null && !img.MM_init) {
+      img.MM_init = true; img.MM_up = args[3]; img.MM_dn = img.src;
+      if ((nbArr = document[grpName]) == null) nbArr = document[grpName] = new Array();
+      nbArr[nbArr.length] = img;
+      for (i=4; i < args.length-1; i+=2) if ((img = MM_findObj(args[i])) != null) {
+        if (!img.MM_up) img.MM_up = img.src;
+        img.src = img.MM_dn = args[i+1];
+        nbArr[nbArr.length] = img;
+    } }
+  } else if (event == "over") {
+    document.MM_nbOver = nbArr = new Array();
+    for (i=1; i < args.length-1; i+=3) if ((img = MM_findObj(args[i])) != null) {
+      if (!img.MM_up) img.MM_up = img.src;
+      img.src = (img.MM_dn && args[i+2]) ? args[i+2] : ((args[i+1])? args[i+1] : img.MM_up);
+      nbArr[nbArr.length] = img;
+    }
+  } else if (event == "out" ) {
+    for (i=0; i < document.MM_nbOver.length; i++) {
+      img = document.MM_nbOver[i]; img.src = (img.MM_dn) ? img.MM_dn : img.MM_up; }
+  } else if (event == "down") {
+    nbArr = document[grpName];
+    if (nbArr)
+      for (i=0; i < nbArr.length; i++) { img=nbArr[i]; img.src = img.MM_up; img.MM_dn = 0; }
+    document[grpName] = nbArr = new Array();
+    for (i=2; i < args.length-1; i+=2) if ((img = MM_findObj(args[i])) != null) {
+      if (!img.MM_up) img.MM_up = img.src;
+      img.src = img.MM_dn = (args[i+1])? args[i+1] : img.MM_up;
+      nbArr[nbArr.length] = img;
+  } }
+}
+//-->
+</script>
+
+<style type="text/css">     
+a.barra:link{color: "#4B4B4B"; text-decoration: none; }
+a.barra:visited{color: "#4B4B4B"; text-decoration: none; }
+a.barra:hover{color: "#000000" ; text-decoration: underline; font-size: "12pt"; }
+a.barra:active{color: "#FF9900"; }
+</style>
+
+
+<!-- <body link="#666666" vlink="#4B4B4B" alink="#FF9900" onLoad="MM_preloadImages('images/home2.gif','images/obs2.gif','images/fcst2.gif','images/comment2.gif','images/links2.gif','images/obs1.gif')">
+-->
+
+<div id="Layer3" style="position:absolute; left:6px; top:-6px; width:500px; height:123px; z-index:3"><img src="images/logo_small_text30_circ.gif" width="531" height="130"></div>
+<div id="Layer1" style="position:absolute; left:533px; top:13px; width:162px; height:87px; z-index:6; visibility: visible;"> 
+  <table width="100%" border="0">
+    <tr> 
+      <td><font color="#666666" size="2" face="Arial, Helvetica, sans-serif"><strong> 
+        <img src="images/orange_sq.gif" width="7" height="7"> <a href="aboutus.html">About 
+        us</a></strong></font></td>
+    </tr>
+    <tr> 
+      <td><font color="#666666" size="2" face="Arial, Helvetica, sans-serif"><strong><img src="images/orange_sq.gif" width="7" height="7"> 
+        <a href="helpyou.html">Can we help you?</a></strong></font></td>
+    </tr>
+    <tr> 
+      <td><font color="#666666" size="2" face="Arial, Helvetica, sans-serif"><strong><img src="images/orange_sq.gif" width="7" height="7"> 
+        <a href="helpus.html">Can you help us?</a></strong></font></td>
+    </tr>
+    <tr> 
+      <td><font size="2" face="Arial, Helvetica, sans-serif">&nbsp;</font></td>
+    </tr>
+    <tr> 
+      <td><font color="#666666" size="2" face="Arial, Helvetica, sans-serif"><strong> 
+        <img src="images/orange_sq.gif" width="7" height="7"> <a href="developers.html">Developer's 
+        corner</a></strong></font></td>
+    </tr>
+  </table>
+</div>
+<div id="Layer2" style="position:absolute; left:23px; top:122px; width:692px; height:18px; z-index:7; background-color: #FFFFFF; layer-background-color: #FFFFFF; border: 1px none #000000;"> 
+  <div align="left"> 
+    <table border="0" cellpadding="1" cellspacing="0">
+      <tr> 
+        <td>&nbsp;</td> 
+        <td><a href="home.html" target="_top" onClick="MM_nbGroup('down','group1','home','images/home2.gif',1)" onMouseOver="MM_nbGroup('over','home','images/home2.gif','images/home2.gif',1)" onMouseOut="MM_nbGroup('out')"><img src="images/home1.gif" alt="home" name="home" border="0" onload=""></a></td>
+        <td><a href="obs.html" target="_top" onClick="MM_nbGroup('down','group1','observations','images/obs2.gif',1)" onMouseOver="MM_nbGroup('over','observations','images/obs2.gif','images/obs2.gif',1)" onMouseOut="MM_nbGroup('out')"><img src="images/obs2.gif" alt="observations" name="observations" border="0" onload="MM_nbGroup('init','group1','observations','images/obs1.gif',1)"></a></td>
+        <td><a href="fcst.html" target="_top" onClick="MM_nbGroup('down','group1','forecast','images/fcst2.gif',1)" onMouseOver="MM_nbGroup('over','forecast','images/fcst2.gif','images/fcst2.gif',1)" onMouseOut="MM_nbGroup('out')"><img name="forecast" src="images/fcst1.gif" border="0" alt="" onLoad=""></a></td>
+        <td><a href="comment.html" target="_top" onClick="MM_nbGroup('down','group1','comment','images/comment2.gif',1)" onMouseOver="MM_nbGroup('over','comment','images/comment2.gif','images/comment2.gif',1)" onMouseOut="MM_nbGroup('out')"><img name="comment" src="images/comment1.gif" border="0" alt="" onLoad=""></a></td>
+        <td><a href="links.html" target="_top" onClick="MM_nbGroup('down','group1','links','images/links2.gif',1)" onMouseOver="MM_nbGroup('over','links','images/links2.gif','images/links2.gif',1)" onMouseOut="MM_nbGroup('out')"><img name="links" src="images/links1.gif" border="0" alt="" onLoad=""></a></td>
+        <td>&nbsp;</td>
+      </tr>
+    </table>
+    <font color="#4B4B4B" size="2" face="Arial, Helvetica, sans-serif"></font></div>
+</div>
+
