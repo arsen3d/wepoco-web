@@ -82,7 +82,7 @@ function NdviAndRainSelect( ndvitype, raintype ){
 
 function NdviAndRainLoad( ndvitype, ndvidate, raintype, raindate ){
     if(raintype == "day"){
-	selected_rain = 'MPE_' + raindate + '_M8_00';
+	selected_rain = 'MPE_' + raindate + '_M9_00';
     }else if(raintype == "dekad"){
 	if (/^(\d{4})(\d{2})(\d{2})$/.test(raindate)){
 	    year = RegExp.$1;
