@@ -143,5 +143,10 @@ HERE;
     <coordinates>41.869,9.590,0</coordinates>
   </Point>
   </Placemark>
+
+  <!-- <marker label="Genale" id="genale" location="04:20N 41:58E" lat="4.33" lng="41.97" level="5" /> -->
+  <!-- <marker label="Dawa" id="dawa" location="03:59N 41:50E" lat="3.98" lng="41.83" level="5" /> -->
+  <!-- <marker label="Guji" id="guji" location="05:43N 41:30E" lat="5.72" lng="41.50" level="5" /> -->
+
 </Folder>
 </kml>
