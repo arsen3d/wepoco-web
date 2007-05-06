@@ -135,7 +135,7 @@ View EUMETSAT MPE animation.</a></p>
   </tr></table></form>
 </div><!-- dateselect -->
 <!-- the actual map -->
-<div id="map" class="map-box" style:"margin:0">
+<div id="map" class="map-box" style="margin:0">
 </div>
 
 <div id="select" class="map-select" style="visibility:hidden" >

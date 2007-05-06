@@ -3,7 +3,7 @@
 //
 
 var selected_rain = "none";
-var selected_ndvi = "ndvi";
+var selected_ndvi = "none";
 var ndvimap, rainmap, bothmap, currentmap;
 var map = null;
 
@@ -101,8 +101,15 @@ function NdviAndRainLoad( ndvitype, ndvidate, raintype, raindate ){
     }
     
     if(ndvitype == "month"){
+	if (/^(\d{4})(\d{2})(\d{2})$/.test(ndvidate)){
+	    year = RegExp.$1;
+	    month = RegExp.$2;
+	    day = RegExp.$3;
+	    selected_ndvi =  'NDVI_' + year + month;
+	}
     }
     else if(ndvitype == "16day"){
+	selected_ndvi = "none";
     }
     
     // Set currentmap by checking for null in ndvitype and raintype
@@ -200,11 +207,11 @@ function setupNDVI()
     // Provide our own getTileUrl functions 
     
     CustomGetNdviTileUrl=function(a,b){
-	return "http://www.wepoco.com/cgi/zoom.py?type=mpe&map="+selected_ndvi+"&x="+a.x+"&y="+a.y+"&zoom="+b
+	return "http://www.wepoco.com/cgi/zoom2.py?type=ndvi&map="+selected_ndvi+"&x="+a.x+"&y="+a.y+"&zoom="+b
     }
     
     CustomGetRainTileUrl=function(a,b){
-	return "http://www.wepoco.com/cgi/zoom.py?type=mpe&map="+selected_rain+"&x="+a.x+"&y="+a.y+"&zoom="+b
+	return "http://www.wepoco.com/cgi/zoom2.py?type=mpe&map="+selected_rain+"&x="+a.x+"&y="+a.y+"&zoom="+b
     }
     
     
