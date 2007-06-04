@@ -52,6 +52,8 @@ var custommap = new GMapType(tilelayers, G_SATELLITE_MAP.getProjection(), "Wepoc
 map.addMapType(custommap);
 map.setCenter(new GLatLng(51.0, -4.0), 6, custommap);
 
+var first_point_set = 0;
+var origin = map.getBounds().getNorthEast();
 
 GEvent.addListener(map, "click", 
 		   function(marker, point) {
@@ -65,8 +67,15 @@ GEvent.addListener(map, "click",
 		     el.appendChild(document.createTextNode(divpoint.x + 
 		       "x " + divpoint.y + "y"));
 		     info_div.appendChild(el);
-		     origin = map.getBounds().getNorthEast();
-		     drawbox( map, origin, point );
+		     // origin = map.getBounds().getNorthEast();
+                     if (first_point_set == 1) {   
+		         drawbox( map, origin, point );
+                         first_point_set = 0;
+                     }else{
+                        origin = point;
+                        map.clearOverlays();
+                        first_point_set = 1;
+                     }
 		   }
 		   );
 
