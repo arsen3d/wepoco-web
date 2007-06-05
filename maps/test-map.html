@@ -29,6 +29,15 @@ function drawbox( map, a, c ) {
     map.addOverlay( new GPolyline( points ));
 }
   
+function describe( div, map, a, c ) {
+    a_xy = map.fromLatLngToDivPixel(a);
+    c_xy = map.fromLatLngToDivPixel(c);
+    div.innerHTML = "zoom=" + map.getZoom() + "<br />" + 
+     a.lat().toFixed(4) + "N " + a.lng().toFixed(4) + "E<br />" +
+     a_xy.x + ", " + a_xy.y + "<br />" +
+     c.lat().toFixed(4) + "N " + c.lng().toFixed(4) + "E<br />" +
+     c_xy.x + ", " + c_xy.y + "<br />";
+}
   
   var tilelayers = [
 	G_NORMAL_MAP.getTileLayers()[0]
@@ -50,43 +59,29 @@ var custommap = new GMapType(tilelayers, G_SATELLITE_MAP.getProjection(), "Wepoc
 
 // == Add the maptype to the map ==
 map.addMapType(custommap);
+
 map.setCenter(new GLatLng(51.0, -4.0), 6, custommap);
 
 var first_point_set = 0;
-var origin = map.getBounds().getNorthEast();
 
 GEvent.addListener(map, "click", 
 		   function(marker, point) {
 		     var info_div = document.getElementById('info');
-		     el = document.createElement('p');
-		     el.appendChild(document.createTextNode(point.lat().toFixed(4) + 
-		       "N " + point.lng().toFixed(4) + "E"));
-		     info_div.appendChild(el);
-		     divpoint = map.fromLatLngToDivPixel(point);
-		     el = document.createElement('p');
-		     el.appendChild(document.createTextNode(divpoint.x + 
-		       "x " + divpoint.y + "y"));
-		     info_div.appendChild(el);
-		     // origin = map.getBounds().getNorthEast();
+
+		     northEast = map.getBounds().getNorthEast();
                      if (first_point_set == 1) {   
 		         drawbox( map, origin, point );
+                         describe( info_div, map, origin, point );
                          first_point_set = 0;
                      }else{
                         origin = point;
                         map.clearOverlays();
                         first_point_set = 1;
+                        info_div.innerHTML="please click again";
                      }
 		   }
 		   );
 
-GEvent.addListener(map, "zoomend",
-		   function(oldlev, newlev) {
-		     var info_div = document.getElementById('info');
-		     el = document.createElement('p');
-		     el.appendChild(document.createTextNode("zoom="+newlev));
-		     info_div.appendChild(el);
-		   }
-                   );
 }
 
 </script>
