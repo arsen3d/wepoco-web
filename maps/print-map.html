@@ -7,9 +7,11 @@
 
 var map = null;
 
+var print_spec = null;
+
 function print_func() {
     //printwin = window.open('stuff.html','','width=200,height=200');
-    printwin = window.open('print-template.html?x=2','','width=200,height=200');
+    printwin = window.open('print-template.html?'+print_spec,'','width=200,height=200');
     //printwin.document.body.innerHTML="hello woooorld";
     printwin.focus();
 }
@@ -57,6 +59,10 @@ function describe( div, map, a, c ) {
      a_xy.x + ", " + a_xy.y + "<br />" +
      c.lat().toFixed(4) + "N " + c.lng().toFixed(4) + "E<br />" +
      c_xy.x + ", " + c_xy.y + "<br />";
+    z = map.getZoom() + 1;
+    x = width * 2;
+    y = height * 2;
+    print_spec = "z=" + z + "&x=" + x + "&y=" + y;
 }
   
   var tilelayers = [

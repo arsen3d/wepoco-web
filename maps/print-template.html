@@ -9,7 +9,10 @@ var map = null;
 
 function setupMap()
 {
-
+  // Get "search" part of URL
+  args = document.URL.split('?')[1].split('&');
+  zoom = parseInt(args[0].split('=')[1]);
+  
   map = new GMap2(document.getElementById("map"), 
 		  {draggableCursor: 'crosshair'});
   map.addControl(new GLargeMapControl());
@@ -44,7 +47,7 @@ function setupMap()
   // == Add the maptype to the map ==
   map.addMapType(custommap);
 
-  map.setCenter(new GLatLng(51.0, -4.0), 6, custommap);
+  map.setCenter(new GLatLng(51.0, -4.0), zoom, custommap);
 }
 
 </script>
@@ -84,7 +87,7 @@ function setupMap()
    <div id="map" class="map-box">
    </div>
    <div id="message"><script>
-   document.write(document.URL);
+   document.write(document.URL.split('?')[1]);
 </script>
 </div>
 </body>
