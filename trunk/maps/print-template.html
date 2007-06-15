@@ -11,12 +11,20 @@ function setupMap()
 {
   // Get "search" part of URL
   args = document.URL.split('?')[1].split('&');
-  zoom = parseInt(args[0].split('=')[1]);
+
+  var z=0;x=0;y=0;lat=0.0;lng=0.0;
+  for (item in args){
+     eval( args[item] );  // must be in form "var=value"
+  }
+  center = new GLatLng(lat,lng);
+  zoom = z;
+
+  // set width and height of div containing map
+  mapdiv = document.getElementById("map");
+  mapdiv.style.width = x + "px";
+  mapdiv.style.height = y + "px";
   
-  map = new GMap2(document.getElementById("map"), 
-		  {draggableCursor: 'crosshair'});
-  map.addControl(new GLargeMapControl());
-  map.addControl(new GScaleControl());
+  map = new GMap2(document.getElementById("map"));
 
   // ============================================================
   // == We now have to write our own getTileUrl function ========
@@ -47,7 +55,7 @@ function setupMap()
   // == Add the maptype to the map ==
   map.addMapType(custommap);
 
-  map.setCenter(new GLatLng(51.0, -4.0), zoom, custommap);
+  map.setCenter(center, zoom, custommap);
 }
 
 </script>
@@ -56,27 +64,11 @@ function setupMap()
 .map-box {
    position: absolute;
    margin-left: 0px;
-   margin-top: 50px;
+   margin-top: 0px;
    width: 630px;
    height: 380px;
    background-color: gray;
 }
-
-.map-info {
-   position: absolute;
-   overflow: auto;
-   margin-left: 640px;
-   margin-top: 50px;
-   color: white;
-   background-color: gray;
-   width: 200px;
-   height: 380px;
-   font-family: courier;
-   font-size: 12pt;
-   color: black;
-}
-
-
 </style>
 
 </head>
@@ -86,10 +78,6 @@ function setupMap()
 
    <div id="map" class="map-box">
    </div>
-   <div id="message"><script>
-   document.write(document.URL.split('?')[1]);
-</script>
-</div>
 </body>
 
 </html>
