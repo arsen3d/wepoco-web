@@ -45,7 +45,8 @@ function describe( div, map, a, c ) {
     width = c_xy.x - a_xy.x;
     if(width<0)width = -width;
     height = c_xy.y - a_xy.y;
-    if(height<0)height = -height;   
+    if(height<0)height = -height;
+    center_pix = new GPoint((a_xy.x + c_xy.x)/2, (a_xy.y + c_xy.y)/2);
 
     // Calculate new map.
     n_width = width * 2;
@@ -62,7 +63,12 @@ function describe( div, map, a, c ) {
     z = map.getZoom() + 1;
     x = width * 2;
     y = height * 2;
-    print_spec = "z=" + z + "&x=" + x + "&y=" + y;
+    //latlng = map.getCenter();
+    latlng = map.fromDivPixelToLatLng( center_pix );
+    lat = latlng.lat().toFixed(4);
+    lng = latlng.lng().toFixed(4);
+    print_spec = "z=" + z + "&x=" + x + "&y=" + y + 
+      "&lat=" + lat + "&lng=" + lng;
 }
   
   var tilelayers = [
