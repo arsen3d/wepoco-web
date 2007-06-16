@@ -6,104 +6,75 @@
 <script type="text/javascript" language="javascript">
 
 var map = null;
-
 var print_spec = null;
+var selected_rain = "none";
 
 function print_func() {
-    //printwin = window.open('stuff.html','','width=200,height=200');
-    printwin = window.open('print-template.html?'+print_spec,'','width=200,height=200');
-    //printwin.document.body.innerHTML="hello woooorld";
+    printwin = window.open('print-template.html?'+print_spec);
     printwin.focus();
 }
 
-function setupMap()
-{
+function drawbox( map, a, c ) {
+  var b = new GLatLng( a.lat(), c.lng() );
+  var d = new GLatLng( c.lat(), a.lng() );
+  var points = [a,b,c,d,a]; 
+  map.addOverlay( new GPolyline( points ));
+}
 
-  map = new GMap2(document.getElementById("map"), 
-		  {draggableCursor: 'crosshair'});
+function define_print( map, a, c ) {
+  z = map.getZoom() + 1;
+  a_xy = map.fromLatLngToDivPixel(a);
+  c_xy = map.fromLatLngToDivPixel(c);
+  x = (c_xy.x - a_xy.x) * 2;
+  if(x<0) x = -x;
+  y = (c_xy.y - a_xy.y) * 2;
+  if(y<0) y = -height;
+  center_pix = new GPoint((a_xy.x + c_xy.x)/2, (a_xy.y + c_xy.y)/2);
+  latlng = map.fromDivPixelToLatLng( center_pix );
+  lat = latlng.lat().toFixed(4);
+  lng = latlng.lng().toFixed(4);
+  print_spec = "z=" + z + "&x=" + x + "&y=" + y + 
+    "&lat=" + lat + "&lng=" + lng;
+}
+
+function setupMap() {
+  map = new GMap2(document.getElementById("map"));
   map.addControl(new GLargeMapControl());
   map.addControl(new GScaleControl());
 
-// ============================================================
-// == We now have to write our own getTileUrl function ========
+  var rainlayer = new GTileLayer(
+    new GCopyrightCollection("Meteorological data: Wepoco"),4,5);
+  var rainlayers = [
+                    G_NORMAL_MAP.getTileLayers()[0],
+                    //G_HYBRID_MAP.getTileLayers()[0],
+                    rainlayer,
+                    G_HYBRID_MAP.getTileLayers()[1]
+                   ];
 
-CustomGetTileUrl=function(a,b){
-  return "http://www.wepoco.com/maps/locate_box.png"
-}
-
-
-function drawbox( map, a, c ) {
-    var b = new GLatLng( a.lat(), c.lng() );
-    var d = new GLatLng( c.lat(), a.lng() );
-    var points = [a,b,c,d,a]; 
-    map.addOverlay( new GPolyline( points ));
-}
-  
-function describe( div, map, a, c ) {
-    a_xy = map.fromLatLngToDivPixel(a);
-    c_xy = map.fromLatLngToDivPixel(c);
-    width = c_xy.x - a_xy.x;
-    if(width<0)width = -width;
-    height = c_xy.y - a_xy.y;
-    if(height<0)height = -height;
-    center_pix = new GPoint((a_xy.x + c_xy.x)/2, (a_xy.y + c_xy.y)/2);
-
-    // Calculate new map.
-    n_width = width * 2;
-    n_height = height * 2;
-    n_zoom = map.getZoom() + 1;
-
-
-    div.innerHTML = "zoom=" + map.getZoom() + "<br />" + 
-     width + " x " + height + "<br />" + 
-     a.lat().toFixed(4) + "N " + a.lng().toFixed(4) + "E<br />" +
-     a_xy.x + ", " + a_xy.y + "<br />" +
-     c.lat().toFixed(4) + "N " + c.lng().toFixed(4) + "E<br />" +
-     c_xy.x + ", " + c_xy.y + "<br />";
-    z = map.getZoom() + 1;
-    x = width * 2;
-    y = height * 2;
-    //latlng = map.getCenter();
-    latlng = map.fromDivPixelToLatLng( center_pix );
-    lat = latlng.lat().toFixed(4);
-    lng = latlng.lng().toFixed(4);
-    print_spec = "z=" + z + "&x=" + x + "&y=" + y + 
-      "&lat=" + lat + "&lng=" + lng;
-}
-  
-  var tilelayers = [
-	G_NORMAL_MAP.getTileLayers()[0]
-	,new GTileLayer(new GCopyrightCollection("Wepoco"),4,5)
-	];
-  var my_layer = 1;
-
-tilelayers[my_layer].getTileUrl = CustomGetTileUrl;
-tilelayers[my_layer].isPng = function() {return 1;}
-// tilelayers[my_layer].getOpacity = function() {return 0.6;}
-
-// I'm not sure if the following is still essential (ref. http://www.econym.demon.co.uk/googlemaps/custommap.htm )     
- tilelayers[my_layer].getCopyright = function(a,b) {
-   return { prefix: "", copyrightTexts:["Wepoco"]};
- }
+  rainlayer.getTileUrl = function(a,b){
+    return "http://www.wepoco.com/cgi/zoom2.py?type=mpe&map="+
+      selected_rain+"&x="+a.x+"&y="+a.y+"&zoom="+b;
+  }
+  rainlayer.isPng = function() {return 1;}
+  rainlayer.getCopyright = function(a,b) {
+    return { prefix: "Meteorological Data:", copyrightTexts:["Wepoco"]};
+  }
     
-var custommap = new GMapType(tilelayers, G_SATELLITE_MAP.getProjection(), "Wepoco",
-      {errorMessage:_mMapError});    
+  var custommap = new GMapType(rainlayers, G_SATELLITE_MAP.getProjection(), 
+    "Wepoco", {errorMessage:_mMapError});    
 
-// == Add the maptype to the map ==
-map.addMapType(custommap);
+  map.addMapType(custommap);
+  map.setCenter(new GLatLng(10.0, 16.0), 3, custommap);
 
-map.setCenter(new GLatLng(51.0, -4.0), 6, custommap);
-
-var first_point_set = 0;
-
-GEvent.addListener(map, "click", 
+  var first_point_set = 0;
+  GEvent.addListener(map, "click", 
 		   function(marker, point) {
 		     var info_div = document.getElementById('info');
 
 		     northEast = map.getBounds().getNorthEast();
                      if (first_point_set == 1) {   
 		         drawbox( map, origin, point );
-                         describe( info_div, map, origin, point );
+                         define_print( map, origin, point );
                          first_point_set = 0;
                      }else{
                         origin = point;
@@ -111,14 +82,27 @@ GEvent.addListener(map, "click",
                         first_point_set = 1;
                         info_div.innerHTML="please click again";
                      }
+                     return;
 		   }
-		   );
-
+  );
+  return;
 }
 
 </script>
 
 <style type="text/css">
+.calendar-left {
+   visibility: hidden;
+   z-index: 2; /* high value as popup calendar will overlap map div */
+   position: absolute;
+   left: 6px;
+   top: 10px;
+   width: 650px;
+   height: 60px;
+   background-color: #FFFFFF;
+   cursor: pointer;
+}
+
 .map-box {
    position: absolute;
    margin-left: 0px;
@@ -151,6 +135,26 @@ GEvent.addListener(map, "click",
 
    <div id="menu" class="map-menu">
    <input value="print" type="button" onclick="print_func()" />
+   </div>
+
+   <div id="dateselect" class="calendar-left" style="margin:0" >
+    <form style="height:100%; padding: 0;" >
+    <table border="0" style="width:100%; height:100%; padding: 0"><tr>
+    <td>
+    <select id="raintype" onChange="checkSelections()">
+    <option value="day">24hr rainfall</option>
+    <option value="dekad">dekad rainfall</option>
+    </select>
+    </td>
+    <td>
+    <script>
+    DateInput('raindate', true, 'YYYYMMDD', yesterday);
+    SetChangeFunc('raindate', 'checkSelections');
+    </script>
+    </td>
+    </tr>
+    </table>
+    </form>
    </div>
 
    <div id="map" class="map-box">
