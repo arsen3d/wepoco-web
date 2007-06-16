@@ -3,7 +3,8 @@
 <head>
 <title>Wepoco: Observations</title>
 <link rel="stylesheet" href="/wepoco-look/banner.css" type="text/css" media="screen, projection" />
-<style type="text/css"> @import url("ndvi-map.css"); </style>
+<link rel="stylesheet" href="observations.css" type="text/css" media="screen, projection" />
+
 <script src="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAF5oUqxaWkq3HzHxEjwFoMhSqLCR4vqZD7ui-J2nkp63kVD9LDRS75VKmRTRVCob68yw1NBkMXZHKsg" type="text/javascript"></script>
 <script type="text/javascript" src="observations.js"></script>
 <script type="text/javascript" src="wCalendarDateInput.js">
