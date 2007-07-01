@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+<title>Wepoco: map tile ids</title>
+<script src="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAF5oUqxaWkq3HzHxEjwFoMhSqLCR4vqZD7ui-J2nkp63kVD9LDRS75VKmRTRVCob68yw1NBkMXZHKsg" type="text/javascript"></script>
+
+<script type="text/javascript" language="javascript">
+
+var map = null;
+
+function setupMap() {
+  map = new GMap2(document.getElementById("map"));
+  map.addControl(new GLargeMapControl());
+  map.addControl(new GScaleControl());
+
+  var gridlayer = new GTileLayer(new GCopyrightCollection(""),3,5);
+  var gridlayers = [
+                    G_NORMAL_MAP.getTileLayers()[0],
+                    gridlayer
+                   ];
+
+  gridlayer.getTileUrl = function(a,b){
+    return "map/"+b+"/"+a.x+"_"+a.y+".png";
+  }
+
+  gridlayer.isPng = function() {return 1;}
+  gridlayer.getCopyright = function(a,b) {
+    return { prefix: "", copyrightTexts:[""]};
+  }
+    
+  var custommap = new GMapType(gridlayers, G_SATELLITE_MAP.getProjection(), 
+    "Wepoco", {errorMessage:_mMapError});    
+
+  map.addMapType(custommap);
+  map.setCenter(new GLatLng(10.0, 16.0), 3, custommap);
+
+  GEvent.addListener(map, "click", 
+		   function(marker, point) {
+		     var info_div = document.getElementById('info');
+
+                     return;
+		   }
+  );
+  return;
+}
+
+</script>
+
+<style type="text/css">
+
+.map-box {
+   position: absolute;
+   margin-left: 0px;
+   margin-top: 50px;
+   width: 630px;
+   height: 380px;
+   background-color: gray;
+}
+
+.map-info {
+   position: absolute;
+   overflow: auto;
+   margin-left: 640px;
+   margin-top: 50px;
+   color: white;
+   background-color: gray;
+   width: 200px;
+   height: 380px;
+   font-family: courier;
+   font-size: 12pt;
+   color: black;
+}
+
+
+</style>
+
+</head>
+
+<body onload="setupMap()" onunload="GUnload()">
+
+<div style="position:relative;background:#FFFFFF;width:660px;height:580px;padding:20px;margin-top:0">
+
+   <div id="map" class="map-box">
+   </div>
+
+   <div id="info" class="map-info">
+   </div>
+
+</div>
+</body>
+
+</html>
