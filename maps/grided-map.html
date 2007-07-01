@@ -9,7 +9,8 @@
 var map = null;
 
 function setupMap() {
-  map = new GMap2(document.getElementById("map"));
+  map = new GMap2(document.getElementById("map"), 
+    {draggableCursor: 'crosshair'});
   map.addControl(new GLargeMapControl());
   map.addControl(new GScaleControl());
 
@@ -20,7 +21,8 @@ function setupMap() {
                    ];
 
   gridlayer.getTileUrl = function(a,b){
-    return "map/"+b+"/"+a.x+"_"+a.y+".png";
+    var prefix_el = document.getElementById('prefix');
+    return prefix_el.value+"/"+b+"/"+a.x+"_"+a.y+".png";
   }
 
   gridlayer.isPng = function() {return 1;}
@@ -37,7 +39,13 @@ function setupMap() {
   GEvent.addListener(map, "click", 
 		   function(marker, point) {
 		     var info_div = document.getElementById('info');
-
+                     var prefix_el = document.getElementById('prefix');
+                     el = document.createElement('p');
+                     el.appendChild(document.createTextNode(
+                        prefix_el.value +
+                        point.lat().toFixed(4) + "N " + 
+                        point.lng().toFixed(4) + "E"));
+                     info_div.appendChild(el);
                      return;
 		   }
   );
@@ -77,6 +85,10 @@ function setupMap() {
 </head>
 
 <body onload="setupMap()" onunload="GUnload()">
+
+<div>
+<input id="prefix" value="map" />
+</div>
 
 <div style="position:relative;background:#FFFFFF;width:660px;height:580px;padding:20px;margin-top:0">
 
