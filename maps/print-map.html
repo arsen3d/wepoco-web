@@ -3,6 +3,7 @@
    <head>
 <title>Wepoco: map printing (test)</title>
 <script src="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAF5oUqxaWkq3HzHxEjwFoMhSqLCR4vqZD7ui-J2nkp63kVD9LDRS75VKmRTRVCob68yw1NBkMXZHKsg" type="text/javascript"></script>
+
 <script type="text/javascript" language="javascript">
 
 var map = null;
@@ -91,17 +92,6 @@ function setupMap() {
 </script>
 
 <style type="text/css">
-.calendar-left {
-   visibility: hidden;
-   z-index: 2; /* high value as popup calendar will overlap map div */
-   position: absolute;
-   left: 6px;
-   top: 10px;
-   width: 650px;
-   height: 60px;
-   background-color: #FFFFFF;
-   cursor: pointer;
-}
 
 .map-box {
    position: absolute;
@@ -133,9 +123,7 @@ function setupMap() {
 
 <body onload="setupMap()" onunload="GUnload()">
 
-   <div id="menu" class="map-menu">
-   <input value="print" type="button" onclick="print_func()" />
-   </div>
+<div style="position:relative;background:#FFFFFF;width:660px;height:580px;padding:20px;margin-top:0">
 
    <div id="dateselect" class="calendar-left" style="margin:0" >
     <form style="height:100%; padding: 0;" >
@@ -157,12 +145,17 @@ function setupMap() {
     </form>
    </div>
 
+   <div id="menu" class="map-menu">
+   <input value="print" type="button" onclick="print_func()" />
+   </div>
+
    <div id="map" class="map-box">
    </div>
 
    <div id="info" class="map-info">
    </div>
 
+</div>
 </body>
 
 </html>
