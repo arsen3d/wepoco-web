@@ -1,8 +1,11 @@
 package com.wepoco.apps.uploader;
-/* A simple application using JetS3t to upload an image file to
- * the Amazon AWS S3 service.
- * Hardwired to upload image/png type files to the wepoco bucket,
- * but easily modified.
+/* A simple application using JetS3t to upload a single file
+ * or entire directory tree to an Amazon AWS S3 bucket.
+ * If the destination path begins with / the first element
+ * of the path is used as the bucket name.  Otherwise bucket
+ * name must be set as an environment variable.
+ *
+ * Author: Michael Saunby. For Wepoco.
  */
 
 import java.io.File;
@@ -42,10 +45,24 @@ public class Upload {
 
 	    public static void main( String[] args ) throws Exception {
 	    	// If you have an account find keys here http://aws.amazon.com/
-	    	String bucketName = System.getenv("AWS_BUCKET");
-	    	if( bucketName == null ){
-	    	  bucketName = "wepoco";
-	    	}
+	        String src_name = args[0];
+	        String dst_name = args[1];
+	        if( src_name.endsWith("/") ){
+	        	src_name = src_name.substring(0,src_name.length()-1);
+	        }
+	        if( dst_name.endsWith("/") ){
+	        	dst_name = dst_name.substring(0,dst_name.length()-1);
+	        }
+	        String bucketName = null;
+	        // If dst_name begins with '/' it is the bucket name.
+	        if(dst_name.startsWith("/")){
+	        	int end = dst_name.indexOf('/',1);
+	        	bucketName = dst_name.substring(1,end);
+	        	System.out.println("bucket " + bucketName);
+	        	dst_name = dst_name.substring(end+1);
+	        }else{
+	        	bucketName = System.getenv("AWS_BUCKET");
+	        }
 	    	String awsAccessKey = System.getenv("AWS_ACCESS_KEY");
 	    	if( awsAccessKey == null ){
 	    		System.err.println("Please set env variables AWS_BUCKET, AWS_ACCESS_KEY and AWS_SECRET_KEY.");
@@ -67,11 +84,12 @@ public class Upload {
 	        AccessControlList publicAcl = s3Service.getBucketAcl( wBucket );
 	        publicAcl.grantPermission( GroupGrantee.ALL_USERS, Permission.PERMISSION_READ );
 	        //System.out.println( "uploading " + args[0] + " as " + args[1] + " ..." );
-	        File fileData = new File( args[0] );
+
+	        File fileData = new File( src_name );
 	        if( fileData.isDirectory() ){
-	        	uploadDirectory( s3Service, wBucket, publicAcl, fileData, args[1] );
+	        	uploadDirectory( s3Service, wBucket, publicAcl, fileData, dst_name );
 	        }else{
-	        	uploadFile( s3Service, wBucket, publicAcl, fileData, args[1] );
+	        	uploadFile( s3Service, wBucket, publicAcl, fileData, dst_name );
 	        }
 	    }
 }
