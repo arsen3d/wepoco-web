@@ -1,0 +1,13 @@
+#summary One-sentence summary of this page.
+
+= Prerequisites =
+
+Software that you'll need to install in order to build and/or several of the Wepoco
+packages.
+
+  * grib_api from ECMWF
+
+  * proj4 from RemoteSensing.org
+
+  * PIL (and Python, though all Linux systems seem to have it by default these days).
+
