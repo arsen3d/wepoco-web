@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Layers xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+  <Layer>
+    <name>Precis UK</name>
+    <gmap>precis_uk</gmap>
+    <geo:lon>-2.0</geo:lon>
+    <geo:lat>54.0</geo:lat>
+    <zoom>5</zoom>
+  </Layer>
+  <Layer>
+    <name>Map</name>
+    <gmap>map</gmap>
+    <geo:lon>5.0</geo:lon>
+    <geo:lat>5.0</geo:lat>
+    <zoom>2</zoom>
+  </Layer>
+  <Layer>
+    <name>MPE</name>
+    <gmap>http://wepoco.s3.amazonaws.com/mpe/MPE_20070720_M7_57</gmap>
+    <geo:lon>57.0</geo:lon>
+    <geo:lat>10.0</geo:lat>
+    <zoom>3</zoom>
+  </Layer>
+</Layers>
