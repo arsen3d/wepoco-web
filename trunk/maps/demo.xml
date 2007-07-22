@@ -8,17 +8,10 @@
     <zoom>5</zoom>
   </Layer>
   <Layer>
-    <name>Map</name>
-    <gmap>map</gmap>
-    <geo:lon>5.0</geo:lon>
-    <geo:lat>5.0</geo:lat>
-    <zoom>2</zoom>
-  </Layer>
-  <Layer>
-    <name>MPE</name>
+    <name>MPE 57</name>
     <gmap>http://wepoco.s3.amazonaws.com/mpe/MPE_20070720_M7_57</gmap>
-    <geo:lon>57.0</geo:lon>
-    <geo:lat>10.0</geo:lat>
+    <geo:lon>83.0</geo:lon>
+    <geo:lat>28.0</geo:lat>
     <zoom>3</zoom>
   </Layer>
 </Layers>
