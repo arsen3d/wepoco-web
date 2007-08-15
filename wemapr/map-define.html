@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+       "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>WeMapr-editor</title>
+<link rel="stylesheet" type="text/css" href="wemapr.css" />
+<style type="text/css">
+
+#settings{
+  z-index:2;
+  position:absolute;
+  left:0px;
+  top:0px;
+  background-color:yellow;
+  border:1px solid black;
+  padding:10px;
+}
+
+#chart{
+  cursor:crosshair;
+}
+
+#selection{
+  cursor:crosshair;
+  z-index:1;left:0px;top:0px;width:0px;height:0px;
+  border:1px dashed black;
+  position:absolute;
+  background-color:white;
+  opacity:0.2; /* Firefox */
+  filter:alpha(opacity=20); /* IE */ 
+}
+</style>
+
+<script src="ajax.js" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+
+var topleft = true;
+var savedX, savedY, savedW, savedH;
+var tabbed = new Array( "chart", "settings" );
+var xOffset;
+var yOffset;
+var chartLeft=0, chartTop=20;
+var tlxInp, tlyInp, brxInp, bryInp;
+var chartID="example";
+var chartLink="nolink";
+var chartCopyright="cocpyr";
+var WemaprService="http://saunby.net/marvin/wemapr";
+
+function setup() {
+   var m=document.getElementById("main");
+   m.style.top = "20px";
+   var settings=document.getElementById("settings");
+   settings.style.top = yOffset + "px";
+   tlxInp=document.getElementById("tlx");
+   tlyInp=document.getElementById("tly");
+   brxInp=document.getElementById("brx");
+   bryInp=document.getElementById("bry");
+   tabSelect("chart");
+   loadChart();
+}
+
+function loadChart() {
+   var c=document.getElementById("chart");
+   var s=document.getElementById("chartsrc");
+   c.src=s.value;
+   src=s.value;
+}
+
+function _tabClear() {
+    var panel,tab;
+    for(i in tabbed){
+      panel=document.getElementById(tabbed[i]);
+      panel.style.zIndex = -2;
+      tab=document.getElementById(tabbed[i]+"-tab");
+      tab.style.backgroundColor="#ffffaa";
+      tab.style.borderBottom="1px solid black";
+    }
+}
+
+function tabSelect(name) {
+   _tabClear();
+   document.getElementById(name).style.zIndex=2;
+   var mytab=document.getElementById(name+"-tab");
+   mytab.style.backgroundColor="#ffff00";
+   mytab.style.borderBottom="1px solid #ffff00";
+}
+
+function tabClick(name) {
+  var mypanel=document.getElementById(name);
+
+  if(mypanel.style.zIndex < 0){
+    _tabClear();
+    mypanel.style.zIndex = 2;
+    var mytab=document.getElementById(name+"-tab");
+    mytab.style.backgroundColor="#ffff00";
+    mytab.style.borderBottom="1px solid #ffff00";
+  }
+}
+
+function msg(text) {
+  document.getElementById('msg').innerHTML=text;
+}
+
+function set_corner(event) {
+  if(topleft){
+    savedX=event.clientX-xOffset;
+    savedY=event.clientY-yOffset;
+    tlxInp.value=savedX;
+    tlyInp.value=savedY;
+    brxInp.value=savedX;
+    bryInp.value=savedY;
+    topleft=false;
+  }else{
+    savedW=(event.clientX-xOffset)-savedX;
+    savedH=(event.clientY-yOffset)-savedY;
+    brxInp.value=event.clientX-xOffset;
+    bryInp.value=event.clientY-yOffset;
+    topleft=true;
+    tabSelect("settings");
+  }
+}
+
+function getTopOffset(a){
+  var top=0;
+  while(a){
+    top+=a.offsetTop;
+    a=a.offsetParent;
+  }
+  return top;
+}
+
+function getLeftOffset(a){
+  var left=0;
+  while(a){
+    left+=a.offsetLeft;
+    a=a.offsetParent;
+  }
+  return left;
+}
+
+
+function followMouse(event) {
+  xOffset=chartLeft-document.documentElement.scrollLeft;
+  yOffset=chartTop-document.documentElement.scrollTop;
+
+  var x=event.clientX-xOffset;
+  var y=event.clientY-yOffset;
+  var sel=document.getElementById("selection");
+  var gA=document.getElementById("guidea");
+  var gB=document.getElementById("guideb");
+
+  gA.style.width = x + "px";
+  gA.style.height = y + "px";
+  gB.style.left = x + "px";
+  gB.style.top = y + "px";
+
+  if(!topleft){
+    brxInp.value=x;
+    bryInp.value=y;
+    sel.style.left = savedX + "px";
+    sel.style.top = savedY + "px";
+    sel.style.width = (x - savedX) + "px";
+    sel.style.height = (y - savedY) + "px";
+  }
+}
+
+function callReprojService() {
+  var tlX = document.getElementById("tlx").value;
+  var tlY = document.getElementById("tly").value;
+  var tlN = document.getElementById("tln").value;  
+  var tlE = document.getElementById("tle").value;
+  var brX = document.getElementById("brx").value;  
+  var brY = document.getElementById("bry").value;
+  var brN = document.getElementById("brn").value;  
+  var brE = document.getElementById("bre").value;
+  var projName = document.getElementById("proj").value;
+  var src =document.getElementById("chartsrc").value;
+  
+  var params = new ParamArray();
+  params.pushNameValue("src",src);
+  params.pushNameValue("chart",chartID);
+  params.pushNameValue("cpyr",chartCopyright);
+  params.pushNameValue("link",chartLink);
+  params.pushNameValue("tlx",tlX);
+  params.pushNameValue("tly",tlY);
+  params.pushNameValue("tln",tlN);
+  params.pushNameValue("tle",tlE);
+  params.pushNameValue("brx",brX);
+  params.pushNameValue("bry",brY);
+  params.pushNameValue("brn",brN);
+  params.pushNameValue("bre",brE);
+  params.pushNameValue("proj",projName);
+
+  var reqURL = WemaprService + params.popURI();
+  window.open(reqURL);
+  //alert(query);
+}
+
+function exportSettings() {
+  var tlX = document.getElementById("tlx").value;
+  var tlY = document.getElementById("tly").value;
+  var tlN = document.getElementById("tln").value;  
+  var tlE = document.getElementById("tle").value;
+  var brX = document.getElementById("brx").value;  
+  var brY = document.getElementById("bry").value;
+  var brN = document.getElementById("brn").value;  
+  var brE = document.getElementById("bre").value;
+  var projName = document.getElementById("proj").value;
+  var src = document.getElementById("chartsrc").value;
+
+  var text = "<chart>\n"+
+    "  <projection>"+projName+"</projection>\n"+
+    "  <src>"+src+"</src>\n"+
+    "  <point>\n"+ 
+    "    <x>"+tlX+"</x><y>"+tlY+"</y><lat>"+tlN+"</lat><lon>"+tlE+"</lon>\n"+
+    "  </point>\n"+
+    "  <point>\n"+
+    "    <x>"+brX+"</x><y>"+brY+"</y><lat>"+brN+"</lat><lon>"+brE+"</lon>\n"+
+    "  </point>\n"+
+    "</chart>";
+   var expwin=window.open("mapclip.xml","","");
+   try{
+     // Firefox. Maybe others.
+     var parser=new DOMParser();
+     var newdoc=parser.parseFromString(text,"text/xml");
+   }catch(err){
+     // IE
+     var newdoc=new ActiveXObject("Microsoft.XMLDOM");
+     newdoc.async="false";
+     newdoc.loadXML(text);
+   }
+   var cl = newdoc.documentElement;
+   expwin.document.documentElement.appendChild(cl);
+}
+//]]>
+</script>
+
+</head>
+
+<body onload="setup()">
+
+<div id="buttonbar"  >
+<div class="line" ></div>
+
+<div id="chart-tab" onclick="tabClick('chart')" class="tab">&nbsp;chart&nbsp;</div>
+<div id="settings-tab" onclick="tabClick('settings')" class="tab">&nbsp;settings&nbsp;</div>
+</div>
+
+<div id="main" style="z-index:1;position:absolute;left:0px;top:0px">
+  <img id="chart" style="z-index:2" 
+    onmousemove="followMouse(event)" onclick="set_corner(event)"/>
+  <div id="guidea" class="guide" onmousemove="followMouse(event)" 
+    onclick="set_corner(event)" >
+  </div>
+  <div id="guideb" class="guide" 
+    onmousemove="followMouse(event)" onclick="set_corner(event)" >
+  </div>
+  <div id="selection" onmousemove="followMouse(event)" 
+    onclick="set_corner(event)" >
+  </div>
+</div><!-- main -->
+
+<div id="settings" style="z-index:-2">
+    <form>
+    <input id="proj" type="hidden" value="eqc"/>
+    <table style="border:1px solid black;padding:5px">
+    <tbody>
+      <tr><td colspan="2">NW</td></tr>
+      <tr>
+        <td colspan="2"><input id="tlx"/></div></td><td>x</td>
+        <td><input id="tly"/></div></td><td>y</td>
+      </tr>
+      <tr>
+        <td colspan="2"><input id="tle" value="-180.0"/></td><td>&deg;E</td>
+        <td ><input id="tln" value="90.0"/></td><td>&deg;N</td>
+      </tr>
+      <tr><td colspan="2">SE</td></tr>
+      <tr>
+        <td colspan="2"><input id="brx"/></div></td><td>x</td>
+        <td><input id="bry"/></div></td><td>y</td>
+      </tr>
+      <tr>
+        <td colspan="2"><input id="bre" value="180.0"/></td><td>&deg;E</td>
+        <td><input id="brn" value="-90.0"/></td><td>&deg;N</td>
+      </tr>
+      <tr>
+        <td>image</td><td colspan="3"><input type="file" id="chartsrc" name="chartsrc" value=""/></td>
+        <td><input type="button" value="load" onclick="loadChart()"/></td>
+      </tr>
+    <tr>
+      <td>title</td><td colspan="2"><input id="title" value=""/></td>
+    </tr>
+    <tr>
+      <td>link</td><td  colspan="2"><input id="link" value=""/></td>
+    </tr>
+    <tr>
+      <td>copyright</td><td colspan="2"><input id="copyright" value=""/></td>
+    </tr>
+    <tr>
+      <td><input type="button" value="export" onclick="exportSettings()"/></td>
+      <td><input type="button" value="submit" onclick="callReprojService()"/></td>
+    </tr>
+    </tbody></table>
+    </form>
+    <p id="msg">...</p>
+</div> <!-- settings -->
+
+</body>
+</html>
+
