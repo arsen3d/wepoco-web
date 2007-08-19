@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+       "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>WeMapr-compose</title>
+<link rel="stylesheet" type="text/css" href="wemapr.css" />
+<style type="text/css">
+
+
+#settings{
+  z-index:2;
+  position:absolute;
+  left:0px;
+  top:0px;
+  background-color:yellow;
+  border:1px solid black;
+  padding:10px;
+}
+
+</style>
+
+<script src="ajax.js" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+
+var WemaprService="http://saunby.net/marvin/wemapr";
+
+function _tabClear() {
+    var panel,tab;
+    for(i in tabbed){
+      panel=document.getElementById(tabbed[i]);
+      panel.style.zIndex = -2;
+      tab=document.getElementById(tabbed[i]+"-tab");
+      tab.style.backgroundColor="#ffffaa";
+      tab.style.borderBottom="1px solid black";
+    }
+}
+
+function tabSelect(name) {
+   _tabClear();
+   document.getElementById(name).style.zIndex=2;
+   var mytab=document.getElementById(name+"-tab");
+   mytab.style.backgroundColor="#ffff00";
+   mytab.style.borderBottom="1px solid #ffff00";
+}
+
+function tabClick(name) {
+  var mypanel=document.getElementById(name);
+
+  if(mypanel.style.zIndex < 0){
+    _tabClear();
+    mypanel.style.zIndex = 2;
+    var mytab=document.getElementById(name+"-tab");
+    mytab.style.backgroundColor="#ffff00";
+    mytab.style.borderBottom="1px solid #ffff00";
+  }
+}
+
+function setup() {
+   //var m=document.getElementById("main");
+   //m.style.top = "20px";
+   //var settings=document.getElementById("settings");
+   //settings.style.top = yOffset + "px";
+}
+
+function newRow(items) {
+  var row=document.createElement("tr");
+  //row.style.backgroundColor="white";
+  for(i in items){
+    var newcell=document.createElement("td");
+    newcell.innerHTML=items[i];
+    row.appendChild(newcell);
+  }
+  return row;
+}
+
+function delrow(o) {
+  var row = o.parentNode.parentNode;
+  var tbl = row.parentNode;
+  tbl.removeChild(row);
+}
+
+function addOverlayRow() {
+  // get the values
+  var fetype=document.getElementById("fetype").value;
+  var fename=document.getElementById("fename").value;
+  var feurl=document.getElementById("feurl").value;
+  var feicon=document.getElementById("feicon").value;
+  // add new row
+  var feedsTable=document.getElementById("feeds");
+  var row=newRow([fetype,fename,feurl,feicon,
+  '<img src="http://maps.google.com/mapfiles/ms/micons/'+feicon+'.png"/>',
+  '<input type="button" value="delete" onclick="delrow(this)"/>']);
+  row.class="feedrow";
+  feedsTable.appendChild(row);
+}
+
+function parseTable() {
+  var feedsTable=document.getElementById("feeds");
+  var row=feedsTable.firstChild;
+  var data=new Array();
+  while(row){
+    if(row.nodeType == 1){
+     // it's an element, not text
+     if(row.class=="feedrow"){
+       entry=new Array();
+       var col=row.firstChild;
+       while(col){
+         if(col.nodeType == 1){
+           entry.push(col.innerHTML);
+         }
+         col=col.nextSibling;
+       }
+       data.push(entry);
+      }
+    }
+    row=row.nextSibling;
+  }
+  return data;
+}
+
+function processTable(){
+  var data = parseTable();
+  entryTxt="<feedlist>\n";
+  for(d in data){
+    entry=data[d];
+    fetype=entry[0];
+    fename=entry[1];
+    feurl=entry[2];
+    feicon=entry[3]+".png";
+    entryTxt+="<feed>\n";
+    entryTxt+="<name>"+fename+"</name>\n";
+    entryTxt+="<type>"+fetype+"</type>\n";
+    entryTxt+="<url>"+feurl+"</url>\n";
+    entryTxt+="<icon>"+feicon+"</icon>\n";
+    entryTxt+="</feed>\n";
+  }
+  entryTxt+="</feedlist>\n";
+  alert(entryTxt);
+}
+
+//]]>
+</script>
+
+</head>
+
+<body onload="setup()">
+<body onload="setup()">
+
+<div id="buttonbar"  >
+<div class="line" ></div>
+
+<div id="chart-tab" onclick="tabClick('chart')" class="tab">&nbsp;chart&nbsp;</div>
+<div id="settings-tab" onclick="tabClick('settings')" class="tab">&nbsp;settings&nbsp;</div>
+</div>
+
+<div id="settings" style="z-index:2;top:20px;">
+    <form>
+    <table style="border:1px solid black;padding:5px">
+    <tbody id="feeds">
+      <tr><td>type</td><td>name</td><td>URL</td><td colspan="2">icon</td><td>action</td></tr>
+      <tr>
+      <td><select id="fetype"><option value="kml">kml</option>
+      <option value="georss">georss</option><option value="rss">rss</option>
+      </select>
+      </td>
+      <td><input type="text" id="fename"></td>
+      <td><input type="text" id="feurl"></td>
+      <td colspan="2">
+      <select id="feicon" 
+        onchange="this.style.backgroundColor=this.value">
+      <option style="background-color:red" value="red">red</option>
+      <option style="background-color:orange" value="orange">orange</option>
+      <option style="background-color:yellow" value="yellow">yellow</option>
+      <option style="background-color:green" value="green">green</option>
+      <option style="background-color:blue" value="blue">blue</option>
+      <option style="background-color:purple" value="purple">purple</option>
+      </select>
+      </td>
+      <td><input type="button" value="add" onclick="addOverlayRow()"></td>
+      </tr>
+    </tbody>
+    </table>
+    <img src="http://maps.google.com/mapfiles/ms/micons/blue.png"/>
+    <input type="button" value="submit" onclick="processTable()"/>
+    </form>
+</div> <!-- settings -->
+
+</body>
+</html>

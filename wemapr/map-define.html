@@ -98,9 +98,9 @@ function tabClick(name) {
   }
 }
 
-function msg(text) {
-  document.getElementById('msg').innerHTML=text;
-}
+//function msg(text) {
+//  document.getElementById('msg').innerHTML=text;
+//}
 
 function set_corner(event) {
   if(topleft){
@@ -247,7 +247,7 @@ function exportSettings() {
 <div id="settings-tab" onclick="tabClick('settings')" class="tab">&nbsp;settings&nbsp;</div>
 </div>
 
-<div id="main" style="z-index:1;position:absolute;left:0px;top:0px">
+<div id="main" style="z-index:1;position:absolute;left:0px;top:0px;width:100%;height:50%;background-color:yellow" onmousemove="followMouse(event)" onclick="set_corner(event)"/>
   <img id="chart" style="z-index:2" 
     onmousemove="followMouse(event)" onclick="set_corner(event)"/>
   <div id="guidea" class="guide" onmousemove="followMouse(event)" 
@@ -268,21 +268,21 @@ function exportSettings() {
     <tbody>
       <tr><td colspan="2">NW</td></tr>
       <tr>
-        <td colspan="2"><input id="tlx"/></div></td><td>x</td>
-        <td><input id="tly"/></div></td><td>y</td>
+        <td colspan="2"><input id="tlx"/>x</td>
+        <td><input id="tly"/>y</td>
       </tr>
       <tr>
-        <td colspan="2"><input id="tle" value="-180.0"/></td><td>&deg;E</td>
-        <td ><input id="tln" value="90.0"/></td><td>&deg;N</td>
+        <td colspan="2"><input id="tle" value="-180.0"/>&deg;E</td>
+        <td ><input id="tln" value="90.0"/>&deg;N</td>
       </tr>
       <tr><td colspan="2">SE</td></tr>
       <tr>
-        <td colspan="2"><input id="brx"/></div></td><td>x</td>
-        <td><input id="bry"/></div></td><td>y</td>
+        <td colspan="2"><input id="brx"/>x</td>
+        <td><input id="bry"/>y</td>
       </tr>
       <tr>
-        <td colspan="2"><input id="bre" value="180.0"/></td><td>&deg;E</td>
-        <td><input id="brn" value="-90.0"/></td><td>&deg;N</td>
+        <td colspan="2"><input id="bre" value="180.0"/>&deg;E</td>
+        <td><input id="brn" value="-90.0"/>&deg;N</td>
       </tr>
       <tr>
         <td>image</td><td colspan="3"><input type="file" id="chartsrc" name="chartsrc" value=""/></td>
@@ -303,7 +303,6 @@ function exportSettings() {
     </tr>
     </tbody></table>
     </form>
-    <p id="msg">...</p>
 </div> <!-- settings -->
 
 </body>
