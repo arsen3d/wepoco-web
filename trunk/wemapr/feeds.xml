@@ -1,0 +1,10 @@
+<feedlist>
+  <feed>
+    <name>Ethiopia rain (wepoco)</name><type>kml</type><url>http://www.wepoco.com/maps/ethiopia.php</url><icon>red.png</icon>
+  </feed>
+ <feed>
+    <name>my maps</name><type>kml</type>
+<icon>red.png</icon>
+<url><![CDATA[http://maps.google.com/maps/ms?f=q&hl=en&ie=UTF8&msa=0&output=nl&msid=111160211049735091825.00000111c625f8a5e217b]]></url>
+ </feed>
+</feedlist>

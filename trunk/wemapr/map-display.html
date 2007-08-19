@@ -23,7 +23,7 @@ function add_choice( choices, index, name, map_url, centre, zoom ) {
   info_div.appendChild(el);
   info_div.appendChild(document.createTextNode( name ));
   info_div.appendChild(document.createElement('br'));
-  choices.push( new choiceObj(name, map_url, centre, zoom));
+  choices.push( new choiceObj(name, map_url, centre, zoom, feeds));
 }
 
 
@@ -53,13 +53,32 @@ function setmap( index ) {
     map_set = 0
   }
 
+  if( mapChoice[index].feeds ){
+    // there are feeds associated with this map
+    loadFeeds( mapChoice[index].feeds );
+  }
+
 }
 
-function choiceObj(name, gmap, centre, zoom){
+function choiceObj(name, gmap, centre, zoom, feeds){
     this.name = name;
     this.gmap = gmap;
     this.centre = centre;
     this.zoom = zoom;
+    this.feeds = feeds;
+}
+
+function loadFeeds( feedsList ){
+  GDownloadUrl(feedsList, function(data, responseCode) {
+     xml=GXml.parse(data);
+     feeds = xml.documentElement.getElementsByTagName("feed");
+     for(i in feeds){
+      name=feeds[i].getElementsByTagName("name")[0].childNodes[0].data;
+      type=feeds[i].getElementsByTagName("type")[0].childNodes[0].data;
+      url=feeds[i].getElementsByTagName("url")[0].childNodes[0].data;
+      map.addOverlay(new GGeoXml(url));
+     }
+  });
 }
 
 function loadxml() {
@@ -69,13 +88,13 @@ function loadxml() {
     mapChoice = new Array();
     xml = GXml.parse(data);
     layers = xml.documentElement.getElementsByTagName("Layer");
-    for (var i = 0; i < layers.length; i++) {
+    for(i in layers){
       var centre, zoom;
-      name = layers[i].getElementsByTagName("name")[0].childNodes[0].data;
-      gmap = layers[i].getElementsByTagName("gmap")[0].childNodes[0].data;
+      name=layers[i].getElementsByTagName("name")[0].childNodes[0].data;
+      gmap=layers[i].getElementsByTagName("gmap")[0].childNodes[0].data;
       try{
-      lon = layers[i].getElementsByTagName("lon")[0].childNodes[0].data;
-      lat = layers[i].getElementsByTagName("lat")[0].childNodes[0].data;
+      lon=layers[i].getElementsByTagName("lon")[0].childNodes[0].data;
+      lat=layers[i].getElementsByTagName("lat")[0].childNodes[0].data;
       centre = new GLatLng(parseFloat(lat),parseFloat(lon));
       }catch(err){
          alert(err.description);
@@ -86,7 +105,12 @@ function loadxml() {
       }catch(err){
          zoom=2
       }
-      add_choice( mapChoice, i, name, gmap, centre, zoom );
+      try{
+      feeds =  layers[i].getElementsByTagName("feeds")[0].childNodes[0].data;
+      }catch(err){
+         feeds=null;
+      }
+      add_choice( mapChoice, i, name, gmap, centre, zoom, feeds );
     }    
  });
 
