@@ -24,6 +24,7 @@
 //<![CDATA[
 
 var WemaprService="http://saunby.net/marvin/wemapr";
+var tabbed=["chart","settings"];
 
 function _tabClear() {
     var panel,tab;
@@ -57,10 +58,8 @@ function tabClick(name) {
 }
 
 function setup() {
-   //var m=document.getElementById("main");
-   //m.style.top = "20px";
-   //var settings=document.getElementById("settings");
-   //settings.style.top = yOffset + "px";
+   var sel=document.getElementById("feicon");
+   sel.style.backgroundColor=sel.value;
 }
 
 function newRow(items) {
@@ -128,15 +127,16 @@ function processTable(){
     fename=entry[1];
     feurl=entry[2];
     feicon=entry[3]+".png";
-    entryTxt+="<feed>\n";
-    entryTxt+="<name>"+fename+"</name>\n";
-    entryTxt+="<type>"+fetype+"</type>\n";
-    entryTxt+="<url>"+feurl+"</url>\n";
+    entryTxt+="  <feed>\n";
+    entryTxt+="    <name><![CDATA["+fename+"]]></name>";
+    entryTxt+="<type>"+fetype+"</type>";
+    entryTxt+="<url><![CDATA["+feurl+"]]></url>";
     entryTxt+="<icon>"+feicon+"</icon>\n";
-    entryTxt+="</feed>\n";
+    entryTxt+="  </feed>\n";
   }
   entryTxt+="</feedlist>\n";
-  alert(entryTxt);
+  var textbox=document.getElementById("textbox");
+  textbox.innerHTML=entryTxt;
 }
 
 //]]>
@@ -167,8 +167,7 @@ function processTable(){
       <td><input type="text" id="fename"></td>
       <td><input type="text" id="feurl"></td>
       <td colspan="2">
-      <select id="feicon" 
-        onchange="this.style.backgroundColor=this.value">
+      <select id="feicon" onchange="this.style.backgroundColor=this.value">
       <option style="background-color:red" value="red">red</option>
       <option style="background-color:orange" value="orange">orange</option>
       <option style="background-color:yellow" value="yellow">yellow</option>
@@ -181,10 +180,11 @@ function processTable(){
       </tr>
     </tbody>
     </table>
-    <img src="http://maps.google.com/mapfiles/ms/micons/blue.png"/>
     <input type="button" value="submit" onclick="processTable()"/>
     </form>
 </div> <!-- settings -->
-
+<div id="chart" style="background-color:yellow;position:absolute;z-index:-2;top:20px;left:0px;width:100%;height:80%">
+<textarea id="textbox" rows="20" cols="80">hello world</textarea>
+</div>
 </body>
 </html>

@@ -1,0 +1,13 @@
+<Layers xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+  <Layer>
+    <name>number_flooded</name>
+    <src>number_flooded.png</src>
+    <link>http://www.metoffice.gov.uk</link>
+    <copyright>Met Office</copyright>
+    <gmap>http://wemapr.s3.amazonaws.com/public/nobody/number_flooded</gmap>
+    <feeds>feeds.xml</feeds>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>2</zoom>
+  </Layer>
+</Layers>
