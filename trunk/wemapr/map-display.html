@@ -149,14 +149,19 @@ function setupMap() {
                    ];
 
   gridlayer1.getTileUrl = function(a,b){
-    var base_el = document.getElementById('base');
-    var prefix_el = document.getElementById('prefix1');
-    return base_el.value+prefix_el.value+"/"+b+"/"+a.x+"_"+a.y+".png";
+    var prefix = encodeURI(document.getElementById('prefix1').value);
+    if(b>2){
+      return "http://www.wepoco.com/cgi/wemaprzoom?ref=2&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+    }
+    return prefix+"/"+b+"/"+a.x+"_"+a.y+".png";
   }
+
   gridlayer0.getTileUrl = function(a,b){
-    var base_el = document.getElementById('base');
-    var prefix_el = document.getElementById('prefix0');
-    return base_el.value+prefix_el.value+"/"+b+"/"+a.x+"_"+a.y+".png";
+    var prefix = encodeURI(document.getElementById('prefix0').value);
+    if(b>2){
+      return "http://www.wepoco.com/cgi/wemaprzoom?ref=2&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+    }
+    return prefix+"/"+b+"/"+a.x+"_"+a.y+".png";
   }
 
   gridlayer1.isPng = function() {return 1;}
