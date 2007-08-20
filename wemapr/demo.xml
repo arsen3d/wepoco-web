@@ -2,6 +2,7 @@
   <Layer>
     <name>number_flooded</name>
     <src>number_flooded.png</src>
+    <title>Number flooded</title>
     <link>http://www.metoffice.gov.uk</link>
     <copyright>Met Office</copyright>
     <gmap>http://wemapr.s3.amazonaws.com/public/nobody/number_flooded</gmap>

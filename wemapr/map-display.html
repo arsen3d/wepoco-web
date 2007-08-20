@@ -13,7 +13,7 @@ var custommap1;
 var custommap0;
 var mapChoice;  // an array of choice objects
 
-function add_choice( choices, index, name, map_url, centre, zoom ) {
+function add_choice( choices, index, name, title, map_url, centre, zoom, feeds ) {
   info_div = document.getElementById('map-menu');
   el = document.createElement('input');
   el.setAttribute("type","radio");
@@ -23,7 +23,7 @@ function add_choice( choices, index, name, map_url, centre, zoom ) {
   info_div.appendChild(el);
   info_div.appendChild(document.createTextNode( name ));
   info_div.appendChild(document.createElement('br'));
-  choices.push( new choiceObj(name, map_url, centre, zoom, feeds));
+  choices.push( new choiceObj(name, title, map_url, centre, zoom, feeds));
 }
 
 
@@ -32,6 +32,8 @@ function setmap( index ) {
   map_url = mapChoice[index].gmap;
   zoom = mapChoice[index].zoom;
   centre = mapChoice[index].centre;
+  title =  mapChoice[index].title;
+  document.getElementById('maptitle').innerHTML=title;
   info_div = document.getElementById('info');
   info_div.appendChild(document.createTextNode( 
     map_url + " zoom=" + zoom));
@@ -60,8 +62,9 @@ function setmap( index ) {
 
 }
 
-function choiceObj(name, gmap, centre, zoom, feeds){
+function choiceObj(name, title, gmap, centre, zoom, feeds){
     this.name = name;
+    this.title = title;
     this.gmap = gmap;
     this.centre = centre;
     this.zoom = zoom;
@@ -89,8 +92,13 @@ function loadxml() {
     xml = GXml.parse(data);
     layers = xml.documentElement.getElementsByTagName("Layer");
     for(i in layers){
-      var centre, zoom;
+      var name, title, centre, zoom, lon, lat, feeds;
       name=layers[i].getElementsByTagName("name")[0].childNodes[0].data;
+      try{
+      title=layers[i].getElementsByTagName("title")[0].childNodes[0].data;
+      }catch(err){
+       title=name;
+      }
       gmap=layers[i].getElementsByTagName("gmap")[0].childNodes[0].data;
       try{
       lon=layers[i].getElementsByTagName("lon")[0].childNodes[0].data;
@@ -110,7 +118,7 @@ function loadxml() {
       }catch(err){
          feeds=null;
       }
-      add_choice( mapChoice, i, name, gmap, centre, zoom, feeds );
+      add_choice( mapChoice, i, name, title, gmap, centre, zoom, feeds );
     }    
  });
 
@@ -127,25 +135,18 @@ function setupMap() {
 
   var gridlayer0 = new GTileLayer(new GCopyrightCollection(""),1,5);
   var gridlayer1 = new GTileLayer(new GCopyrightCollection(""),1,5);
-  var gridlayers0 = [
-                      G_HYBRID_MAP.getTileLayers()[0],
-                      gridlayer0,
-                      G_HYBRID_MAP.getTileLayers()[1]
-                   ];
-  var gridlayers1 = [
-                      G_HYBRID_MAP.getTileLayers()[0],
-                      gridlayer1,
-                      G_HYBRID_MAP.getTileLayers()[1]
-                   ];
+
+  var mapLayer = G_NORMAL_MAP.getTileLayers()[0];
+  mapLayer.getOpacity = function() {return 0.4;}
   var basiclayers0 = [
-                    G_NORMAL_MAP.getTileLayers()[0],
+                    mapLayer,
                     gridlayer0,
-                    G_HYBRID_MAP.getTileLayers()[1]
+                    mapLayer
                    ];
   var basiclayers1 = [
-                    G_NORMAL_MAP.getTileLayers()[0],
+                    mapLayer,
                     gridlayer1,
-                    G_HYBRID_MAP.getTileLayers()[1]
+                    mapLayer
                    ];
 
   gridlayer1.getTileUrl = function(a,b){
@@ -165,25 +166,21 @@ function setupMap() {
   }
 
   gridlayer1.isPng = function() {return 1;}
+  gridlayer1.getOpacity = function() {return 1.0;}
   gridlayer1.getCopyright = function(a,b) {
     return { prefix: "", copyrightTexts:[""]};
   }
   gridlayer0.isPng = function() {return 1;}
+  gridlayer0.getOpacity = function() {return 1.0;}
   gridlayer0.getCopyright = function(a,b) {
     return { prefix: "", copyrightTexts:[""]};
   }
-    
-  custommap0 = new GMapType(gridlayers0, G_SATELLITE_MAP.getProjection(), 
-    "WeMap", {errorMessage:"Error"});
-  custommap1 = new GMapType(gridlayers1, G_SATELLITE_MAP.getProjection(), 
-    "WeMap", {errorMessage:"Error"});
+  
   basicmap0 = new GMapType(basiclayers0, G_SATELLITE_MAP.getProjection(), 
     "WeMap", {errorMessage:"Error"});
-  basicmap1 = new GMapType(basiclayers1, G_SATELLITE_MAP.getProjection(), 
+  basicmap1 = new GMapType(basiclayers1, G_SATELLITE_MAP.getProjection(),
     "WeMap", {errorMessage:"Error"});
 
-  map.addMapType(custommap0);
-  map.addMapType(custommap1);
   map.addMapType(basicmap0);
   map.addMapType(basicmap1);
   map.setCenter(new GLatLng(10.0, 16.0), 3, basicmap0);
@@ -198,15 +195,12 @@ function setupMap() {
                      return;
 		   }
   );
-  //map.addOverlay(new GGeoXml("http://"));
   return;
 }
 </script>
 
 <!-- N.B. .class-style  #id-style -->
 <style type="text/css">
-
-
 
 #map-menu {
    position: absolute;
@@ -221,10 +215,10 @@ function setupMap() {
 #container{
    position: absolute;
    margin-left: 180px;
-   margin-top: 20px;
+   margin-top: 2px;
    width: 680px;
-   height: 400px;
-   background-color: pink;
+   height: 450px;
+   background-color: yellow;
 }
 
 
@@ -321,12 +315,13 @@ function tabClick(name) {
   <div id="tools-tab" onclick="tabClick('tools')" class="tab">&nbsp;tools&nbsp;</div>
 </div>
 
-<div style="position:absolute;background:yellow;width:100%;height:100%;left:0px;top:20px">
+<div style="position:absolute;background:yellow;width:100%;height:550px;left:0px;top:20px">
 
 
    <div id="map-menu"></div>
 
    <div id="container">
+      <h2 style="text-align:center" id="maptitle"></h2>
       <div id="map"></div>
    </div>
    <div id="settings" >
