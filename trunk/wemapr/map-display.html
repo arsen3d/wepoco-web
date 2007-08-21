@@ -132,6 +132,20 @@ function loadxml() {
 
 }
 
+var requestObj = (typeof(XMLHttpRequest) != "undefined") ? new XMLHttpRequest() : new ActiveXObject("Msxml2.XMLHTTP");
+
+
+function testUrl( url ){
+  requestObj.open("GET",url);
+  var rc=requestObj.status;
+  alert(rc + "==" + url); 
+}
+
+function testImg( url ){
+ var im = new Image;
+ im.src = url;
+} 
+
 function setupMap() {
 
   tabSelect("map");
@@ -162,6 +176,7 @@ function setupMap() {
     if(b>refzoom){
       return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
     }
+    testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
     return prefix+"/"+b+"/"+a.x+"_"+a.y+".png";
   }
 
@@ -170,6 +185,7 @@ function setupMap() {
     if(b>refzoom){
       return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
     }
+    testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
     return prefix+"/"+b+"/"+a.x+"_"+a.y+".png";
   }
 
