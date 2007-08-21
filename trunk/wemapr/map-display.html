@@ -13,7 +13,7 @@ var custommap1;
 var custommap0;
 var mapChoice;  // an array of choice objects
 
-function add_choice( choices, index, name, title, map_url, centre, zoom, feeds ) {
+function add_choice( choices, index, name, title, map_url, refzoom, centre, zoom, feeds ) {
   info_div = document.getElementById('map-menu');
   el = document.createElement('input');
   el.setAttribute("type","radio");
@@ -23,13 +23,14 @@ function add_choice( choices, index, name, title, map_url, centre, zoom, feeds )
   info_div.appendChild(el);
   info_div.appendChild(document.createTextNode( name ));
   info_div.appendChild(document.createElement('br'));
-  choices.push( new choiceObj(name, title, map_url, centre, zoom, feeds));
+  choices.push( new choiceObj(name, title, map_url, refzoom, centre, zoom, feeds));
 }
 
 
 
 function setmap( index ) {
   map_url = mapChoice[index].gmap;
+  refzoom = mapChoice[index].refzoom;
   zoom = mapChoice[index].zoom;
   centre = mapChoice[index].centre;
   title =  mapChoice[index].title;
@@ -62,10 +63,11 @@ function setmap( index ) {
 
 }
 
-function choiceObj(name, title, gmap, centre, zoom, feeds){
+function choiceObj(name, title, gmap, refzoom, centre, zoom, feeds){
     this.name = name;
     this.title = title;
     this.gmap = gmap;
+    this.refzoom = refzoom;
     this.centre = centre;
     this.zoom = zoom;
     this.feeds = feeds;
@@ -92,14 +94,20 @@ function loadxml() {
     xml = GXml.parse(data);
     layers = xml.documentElement.getElementsByTagName("Layer");
     for(i in layers){
-      var name, title, centre, zoom, lon, lat, feeds;
+      var name, title, centre, zoom, lon, lat, feeds, refzoom;
       name=layers[i].getElementsByTagName("name")[0].childNodes[0].data;
       try{
       title=layers[i].getElementsByTagName("title")[0].childNodes[0].data;
       }catch(err){
        title=name;
       }
-      gmap=layers[i].getElementsByTagName("gmap")[0].childNodes[0].data;
+      var gmapNode=layers[i].getElementsByTagName("gmap")[0];
+      gmap = gmapNode.childNodes[0].data;
+      try{
+      refzoom = gmapNode.attributes.getNamedItem("max").value;
+      }catch(err){
+       refzoom=20;  // i.e. no zoom magnify
+      }
       try{
       lon=layers[i].getElementsByTagName("lon")[0].childNodes[0].data;
       lat=layers[i].getElementsByTagName("lat")[0].childNodes[0].data;
@@ -118,7 +126,7 @@ function loadxml() {
       }catch(err){
          feeds=null;
       }
-      add_choice( mapChoice, i, name, title, gmap, centre, zoom, feeds );
+      add_choice( mapChoice, i, name, title, gmap, refzoom, centre, zoom, feeds );
     }    
  });
 
@@ -151,16 +159,16 @@ function setupMap() {
 
   gridlayer1.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix1').value);
-    if(b>2){
-      return "http://www.wepoco.com/cgi/wemaprzoom?ref=2&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+    if(b>refzoom){
+      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
     }
     return prefix+"/"+b+"/"+a.x+"_"+a.y+".png";
   }
 
   gridlayer0.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix0').value);
-    if(b>2){
-      return "http://www.wepoco.com/cgi/wemaprzoom?ref=2&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+    if(b>refzoom){
+      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
     }
     return prefix+"/"+b+"/"+a.x+"_"+a.y+".png";
   }
