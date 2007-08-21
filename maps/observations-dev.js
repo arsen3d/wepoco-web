@@ -283,13 +283,13 @@ function setupNDVI()
     var maxres = 10;
     // == Create the GMapType, copying most things from G_SATELLITE_MAP ==
     var bothmap = new GMapType(tilelayers, G_SATELLITE_MAP.getProjection(), "Sat weather",
-			       {maxResolution:maxres,minResolution:2,errorMessage:_mMapError});    
+			       {maxResolution:maxres,minResolution:2,errorMessage:"error"});    
     
     var rainmap = new GMapType(rainlayers, G_SATELLITE_MAP.getProjection(), "Sat weather",
-			       {maxResolution:maxres,minResolution:2,errorMessage:_mMapError});
+			       {maxResolution:maxres,minResolution:2,errorMessage:"error"});
     
     var ndvimap = new GMapType(ndvilayers, G_SATELLITE_MAP.getProjection(), "Sat weather",
-			       {maxResolution:maxres,minResolution:2,errorMessage:_mMapError});
+			       {maxResolution:maxres,minResolution:2,errorMessage:"error"});
     
     // == Add the maptype to the map ==
     map.addMapType(bothmap);
