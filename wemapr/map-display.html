@@ -132,22 +132,55 @@ function loadxml() {
 
 }
 
-var requestObj = (typeof(XMLHttpRequest) != "undefined") ? new XMLHttpRequest() : new ActiveXObject("Msxml2.XMLHTTP");
+var missingTiles = new Array;
+var emptyImage = new Image;
 
 
-function testUrl( url ){
-  requestObj.open("GET",url);
-  var rc=requestObj.status;
-  alert(rc + "==" + url); 
+function isMissingTile(url){
+  for(i in missingTiles){
+    if(missingTiles[i] == url){
+      return 1;
+    }
+  }
+  return 0;
+}
+
+// this callback invoked if image tile could not be loaded.
+function loadError(){
+  if(missingTiles.length > 200){
+   missingTiles=missingTiles.slice(0,100);
+  }
+  missingTiles.unshift(this.src);
 }
 
 function testImg( url ){
- var im = new Image;
- im.src = url;
+ if(isMissingTile(url)){
+  return emptyImage.src;
+ }else{
+   // Try to load the image.
+   // Failure won't be known until later, but future attempts to load will
+   // receive empty tile.
+   var im = new Image;
+   im.src = url;
+   im.onerror = loadError;
+   if(im.width != 0){
+     return url;
+   }
+   else{
+     var info_div = document.getElementById('info');
+     info_div.appendChild(document.createTextNode("missing:" + url));
+     info_div.appendChild(document.createElement('br'));
+     if(isMissingTile(url)){
+       return emptyImage.src;
+     }
+   }
+   return url;
+ }
 } 
 
 function setupMap() {
 
+  emptyImage.src = "empty.png";
   tabSelect("map");
 
   map = new GMap2(document.getElementById("map"), 
@@ -173,20 +206,24 @@ function setupMap() {
 
   gridlayer1.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix1').value);
-    if(b>refzoom){
-      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
-    }
-    testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
-    return prefix+"/"+b+"/"+a.x+"_"+a.y+".png";
+
+    return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
+
+    //if(b>refzoom){
+    //  return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+    //}
+
   }
 
   gridlayer0.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix0').value);
-    if(b>refzoom){
-      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
-    }
-    testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
-    return prefix+"/"+b+"/"+a.x+"_"+a.y+".png";
+
+    return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
+
+    //if(b>refzoom){
+    //  return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+    //}
+
   }
 
   gridlayer1.isPng = function() {return 1;}
@@ -347,6 +384,7 @@ function tabClick(name) {
    <div id="container">
       <h2 style="text-align:center" id="maptitle"></h2>
       <div id="map"></div>
+
    </div>
    <div id="settings" >
        <div>
