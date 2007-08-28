@@ -228,23 +228,25 @@ function setupMap() {
   gridlayer1.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix1').value);
 
+
+
+    if(b>refzoom){
+      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+    }
+
     return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
-
-    //if(b>refzoom){
-    //  return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
-    //}
-
   }
 
   gridlayer0.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix0').value);
 
+
+
+    if(b>refzoom){
+      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+    }
+
     return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
-
-    //if(b>refzoom){
-    //  return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
-    //}
-
   }
 
   gridlayer1.isPng = function() {return 1;}
