@@ -1,6 +1,6 @@
 <feedlist>
   <feed>
-    <name>Ethiopia rain (wepoco)</name><type>kml</type><url>http://www.wepoco.com/maps/ethiopia.php</url><icon>red.png</icon>
+    <name>Alerts</name><type>kml</type><url><![CDATA[http://pipes.yahoo.com/pipes/pipe.run?_id=QpZIzlVV3BGlqYqe6kjTQA&_render=kml]]></url><icon>red.png</icon>
   </feed>
  <feed>
     <name>my maps</name><type>kml</type>
