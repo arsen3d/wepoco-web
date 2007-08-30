@@ -14,15 +14,11 @@ var custommap0;
 var mapChoice;  // an array of choice objects
 
 function add_choice( choices, index, name, title, map_url, refzoom, centre, zoom, feeds ) {
-  var div = document.getElementById('map-menu');
-  var el = document.createElement('input');
-  el.setAttribute("type","radio");
-  el.setAttribute("name","maprad");
+  var sel = document.getElementById('map-select');
+  var el = document.createElement('option');
+  el.innerHTML = name;
   el.setAttribute("value",index);
-  el.setAttribute("onclick","setmap(this.value)");
-  div.appendChild(el);
-  div.appendChild(document.createTextNode( name ));
-  div.appendChild(document.createElement('br'));
+  sel.appendChild(el);
   choices.push( new choiceObj(name, title, map_url, refzoom, centre, zoom, feeds));
 }
 
@@ -42,7 +38,7 @@ function add_feed( name, type, url ){
   el.setAttribute("type","checkbox");
   el.setAttribute("value",name);
   el.setAttribute("onclick","feed_click(this)");
-  alert("adding " + url);
+  //alert("adding " + url);
   if(type=="rss"){
     el.overlay =  new GGeoXml(rss2kml + url);
   }else{
@@ -210,7 +206,7 @@ function setupMap() {
   emptyImage.src = "empty.png";
   tabSelect("map");
 
-  map = new GMap2(document.getElementById("map"), 
+  map = new GMap2(document.getElementById("map-div"), 
     {draggableCursor: 'crosshair'});
   map.addControl(new GLargeMapControl());
   map.addControl(new GScaleControl());
@@ -292,23 +288,24 @@ function setupMap() {
 <!-- N.B. .class-style  #id-style -->
 <style type="text/css">
 
-#map-menu {
+#map-sidebar {
    position: absolute;
    margin-left: 10px;
-   margin-top: 20px;
+   margin-top: 0px;
    width: 178px;
-   height: 400px;
-   background-color: yellow;
-   color: black;
+   height: 450px;
+   border: 1px solid black;
 }
 
-#container{
+#map-menu {
+}
+
+#map{
    position: absolute;
-   margin-left: 180px;
-   margin-top: 2px;
-   width: 680px;
-   height: 450px;
-   background-color: yellow;
+   margin-left: 0px;
+   margin-top: 0px;
+   width: 900px;
+   height: 550px;
 }
 
 
@@ -316,8 +313,8 @@ function setupMap() {
    z-index: 1;
    position: absolute;
    padding: 20px;
-   width: 100%;
-   height: 100%;
+   width: 350px;
+   height: 350px;
    background-color: yellow;
 }
 
@@ -325,17 +322,16 @@ function setupMap() {
    z-index: 1;
    position: absolute;
    padding: 20px;
-   width: 100%;
-   height: 100%;
-   background-color: yellow;
+   width: 350px;
+   height: 350px;
 }
 
-#map {
+#map-div {
    position: absolute;
-   margin-left: 0%;
-   margin-top: 0%;
-   width: 100%;
-   height: 100%;
+   margin-left: 200px;
+   margin-top: 0px;
+   width: 680px;
+   height: 450px;
    background-color: gray;
 }
 
@@ -366,6 +362,7 @@ function _tabClear() {
       try{
         panel=document.getElementById(tabbed[i]);
         panel.style.zIndex = -2;
+        panel.style.backgroundColor="#ffffaa";
         tab=document.getElementById(tabbed[i]+"-tab");
         tab.style.backgroundColor="#ffffaa";
         tab.style.borderBottom="1px solid black";
@@ -375,18 +372,21 @@ function _tabClear() {
 
 function tabSelect(name) {
    _tabClear();
-   document.getElementById(name).style.zIndex=2;
+   panel=document.getElementById(name);
+   panel.style.zIndex=2;
+   panel.style.backgroundColor="#ffff00";
    var mytab=document.getElementById(name+"-tab");
    mytab.style.backgroundColor="#ffff00";
    mytab.style.borderBottom="1px solid #ffff00";
 }
 
 function tabClick(name) {
-  var mypanel=document.getElementById(name);
+  var panel=document.getElementById(name);
 
-  if(mypanel.style.zIndex < 0){
+  if(panel.style.zIndex < 0){
     _tabClear();
-    mypanel.style.zIndex = 2;
+    panel.style.zIndex = 2;
+    panel.style.backgroundColor="#ffff00";
     var mytab=document.getElementById(name+"-tab");
     mytab.style.backgroundColor="#ffff00";
     mytab.style.borderBottom="1px solid #ffff00";
@@ -405,14 +405,17 @@ function tabClick(name) {
   <div id="tools-tab" onclick="tabClick('tools')" class="tab">&nbsp;tools&nbsp;</div>
 </div>
 
-<div style="position:absolute;background:yellow;width:100%;height:550px;left:0px;top:20px">
+<div style="position:absolute;background:pink;width:100%;height:1px;left:0px;top:20px">
 
 
-   <div id="map-menu"><div id="feed-menu"><p>Feeds</p></div></div>
 
-   <div id="container">
-      <h2 style="text-align:center" id="maptitle"></h2>
-      <div id="map"></div>
+   <div id="map">
+      <h2 style="text-align:center" id="maptitle">Wemapr</h2>
+   <div id="map-sidebar">
+     <div id="map-menu"><select id="map-select" onchange="setmap(this.value)" name="map-select"><option value="null">---</option></select></div>
+     <div id="feed-menu"></div>
+   </div>   
+      <div id="map-div"></div>
 
    </div>
    <div id="settings" >

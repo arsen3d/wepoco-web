@@ -42,9 +42,6 @@ var xOffset;
 var yOffset;
 var chartLeft=0, chartTop=20;
 var tlxInp, tlyInp, brxInp, bryInp;
-var chartID="example";
-var chartLink="nolink";
-var chartCopyright="cocpyr";
 var WemaprService="http://saunby.net/marvin/wemapr";
 
 function setup() {
@@ -65,6 +62,11 @@ function loadChart() {
    var s=document.getElementById("chartsrc");
    c.src=s.value;
    src=s.value;
+   var chartImage = new Image;
+   chartImage.src = s.value;
+   chartImage.onload = function(){ document.getElementById("brx").value = this.width - 1;
+   document.getElementById("bry").value = this.height - 1; };
+   chartImage.onerror = function(){ alert("image not found");};
 }
 
 function _tabClear() {
@@ -177,8 +179,12 @@ function callReprojService() {
   var brN = document.getElementById("brn").value;  
   var brE = document.getElementById("bre").value;
   var projName = document.getElementById("proj").value;
-  var src =document.getElementById("chartsrc").value;
-  
+  var src =document.getElementById("chartsrc").value;  
+  var chartID=document.getElementById("chartid").value;
+  var chartLink=document.getElementById("chartlink").value;
+  var chartCopyright=document.getElementById("chartcpyr").value;;
+
+
   var params = new ParamArray();
   params.pushNameValue("src",src);
   params.pushNameValue("chart",chartID);
@@ -210,17 +216,23 @@ function exportSettings() {
   var brE = document.getElementById("bre").value;
   var projName = document.getElementById("proj").value;
   var src = document.getElementById("chartsrc").value;
+  var chartID=document.getElementById("chartid").value;
+  var chartLink=document.getElementById("chartlink").value;
+  var chartCopyright=document.getElementById("chartcpyr").value;;
 
-  var text = "<chart>\n"+
+  var text = "<mapclip>\n"+
     "  <projection>"+projName+"</projection>\n"+
-    "  <src>"+src+"</src>\n"+
+    "  <src><![CDATA["+src+"]]></src>\n"+
+    "  <chart>"+chartID+"</chart>\n"+
+    "  <copyright><![CDATA["+chartCopyright+"]]></copyright>\n"+
+    "  <link><![CDATA["+chartLink+"]]></link>\n"+
     "  <point>\n"+ 
     "    <x>"+tlX+"</x><y>"+tlY+"</y><lat>"+tlN+"</lat><lon>"+tlE+"</lon>\n"+
     "  </point>\n"+
     "  <point>\n"+
     "    <x>"+brX+"</x><y>"+brY+"</y><lat>"+brN+"</lat><lon>"+brE+"</lon>\n"+
     "  </point>\n"+
-    "</chart>";
+    "</mapclip>";
    var expwin=window.open("mapclip.xml","","");
    try{
      // Firefox. Maybe others.
@@ -291,13 +303,16 @@ function exportSettings() {
         <td><input type="button" value="load" onclick="loadChart()"/></td>
       </tr>
     <tr>
+      <td>name</td><td colspan="2"><input id="chartid" value=""/></td>
+    </tr>
+    <tr>
       <td>title</td><td colspan="2"><input id="title" value=""/></td>
     </tr>
     <tr>
-      <td>link</td><td  colspan="2"><input id="link" value=""/></td>
+      <td>link</td><td  colspan="2"><input id="chartlink" value=""/></td>
     </tr>
     <tr>
-      <td>copyright</td><td colspan="2"><input id="copyright" value=""/></td>
+      <td>copyright</td><td colspan="2"><input id="chartcpyr" value=""/></td>
     </tr>
     <tr>
       <td><input type="button" value="export" onclick="exportSettings()"/></td>
