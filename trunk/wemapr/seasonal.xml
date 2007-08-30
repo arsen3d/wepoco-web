@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Layers xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+  <Layer>
+    <name>terce_20061001_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20061001_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20061001_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20061101_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20061101_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20061101_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20061201_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20061201_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20061201_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20070101_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070101_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070101_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20070201_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070201_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070201_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20070301_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070301_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070301_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20070401_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070401_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070401_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20070501_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070501_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070501_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20070601_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070601_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070601_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+   <Layer>
+    <name>terce_20070701_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070701_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070701_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+  <Layer>
+    <name>terce_20070801_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070801_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070801_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+   <Layer>
+    <name>terce_20070901_prec_months24</name>
+    <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20070901_prec_months24_prob_public.png</src>
+    <link></link>
+    <copyright>Met Office</copyright>
+    <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20070901_prec_months24</gmap>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>1</zoom>
+  </Layer>
+</Layers>
