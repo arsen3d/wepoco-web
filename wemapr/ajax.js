@@ -64,3 +64,8 @@ function ParamArray(){
  }
  return this;
 }
+
+function decodeSearch(location){
+  loc = location.search.substring(1);
+  return loc.split('&');
+}
