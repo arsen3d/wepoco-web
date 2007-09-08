@@ -15,16 +15,15 @@ var custommap1;
 var custommap0;
 var mapChoice;  // an array of choice objects
 var configFile = "";
-
+var configIdx = 0;
 
 function setSearch(){
   configFile = document.getElementById('config').value;
-  window.location.search = "?config="+configFile;
+  window.location.search = "?config="+configFile+"&idx="+configIdx;
 }
 
 function add_choice( choices, index, name, title, map_url, refzoom, centre, zoom, feeds ) {
   var sel = document.getElementById('map-select');
-  sel.innerHTML = "";
   var el = document.createElement('option');
   el.innerHTML = name;
   el.setAttribute("value",index);
@@ -48,7 +47,6 @@ function add_feed( name, type, url ){
   el.setAttribute("type","checkbox");
   el.setAttribute("value",name);
   el.setAttribute("onclick","feed_click(this)");
-  //alert("adding " + url);
   if(type=="rss"){
     el.overlay =  new GGeoXml(rss2kml + url);
   }else{
@@ -109,13 +107,12 @@ function loadFeeds( feedsList ){
   GDownloadUrl(feedsList, function(data, responseCode) {
      xml=GXml.parse(data);
      feeds = xml.documentElement.getElementsByTagName("feed");
-     for(i in feeds){
+     for(i=0;i<feeds.length;i++){
       name=feeds[i].getElementsByTagName("name")[0].childNodes[0].data;
       type=feeds[i].getElementsByTagName("type")[0].childNodes[0].data;
       url=feeds[i].getElementsByTagName("url")[0].childNodes[0].data;
       add_feed( name, type, url);
-      //map.addOverlay(new GGeoXml(url));
-     }
+     } 
   });
 }
 
@@ -128,7 +125,8 @@ function loadxml() {
     mapChoice = new Array();
     xml = GXml.parse(data);
     layers = xml.documentElement.getElementsByTagName("Layer");
-    for(i in layers){
+    for(i=0;i<layers.length;i++){
+      try{
       var name, title, centre, zoom, lon, lat, feeds, refzoom;
       name=layers[i].getElementsByTagName("name")[0].childNodes[0].data;
       try{
@@ -162,8 +160,11 @@ function loadxml() {
          feeds=null;
       }
       add_choice( mapChoice, i, name, title, gmap, refzoom, centre, zoom, feeds );
-      setmap(0);
-    }    
+    }catch(err){
+      alert(err + " with layer=" + i);
+    } 
+    }
+    setmap(configIdx);
  }); //GDownloadUrl
  } //if
 
@@ -227,6 +228,10 @@ function setup() {
    if(ar){
      configFile = ar[1];
    }
+   var idx = searchArr[i].match(/idx=(.*)/);
+   if(idx){
+     configIdx = idx[1];
+   }
   }
 
   document.getElementById('config').value = configFile;
@@ -259,9 +264,6 @@ function setup() {
 
   gridlayer1.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix1').value);
-
-
-
     if(b>refzoom){
       return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
     }
@@ -271,13 +273,9 @@ function setup() {
 
   gridlayer0.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix0').value);
-
-
-
     if(b>refzoom){
       return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
     }
-
     return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
   }
 
