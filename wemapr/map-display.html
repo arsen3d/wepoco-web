@@ -14,10 +14,17 @@ var map_set = 0;
 var custommap1;
 var custommap0;
 var mapChoice;  // an array of choice objects
-var configFile="";
+var configFile = "";
+
+
+function setSearch(){
+  configFile = document.getElementById('config').value;
+  window.location.search = "?config="+configFile;
+}
 
 function add_choice( choices, index, name, title, map_url, refzoom, centre, zoom, feeds ) {
   var sel = document.getElementById('map-select');
+  sel.innerHTML = "";
   var el = document.createElement('option');
   el.innerHTML = name;
   el.setAttribute("value",index);
@@ -113,9 +120,11 @@ function loadFeeds( feedsList ){
 }
 
 function loadxml() {
- var config_el = document.getElementById('config');
 
- GDownloadUrl(config_el.value, function(data, responseCode) {
+ var config = document.getElementById('config').value;
+
+ if(config != ""){
+ GDownloadUrl(config, function(data, responseCode) {
     mapChoice = new Array();
     xml = GXml.parse(data);
     layers = xml.documentElement.getElementsByTagName("Layer");
@@ -153,8 +162,10 @@ function loadxml() {
          feeds=null;
       }
       add_choice( mapChoice, i, name, title, gmap, refzoom, centre, zoom, feeds );
+      setmap(0);
     }    
- });
+ }); //GDownloadUrl
+ } //if
 
 }
 
@@ -205,6 +216,8 @@ function testImg( url ){
 } 
 
 function setup() {
+
+  //window.onbeforeunload=function(){alert("no not again!");};
 
   // Did page open with parameters?
   var searchArr = decodeSearch(window.location);
@@ -429,7 +442,10 @@ function tabClick(name) {
    <div id="map">
       <h2 style="text-align:center" id="maptitle">Wemapr</h2>
    <div id="map-sidebar">
-     <div id="map-menu"><select id="map-select" onchange="setmap(this.value)" name="map-select"><option value="null">---</option></select></div>
+     <div id="map-menu"><select id="map-select" onchange="setmap(this.value)" name="map-select">
+<!-- <option value="null">---</option> -->
+</select>
+</div>
      <div id="feed-menu"></div>
    </div>   
       <div id="map-div"></div>
@@ -445,8 +461,11 @@ function tabClick(name) {
        <tbody>
        <tr>
        <td>file</td>
-       <td><input id="config" /></td>
-       <td><input type="button" value="load" onclick="loadxml()"/>
+       <td>
+         <input id="config" />
+       </td>
+       <td>
+         <input type="button" value="load" onclick="setSearch()"/>
        </td>
        </tr>
        </tbody>
