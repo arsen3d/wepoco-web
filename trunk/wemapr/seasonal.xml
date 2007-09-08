@@ -6,6 +6,7 @@
     <link></link>
     <copyright>Met Office</copyright>
     <gmap max="1">http://wemapr.s3.amazonaws.com/public/nobody/terce_20061001_prec_months24</gmap>
+    <feeds>feeds.xml</feeds>
     <geo:lon>0.000000</geo:lon>
     <geo:lat>0.000000</geo:lat>
     <zoom>1</zoom>
