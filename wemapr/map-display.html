@@ -320,9 +320,9 @@ function setup() {
 
 #map-sidebar {
    position: absolute;
-   margin-left: 10px;
+   left: 690px;
    margin-top: 0px;
-   width: 178px;
+   right: 2px;
    height: 450px;
    border: 1px solid black;
 }
@@ -334,7 +334,7 @@ function setup() {
    position: absolute;
    margin-left: 0px;
    margin-top: 0px;
-   width: 900px;
+   width: 100%;
    height: 550px;
 }
 
@@ -358,7 +358,7 @@ function setup() {
 
 #map-div {
    position: absolute;
-   margin-left: 200px;
+   margin-left: 4px;
    margin-top: 0px;
    width: 680px;
    height: 450px;
@@ -441,6 +441,7 @@ function tabClick(name) {
 
    <div id="map">
       <h2 style="text-align:center" id="maptitle">Wemapr</h2>
+      <div id="map-div"></div>
    <div id="map-sidebar">
      <div id="map-menu"><select id="map-select" onchange="setmap(this.value)" name="map-select">
 <!-- <option value="null">---</option> -->
@@ -448,7 +449,7 @@ function tabClick(name) {
 </div>
      <div id="feed-menu"></div>
    </div>   
-      <div id="map-div"></div>
+
 
    </div>
    <div id="settings" >
