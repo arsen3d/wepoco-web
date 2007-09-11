@@ -53,7 +53,8 @@ function add_feed( name, type, url ){
     el.overlay = new GGeoXml(url);
   }
   div.appendChild(el);
-  var txtn = document.createElement( 'b' );
+  var txtn = document.createElement( 'a' );
+  txtn.setAttribute("href","#2");
   txtn.innerHTML = name;
   div.appendChild( txtn );
   div.appendChild(document.createElement('br'));
