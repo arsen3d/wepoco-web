@@ -17,7 +17,8 @@
     <name>RSOE</name><type>rss</type><url><![CDATA[http://www.rsoe.hu/hisz/rss/disrss-eng.php]]></url><icon>red.png</icon>
   </feed>
   <feed>
-    <name>Demo blog (rss)</name><type>rss</type>
+    <name>Wemapr blog</name><type>rss</type>
+<link><![CDATA[http://wemapr.blogspot.com/]]></link>
 <url><![CDATA[http://wemapr.blogspot.com/feeds/posts/default]]></url><icon>red.png</icon>
   </feed>
  <feed>
