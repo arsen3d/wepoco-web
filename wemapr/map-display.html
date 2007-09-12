@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>WeMap: map-display</title>
+<title>Wemapr: map-display</title>
 <link rel="stylesheet" type="text/css" href="wemapr.css" />
 <script src="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAjrevdOcDzRtc2JWIyTrRPBRIm0aEzgz_jKxgCWkUhrc5EfOLVxT32otJCOMcb8tABU03WUPobMjYSg" type="text/javascript"></script>
 
@@ -16,6 +16,7 @@ var custommap0;
 var mapChoice;  // an array of choice objects
 var configFile = "";
 var configIdx = 0;
+var chartOpacity = 0.4;
 
 function setSearch(){
   configFile = document.getElementById('config').value;
@@ -244,8 +245,8 @@ function setup() {
   emptyImage.src = "empty.png";
   tabSelect("map");
 
-  map = new GMap2(document.getElementById("map-div"), 
-    {draggableCursor: 'crosshair'});
+  map = new GMap2(document.getElementById("map-div"));
+    //,{draggableCursor: 'crosshair'});
   map.addControl(new GLargeMapControl());
   map.addControl(new GScaleControl());
 
@@ -253,7 +254,7 @@ function setup() {
   var gridlayer1 = new GTileLayer(new GCopyrightCollection(""),1,5);
 
   var mapLayer = G_NORMAL_MAP.getTileLayers()[0];
-  mapLayer.getOpacity = function() {return 0.4;}
+  mapLayer.getOpacity = function() {return chartOpacity;}
   var basiclayers0 = [
                     mapLayer,
                     gridlayer0,
@@ -268,7 +269,7 @@ function setup() {
   gridlayer1.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix1').value);
     if(b>refzoom){
-      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b+"&trnsp=0";
     }
 
     return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
@@ -277,7 +278,7 @@ function setup() {
   gridlayer0.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix0').value);
     if(b>refzoom){
-      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b
+      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b+"&trnsp=0";
     }
     return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
   }
@@ -294,9 +295,9 @@ function setup() {
   }
   
   basicmap0 = new GMapType(basiclayers0, G_SATELLITE_MAP.getProjection(), 
-    "WeMap", {errorMessage:"Error"});
+    "Wemapr", {errorMessage:"Error"});
   basicmap1 = new GMapType(basiclayers1, G_SATELLITE_MAP.getProjection(),
-    "WeMap", {errorMessage:"Error"});
+    "Wemapr", {errorMessage:"Error"});
 
   map.addMapType(basicmap0);
   map.addMapType(basicmap1);
@@ -469,6 +470,10 @@ function tabClick(name) {
        <td>
          <input type="button" value="load" onclick="setSearch()"/>
        </td>
+       </tr>
+       <tr>
+         <td>opacity</td>
+         <td><input id="opacity" onchange="chartOpactity=this.value/100.0"/>%</td>
        </tr>
        </tbody>
        </table>
