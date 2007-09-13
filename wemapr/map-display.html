@@ -11,12 +11,18 @@
 
 var map = null;
 var map_set = 0;
-var custommap1;
-var custommap0;
+var basicmap1;
+var basicmap0;
 var mapChoice;  // an array of choice objects
 var configFile = "";
 var configIdx = 0;
-var chartOpacity = 0.4;
+var chartOpacity = 0.5;
+
+function changeOpacity( opacity ){
+  chartOpacity = opacity;
+  map.setMapType(G_NORMAL_MAP);
+  map.setMapType(basicmap0);
+}
 
 function setSearch(){
   configFile = document.getElementById('config').value;
@@ -223,7 +229,7 @@ function testImg( url ){
 function setup() {
 
   //window.onbeforeunload=function(){alert("no not again!");};
-
+  chartOpacity = document.getElementById('opacity').value/100.0;
   // Did page open with parameters?
   var searchArr = decodeSearch(window.location);
 
@@ -249,22 +255,15 @@ function setup() {
     //,{draggableCursor: 'crosshair'});
   map.addControl(new GLargeMapControl());
   map.addControl(new GScaleControl());
+  map.enableContinuousZoom();
 
   var gridlayer0 = new GTileLayer(new GCopyrightCollection(""),1,5);
   var gridlayer1 = new GTileLayer(new GCopyrightCollection(""),1,5);
 
   var mapLayer = G_NORMAL_MAP.getTileLayers()[0];
-  mapLayer.getOpacity = function() {return chartOpacity;}
-  var basiclayers0 = [
-                    mapLayer,
-                    gridlayer0,
-                    mapLayer
-                   ];
-  var basiclayers1 = [
-                    mapLayer,
-                    gridlayer1,
-                    mapLayer
-                   ];
+  //mapLayer.getOpacity = function() {return 1.0;}
+  var basiclayers0 = [ mapLayer, gridlayer0 ];
+  var basiclayers1 = [ mapLayer, gridlayer1 ];
 
   gridlayer1.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix1').value);
@@ -284,12 +283,12 @@ function setup() {
   }
 
   gridlayer1.isPng = function() {return 1;}
-  gridlayer1.getOpacity = function() {return 1.0;}
+  gridlayer1.getOpacity = function() {return chartOpacity;}
   gridlayer1.getCopyright = function(a,b) {
     return { prefix: "", copyrightTexts:[""]};
   }
   gridlayer0.isPng = function() {return 1;}
-  gridlayer0.getOpacity = function() {return 1.0;}
+  gridlayer0.getOpacity = function() {return chartOpacity;}
   gridlayer0.getCopyright = function(a,b) {
     return { prefix: "", copyrightTexts:[""]};
   }
@@ -473,7 +472,11 @@ function tabClick(name) {
        </tr>
        <tr>
          <td>opacity</td>
-         <td><input id="opacity" onchange="chartOpactity=this.value/100.0"/>%</td>
+         <td><select id="opacity"onchange="changeOpacity(this.value/100.0)">
+         <option value="25">25%</option>
+         <option selected value="50">50%</option>
+         <option value="75">75%</option>
+         </select></td>
        </tr>
        </tbody>
        </table>
