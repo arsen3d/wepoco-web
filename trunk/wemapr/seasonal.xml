@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Layers xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+  <Feeds>feeds.xml</Feeds>
   <Layer>
     <name>terce_20061001_prec_months24</name>
     <src>http://wemapr.s3.amazonaws.com/examples/seasonal_forecasts/precip_prob_months_2to4/terce_global_20061001_prec_months24_prob_public.png</src>
     <link></link>
     <copyright>Met Office</copyright>
     <gmap max="1" transparent="0">http://wemapr.s3.amazonaws.com/public/nobody/terce_20061001_prec_months24</gmap>
-    <feeds>feeds.xml</feeds>
     <geo:lon>0.000000</geo:lon>
     <geo:lat>0.000000</geo:lat>
     <zoom>1</zoom>

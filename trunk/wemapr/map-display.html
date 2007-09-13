@@ -11,8 +11,7 @@
 
 var map = null;
 var map_set = 0;
-var basicmap1;
-var basicmap0;
+var basicmap;
 var mapChoice;  // an array of choice objects
 var configFile = "";
 var configIdx = 0;
@@ -21,7 +20,7 @@ var chartOpacity = 0.5;
 function changeOpacity( opacity ){
   chartOpacity = opacity;
   map.setMapType(G_NORMAL_MAP);
-  map.setMapType(basicmap0);
+  map.setMapType(basicmap);
 }
 
 function setSearch(){
@@ -47,25 +46,6 @@ function feed_click(cb){
  }
 }
 
-function add_feed( name, type, url ){
-  var rss2kml = "http://pipes.yahoo.com/pipes/pipe.run?_id=QtW0WlhS3BGeRrmxl7okhQ&_render=kml&feed=";
-  var div = document.getElementById('feed-menu');
-  var el = document.createElement('input');
-  el.setAttribute("type","checkbox");
-  el.setAttribute("value",name);
-  el.setAttribute("onclick","feed_click(this)");
-  if(type=="rss"){
-    el.overlay =  new GGeoXml(rss2kml + url);
-  }else{
-    el.overlay = new GGeoXml(url);
-  }
-  div.appendChild(el);
-  var txtn = document.createElement( 'a' );
-  txtn.setAttribute("href","#2");
-  txtn.innerHTML = name;
-  div.appendChild( txtn );
-  div.appendChild(document.createElement('br'));
-}
 
 
 function setmap( index ) {
@@ -80,26 +60,17 @@ function setmap( index ) {
     map_url + " zoom=" + zoom));
   info_div.appendChild(document.createElement('br'));
 
- if(map_set == 0){
-    prefix_el = document.getElementById('prefix1');
-    prefix_el.value = map_url;
-    map.setMapType(basicmap1);
-    map.setZoom(zoom);
-    map.panTo(centre);
-    map_set = 1
-  }else{
-    prefix_el = document.getElementById('prefix0');
-    prefix_el.value = map_url;
-    map.setMapType(basicmap0);
-    map.setZoom(zoom);
-    map.panTo(centre);
-    map_set = 0
-  }
+  prefix_el = document.getElementById('prefix1');
+  prefix_el.value = map_url;
+  map.setMapType(G_NORMAL_MAP);
+  map.setMapType(basicmap);
+  map.setZoom(zoom);
+  map.panTo(centre);
 
-  if( mapChoice[index].feeds ){
+  //if( mapChoice[index].feeds ){
     // there are feeds associated with this map
-    loadFeeds( mapChoice[index].feeds );
-  }
+    //loadFeeds( mapChoice[index].feeds );
+  //}
 
 }
 
@@ -113,10 +84,12 @@ function choiceObj(name, title, gmap, refzoom, centre, zoom, feeds){
     this.feeds = feeds;
 }
 
+
 function loadFeeds( feedsList ){
   GDownloadUrl(feedsList, function(data, responseCode) {
      xml=GXml.parse(data);
      feeds = xml.documentElement.getElementsByTagName("feed");
+     document.getElementById('feed-menu').innerHTML="";
      for(i=0;i<feeds.length;i++){
       name=feeds[i].getElementsByTagName("name")[0].childNodes[0].data;
       type=feeds[i].getElementsByTagName("type")[0].childNodes[0].data;
@@ -126,6 +99,28 @@ function loadFeeds( feedsList ){
   });
 }
 
+function add_feed( name, type, url ){
+  var rss2kml = "http://pipes.yahoo.com/pipes/pipe.run?_id=QtW0WlhS3BGeRrmxl7okhQ&_render=kml&feed=";
+  var div = document.getElementById('feed-menu');
+  var el = document.createElement('input');
+  el.setAttribute("type","checkbox");
+  el.setAttribute("value",name);
+  el.setAttribute("onclick","feed_click(this)");
+  if(type=="rss"){
+    el.overlay =  new GGeoXml(rss2kml + url);
+  }else{
+    el.overlay = new GGeoXml(url);
+  }
+  div.appendChild(el);
+  var txtn = document.createElement( 'a' );
+  txtn.setAttribute("href",url);
+  txtn.innerHTML = name;
+  div.appendChild( txtn );
+  div.appendChild(document.createElement('br'));
+}
+
+
+
 function loadxml() {
 
  var config = document.getElementById('config').value;
@@ -133,8 +128,15 @@ function loadxml() {
  if(config != ""){
  GDownloadUrl(config, function(data, responseCode) {
     mapChoice = new Array();
-    xml = GXml.parse(data);
-    layers = xml.documentElement.getElementsByTagName("Layer");
+    var xml = GXml.parse(data);
+    var feeds = xml.documentElement.getElementsByTagName("Feeds");
+    for(i=0;i<feeds.length;i++){
+      try{
+      var feedsUrl =  feeds[i].childNodes[0].data;
+      loadFeeds(feedsUrl);
+      }catch(err){}
+    }
+    var layers = xml.documentElement.getElementsByTagName("Layer");
     for(i=0;i<layers.length;i++){
       try{
       var name, title, centre, zoom, lon, lat, feeds, refzoom;
@@ -257,15 +259,12 @@ function setup() {
   map.addControl(new GScaleControl());
   map.enableContinuousZoom();
 
-  var gridlayer0 = new GTileLayer(new GCopyrightCollection(""),1,5);
-  var gridlayer1 = new GTileLayer(new GCopyrightCollection(""),1,5);
+  var gridlayer = new GTileLayer(new GCopyrightCollection(""),1,5);
 
   var mapLayer = G_NORMAL_MAP.getTileLayers()[0];
-  //mapLayer.getOpacity = function() {return 1.0;}
-  var basiclayers0 = [ mapLayer, gridlayer0 ];
-  var basiclayers1 = [ mapLayer, gridlayer1 ];
+  var basiclayers = [ mapLayer, gridlayer ];
 
-  gridlayer1.getTileUrl = function(a,b){
+  gridlayer.getTileUrl = function(a,b){
     var prefix = encodeURI(document.getElementById('prefix1').value);
     if(b>refzoom){
       return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b+"&trnsp=0";
@@ -274,33 +273,18 @@ function setup() {
     return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
   }
 
-  gridlayer0.getTileUrl = function(a,b){
-    var prefix = encodeURI(document.getElementById('prefix0').value);
-    if(b>refzoom){
-      return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b+"&trnsp=0";
-    }
-    return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
-  }
 
-  gridlayer1.isPng = function() {return 1;}
-  gridlayer1.getOpacity = function() {return chartOpacity;}
-  gridlayer1.getCopyright = function(a,b) {
-    return { prefix: "", copyrightTexts:[""]};
-  }
-  gridlayer0.isPng = function() {return 1;}
-  gridlayer0.getOpacity = function() {return chartOpacity;}
-  gridlayer0.getCopyright = function(a,b) {
+  gridlayer.isPng = function() {return 1;}
+  gridlayer.getOpacity = function() {return chartOpacity;}
+  gridlayer.getCopyright = function(a,b) {
     return { prefix: "", copyrightTexts:[""]};
   }
   
-  basicmap0 = new GMapType(basiclayers0, G_SATELLITE_MAP.getProjection(), 
-    "Wemapr", {errorMessage:"Error"});
-  basicmap1 = new GMapType(basiclayers1, G_SATELLITE_MAP.getProjection(),
+  basicmap = new GMapType(basiclayers, G_SATELLITE_MAP.getProjection(), 
     "Wemapr", {errorMessage:"Error"});
 
-  map.addMapType(basicmap0);
-  map.addMapType(basicmap1);
-  map.setCenter(new GLatLng(10.0, 16.0), 3, basicmap0);
+  map.addMapType(basicmap);
+  map.setCenter(new GLatLng(0.0, 0.0), 2, G_NORMAL_MAP);
 
   GEvent.addListener(map, "click", 
 		   function(marker, point) {

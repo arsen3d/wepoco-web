@@ -16,6 +16,9 @@
   <feed>
     <name>RSOE</name><type>rss</type><url><![CDATA[http://www.rsoe.hu/hisz/rss/disrss-eng.php]]></url><icon>red.png</icon>
   </feed>
+<feed>
+    <name>FCO travel</name><type>rss</type><url><![CDATA[http://travel.thegovernmentsays.com/cgi-bin/rss.cgi]]></url><icon>red.png</icon>
+</feed>
   <feed>
     <name>Wemapr blog</name><type>rss</type>
 <link><![CDATA[http://wemapr.blogspot.com/]]></link>
@@ -26,4 +29,6 @@
 <icon>red.png</icon>
 <url><![CDATA[http://maps.google.com/maps/ms?f=q&hl=en&ie=UTF8&msa=0&output=nl&msid=111160211049735091825.00000111c625f8a5e217b]]></url>
  </feed>
+
+
 </feedlist>
