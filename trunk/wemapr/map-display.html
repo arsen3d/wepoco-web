@@ -9,7 +9,7 @@
 
 <script type="text/javascript" language="javascript">
 
-var map = null;
+var map2 = null;
 var map_set = 0;
 var basicmap;
 var mapChoice;  // an array of choice objects
@@ -19,13 +19,14 @@ var chartOpacity = 0.5;
 
 function changeOpacity( opacity ){
   chartOpacity = opacity;
-  map.setMapType(G_NORMAL_MAP);
-  map.setMapType(basicmap);
+  map2.setMapType(G_NORMAL_MAP);
+  map2.setMapType(basicmap);
 }
 
 function setSearch(){
   configFile = document.getElementById('config').value;
   window.location.search = "?config="+configFile+"&idx="+configIdx;
+  return false;
 }
 
 function add_choice( choices, index, name, title, map_url, refzoom, centre, zoom, feeds ) {
@@ -40,9 +41,9 @@ function add_choice( choices, index, name, title, map_url, refzoom, centre, zoom
 
 function feed_click(cb){
  if(cb.checked){
-   map.addOverlay(cb.overlay);
+   map2.addOverlay(cb.overlay);
  }else{
-   map.removeOverlay(cb.overlay);
+   map2.removeOverlay(cb.overlay);
  }
 }
 
@@ -62,15 +63,10 @@ function setmap( index ) {
 
   prefix_el = document.getElementById('prefix1');
   prefix_el.value = map_url;
-  map.setMapType(G_NORMAL_MAP);
-  map.setMapType(basicmap);
-  map.setZoom(zoom);
-  map.panTo(centre);
-
-  //if( mapChoice[index].feeds ){
-    // there are feeds associated with this map
-    //loadFeeds( mapChoice[index].feeds );
-  //}
+  map2.setMapType(G_NORMAL_MAP);
+  map2.setMapType(basicmap);
+  map2.setZoom(zoom);
+  map2.panTo(centre);
 
 }
 
@@ -158,18 +154,14 @@ function loadxml() {
       lat=layers[i].getElementsByTagName("lat")[0].childNodes[0].data;
       centre = new GLatLng(parseFloat(lat),parseFloat(lon));
       }catch(err){
-         alert(err.description);
+         alert("lat lon missing: " + err.tostring() );
          centre = new GLatLng(0,0);
       }
+
       try{
       zoom = parseInt(layers[i].getElementsByTagName("zoom")[0].childNodes[0].data);
       }catch(err){
          zoom=2
-      }
-      try{
-      feeds =  layers[i].getElementsByTagName("feeds")[0].childNodes[0].data;
-      }catch(err){
-         feeds=null;
       }
       add_choice( mapChoice, i, name, title, gmap, refzoom, centre, zoom, feeds );
     }catch(err){
@@ -253,11 +245,10 @@ function setup() {
   emptyImage.src = "empty.png";
   tabSelect("map");
 
-  map = new GMap2(document.getElementById("map-div"));
-    //,{draggableCursor: 'crosshair'});
-  map.addControl(new GLargeMapControl());
-  map.addControl(new GScaleControl());
-  map.enableContinuousZoom();
+  map2 = new GMap2(document.getElementById("map-div"));
+  map2.addControl(new GLargeMapControl());
+  map2.addControl(new GScaleControl());
+  map2.enableContinuousZoom();
 
   var gridlayer = new GTileLayer(new GCopyrightCollection(""),1,5);
 
@@ -281,10 +272,10 @@ function setup() {
   basicmap = new GMapType(basiclayers, G_SATELLITE_MAP.getProjection(), 
     "Wemapr", {errorMessage:"Error"});
 
-  map.addMapType(basicmap);
-  map.setCenter(new GLatLng(0.0, 0.0), 2, G_NORMAL_MAP);
+  map2.addMapType(basicmap);
+  map2.setCenter(new GLatLng(0.0, 0.0), 2, G_NORMAL_MAP);
 
-  GEvent.addListener(map, "click", 
+  GEvent.addListener(map2, "click", 
 		   function(marker, point) {
 		     var info_div = document.getElementById('info');
                      info_div.appendChild(document.createTextNode(
@@ -453,7 +444,7 @@ function tabClick(name) {
    </div>
    <div id="settings" >
        <div>
-       <form>
+       <!-- <form onsubmit="setSearch()"> -->
        <input type="hidden" id="base" value="" />
        <input type="hidden" id="prefix1" value="" />
        <input type="hidden" id="prefix0" value="" />
@@ -462,15 +453,15 @@ function tabClick(name) {
        <tr>
        <td>file</td>
        <td>
-         <input id="config" />
+         <input type="text" id="config" onchange="setSearch()" />
        </td>
        <td>
-         <input type="button" value="load" onclick="setSearch()"/>
+         <input type="button" value="load" onclick="setSearch()" />
        </td>
        </tr>
        </tbody>
        </table>
-       </form>
+       <!-- </form> -->
        </div>
        <div id="info"></div>
     </div> 
