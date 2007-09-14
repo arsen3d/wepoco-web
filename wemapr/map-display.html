@@ -269,10 +269,8 @@ function setup() {
     if(b>refzoom){
       return "http://www.wepoco.com/cgi/wemaprzoom?ref="+refzoom+"&map="+prefix+"&x="+a.x+"&y="+a.y+"&zoom="+b+"&trnsp=0";
     }
-
     return testImg(prefix+"/"+b+"/"+a.x+"_"+a.y+".png");
   }
-
 
   gridlayer.isPng = function() {return 1;}
   gridlayer.getOpacity = function() {return chartOpacity;}
@@ -302,6 +300,7 @@ function setup() {
 
 <!-- N.B. .class-style  #id-style -->
 <style type="text/css">
+
 
 #map-sidebar {
    position: absolute;
@@ -348,6 +347,7 @@ function setup() {
    width: 680px;
    height: 450px;
    background-color: gray;
+   border: 1px solid black;
 }
 
 
@@ -427,6 +427,20 @@ function tabClick(name) {
    <div id="map">
       <h2 style="text-align:center" id="maptitle">Wemapr</h2>
       <div id="map-div"></div>
+      <div style="position:absolute;bottom:10px;height:20px">
+       <table>
+       <tbody>
+       <tr>
+         <td>opacity</td>
+         <td><select id="opacity"onchange="changeOpacity(this.value/100.0)">
+         <option value="25">25%</option>
+         <option selected value="50">50%</option>
+         <option value="75">75%</option>
+         </select></td>
+       </tr>
+       </tbody>
+       </table>
+      </div>
    <div id="map-sidebar">
      <div id="map-menu"><select id="map-select" onchange="setmap(this.value)" name="map-select">
 <!-- <option value="null">---</option> -->
@@ -453,14 +467,6 @@ function tabClick(name) {
        <td>
          <input type="button" value="load" onclick="setSearch()"/>
        </td>
-       </tr>
-       <tr>
-         <td>opacity</td>
-         <td><select id="opacity"onchange="changeOpacity(this.value/100.0)">
-         <option value="25">25%</option>
-         <option selected value="50">50%</option>
-         <option value="75">75%</option>
-         </select></td>
        </tr>
        </tbody>
        </table>
