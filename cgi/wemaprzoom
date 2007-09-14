@@ -62,7 +62,12 @@ def zoom():
         outpic = inpic.crop( box )
         outpic = outpic.resize( (outcols,outrows) )
         f = cStringIO.StringIO()
-        outpic.save(f, "PNG")
+        try:
+          trnsp=inpic.info['transparency']
+          outpic.save(f, "PNG", transparency=trnsp)
+        except:
+          outpic.save(f, "PNG")
+          pass
     except:
         f = file(no_data)
         pass
