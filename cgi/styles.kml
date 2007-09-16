@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document><name>Styles</name>
+<atom:author><atom:name>Michael Saunby</atom:name></atom:author>         
+<atom:link href="http://mike.saunby.net/" />
+<description><![CDATA[Icon styles for Wemapr]]></description>
+<Style id="rainy"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/rainy.png</href></Icon></IconStyle></Style>
+<Style id="sunny"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/sunny.png</href></Icon></IconStyle></Style>
+<Style id="water"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/water.png</href></Icon></IconStyle></Style>
+<Style id="red"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/red.png</href></Icon></IconStyle></Style>
+<Style id="green"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/green.png</href></Icon></IconStyle></Style>
+<Style id="blue"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/blue.png</href></Icon></IconStyle></Style>
+<Style id="yellow"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/yellow.png</href></Icon></IconStyle></Style>
+<Style id="orange"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/orange.png</href></Icon></IconStyle></Style>
+<Style id="purple"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/purple.png</href></Icon></IconStyle></Style>
+<Style id="pink"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/pink.png</href></Icon></IconStyle></Style>
+<Style id="lightblue"><IconStyle><Icon><href>http://maps.google.com/mapfiles/ms/micons/lightblue.png</href></Icon></IconStyle></Style>
+</Document>
+</kml>

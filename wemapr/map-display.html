@@ -97,6 +97,7 @@ function loadFeeds( feedsList ){
 
 function add_feed( name, type, url ){
   var rss2kml = "http://pipes.yahoo.com/pipes/pipe.run?_id=QtW0WlhS3BGeRrmxl7okhQ&_render=kml&feed=";
+  var stylekml = "http://www.wepoco.com/cgi/wemaprkmlstyle?style=rainy&kml=";
   var div = document.getElementById('feed-menu');
   var el = document.createElement('input');
   el.setAttribute("type","checkbox");
@@ -105,7 +106,8 @@ function add_feed( name, type, url ){
   if(type=="rss"){
     var g_url = rss2kml + url;
   }else{
-    var g_url = url;
+    var g_url = stylekml + encodeURIComponent(url);
+    alert(g_url);
   }
   el.overlay = new GGeoXml(g_url);
   div.appendChild(el);

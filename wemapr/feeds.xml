@@ -1,34 +1,37 @@
 <feedlist>
   <feed>
-  <name><![CDATA[Google Noticias Espa&ntilde;a]]></name><type>kml</type><url><![CDATA[http://pipes.yahoo.com/pipes/pipe.run?_id=QpZIzlVV3BGlqYqe6kjTQA&_render=kml]]></url><icon>red.png</icon>
+  <name><![CDATA[Google Noticias Espa&ntilde;a]]></name><type>kml</type><url><![CDATA[http://pipes.yahoo.com/pipes/pipe.run?_id=QpZIzlVV3BGlqYqe6kjTQA&_render=kml]]></url><icon>red</icon>
   </feed>
-<feed> <name>BBC Internacional</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/spanish/international/rss.xml]]></url><icon>red.png</icon>
-  </feed>
-  <feed>
-    <name>BBC World News</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/world/rss.xml]]></url><icon>red.png</icon>
+<feed> <name>BBC Internacional</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/spanish/international/rss.xml]]></url><icon>yellow</icon>
   </feed>
   <feed>
-    <name>CNN</name><type>rss</type><url><![CDATA[http://rss.cnn.com/rss/cnn_world.rss]]></url><icon>red.png</icon>
+    <name>BBC World News</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/world/rss.xml]]></url><icon>green</icon>
   </feed>
   <feed>
-    <name>Reuters</name><type>rss</type><url><![CDATA[http://www.microsite.reuters.com/rss/worldNews/default.aspx]]></url><icon>red.png</icon>
+    <name>CNN</name><type>rss</type><url><![CDATA[http://rss.cnn.com/rss/cnn_world.rss]]></url><icon>blue</icon>
   </feed>
   <feed>
-    <name>RSOE</name><type>rss</type><url><![CDATA[http://www.rsoe.hu/hisz/rss/disrss-eng.php]]></url><icon>red.png</icon>
+    <name>Reuters</name><type>rss</type><url><![CDATA[http://www.microsite.reuters.com/rss/worldNews/default.aspx]]></url><icon>pink</icon>
+  </feed>
+  <feed>
+    <name>RSOE</name><type>rss</type><url><![CDATA[http://www.rsoe.hu/hisz/rss/disrss-eng.php]]></url><icon>purple</icon>
   </feed>
 <feed>
-    <name>FCO travel</name><type>rss</type><url><![CDATA[http://travel.thegovernmentsays.com/cgi-bin/rss.cgi]]></url><icon>red.png</icon>
+    <name>FCO travel</name><type>rss</type><url><![CDATA[http://travel.thegovernmentsays.com/cgi-bin/rss.cgi]]></url><icon>lightblue</icon>
 </feed>
+  <feed>
+    <name>Wemapr blog</name><type>kml</type>
+<link><![CDATA[http://wemapr.blogspot.com/]]></link>
+<url><![CDATA[http://wemapr.s3.amazonaws.com/wemapr_blog.kml]]></url><icon>sunny</icon>
+  </feed>
   <feed>
     <name>Wemapr blog</name><type>rss</type>
 <link><![CDATA[http://wemapr.blogspot.com/]]></link>
-<url><![CDATA[http://wemapr.blogspot.com/feeds/posts/default]]></url><icon>red.png</icon>
+<url><![CDATA[http://wemapr.blogspot.com/feeds/posts/default]]></url><icon>sunny</icon>
   </feed>
  <feed>
     <name>my maps</name><type>kml</type>
-<icon>red.png</icon>
+<icon>sunny</icon>
 <url><![CDATA[http://maps.google.com/maps/ms?f=q&hl=en&ie=UTF8&msa=0&output=nl&msid=111160211049735091825.00000111c625f8a5e217b]]></url>
  </feed>
-
-
 </feedlist>
