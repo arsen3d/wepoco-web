@@ -2,7 +2,8 @@
   <feed>
   <name><![CDATA[Google Noticias Espa&ntilde;a]]></name><type>kml</type><url><![CDATA[http://pipes.yahoo.com/pipes/pipe.run?_id=QpZIzlVV3BGlqYqe6kjTQA&_render=kml]]></url><icon>red</icon>
   </feed>
-<feed> <name>BBC Internacional</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/spanish/international/rss.xml]]></url><icon>yellow</icon>
+<feed> 
+<name>BBC Internacional</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/spanish/international/rss.xml]]></url><icon>yellow</icon>
   </feed>
   <feed>
     <name>BBC World News</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/world/rss.xml]]></url><icon>green</icon>
