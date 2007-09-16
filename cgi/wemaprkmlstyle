@@ -1,0 +1,47 @@
+#!/usr/bin/python
+# Author: Michael Saunby.
+# 
+# Purpose. Add simple marker styles to KML
+#
+
+# Configuration
+
+import sys, httplib, cStringIO
+import cgi
+#import cgitb; cgitb.enable()
+
+site = "wemapr.s3.amazonaws.com"
+stylesURI = "http://wemapr.s3.amazonaws.com/styles.kml#"
+
+def getArgs():
+    global kml, styleId
+    form = cgi.FieldStorage()
+
+    kml = form["kml"].value
+    styleId = form["style"].value
+
+def download( url_fname ):
+    conn = httplib.HTTPConnection( site )
+    conn.request( 'GET', url_fname )
+    r1 = conn.getresponse()
+    if r1.status == 200:
+	f = cStringIO.StringIO()
+	f.write(r1.read())
+	f.seek(0)
+	return f
+    else:
+	return None
+
+if __name__ == "__main__":
+    from xml.dom.minidom import parse
+
+    getArgs()
+    doc = parse(download(kml))
+    places = doc.getElementsByTagName("Placemark")
+    for i in range(len(places)):
+      style = doc.createElement("styleUrl")
+      style.appendChild(doc.createTextNode(stylesURI+styleId))
+      places[i].appendChild(style)
+
+    print "Content-type: application/vnd.google-earth.kml+xml\n"
+    print doc.toxml()
