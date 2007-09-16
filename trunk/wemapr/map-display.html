@@ -103,18 +103,27 @@ function add_feed( name, type, url ){
   el.setAttribute("value",name);
   el.setAttribute("onclick","feed_click(this)");
   if(type=="rss"){
-    el.overlay =  new GGeoXml(rss2kml + url);
+    var g_url = rss2kml + url;
   }else{
-    el.overlay = new GGeoXml(url);
+    var g_url = url;
   }
+  el.overlay = new GGeoXml(g_url);
   div.appendChild(el);
   var txtn = document.createElement( 'a' );
-  txtn.setAttribute("href",url);
+  txtn.setAttribute("href",g_url);
   txtn.innerHTML = name;
   div.appendChild( txtn );
   div.appendChild(document.createElement('br'));
 }
 
+function popupXML( xml ){
+  function xmltotxt(str){
+    return str.replace(/[<>]/g,function(s){return (s=='<')?'&lt;':'&gt';});
+  }
+  var xwin = window.open("about:blank");
+  var xml_text = new XMLSerializer().serializeToString(xml);
+  xwin.document.write('<pre>'+xmltotxt(xml_text)+'</pre>');    
+}
 
 
 function loadxml() {
@@ -125,6 +134,9 @@ function loadxml() {
  GDownloadUrl(config, function(data, responseCode) {
     mapChoice = new Array();
     var xml = GXml.parse(data);
+    
+    //popupXML( xml );
+
     var feeds = xml.documentElement.getElementsByTagName("Feeds");
     for(i=0;i<feeds.length;i++){
       try{
