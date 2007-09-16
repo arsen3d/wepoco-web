@@ -6,7 +6,7 @@
 
 # Configuration
 
-import sys, httplib, cStringIO
+import sys, httplib, cStringIO, urllib
 import cgi
 #import cgitb; cgitb.enable()
 
@@ -17,7 +17,7 @@ def getArgs():
     global kml, styleId
     form = cgi.FieldStorage()
 
-    kml = form["kml"].value
+    kml = urllib.unquote(form["kml"].value)
     styleId = form["style"].value
 
 def download( url_fname ):
