@@ -90,15 +90,20 @@ function loadFeeds( feedsList ){
       name=feeds[i].getElementsByTagName("name")[0].childNodes[0].data;
       type=feeds[i].getElementsByTagName("type")[0].childNodes[0].data;
       url=feeds[i].getElementsByTagName("url")[0].childNodes[0].data;
-      add_feed( name, type, url);
+      try{
+      icon=feeds[i].getElementsByTagName("icon")[0].childNodes[0].data;
+      }catch(e){
+      icon="blue";
+      }
+      add_feed( name, type, url, icon);
      } 
   });
 }
 
-function add_feed( name, type, url ){
+function add_feed( name, type, url, icon ){
   //var rss2kml = "http://pipes.yahoo.com/pipes/pipe.run?_id=QtW0WlhS3BGeRrmxl7okhQ&_render=kml&feed=";
-  var stylekml = "http://www.wepoco.com/cgi/wemaprkmlstyle?kind=kml&style=rainy&url=";
-  var rss2kml = "http://www.wepoco.com/cgi/wemaprkmlstyle?kind=rss&style=rainy&url=";
+  var stylekml = "http://www.wepoco.com/cgi/wemaprkmlstyle?kind=kml&style="+icon+"&url=";
+  var rss2kml = "http://www.wepoco.com/cgi/wemaprkmlstyle?kind=rss&style="+icon+"&url=";
   var div = document.getElementById('feed-menu');
   var el = document.createElement('input');
   el.setAttribute("type","checkbox");
@@ -111,6 +116,10 @@ function add_feed( name, type, url ){
   }
   el.overlay = new GGeoXml(g_url);
   div.appendChild(el);
+  var im = document.createElement('img');
+  im.setAttribute("height","20");
+  im.setAttribute("src","http://maps.google.com/mapfiles/ms/micons/"+icon+".png");
+  div.appendChild(im);
   var txtn = document.createElement( 'a' );
   txtn.setAttribute("href",g_url);
   txtn.innerHTML = name;
