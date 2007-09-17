@@ -41,7 +41,11 @@ function add_choice( choices, index, name, title, map_url, refzoom, centre, zoom
 
 function feed_click(cb){
  if(cb.checked){
-   map2.addOverlay(cb.overlay);
+   if(cb.overlay){
+     map2.addOverlay(cb.overlay);
+   }else{ 
+     cb.overlay = new GGeoXml(cb.geoxml, function(){map2.addOverlay(cb.overlay);});
+   }
  }else{
    map2.removeOverlay(cb.overlay);
  }
@@ -114,7 +118,8 @@ function add_feed( name, type, url, icon ){
   }else{
     var g_url = stylekml + encodeURIComponent(url);
   }
-  el.overlay = new GGeoXml(g_url);
+  el.geoxml = g_url;
+  el.overlay = null;//new GGeoXml(g_url);
   div.appendChild(el);
   var im = document.createElement('img');
   im.setAttribute("height","20");
