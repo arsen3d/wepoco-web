@@ -1,7 +1,11 @@
 <feedlist>
   <feed>
-  <name><![CDATA[Google Noticias Espa&ntilde;a]]></name><type>kml</type><url><![CDATA[http://pipes.yahoo.com/pipes/pipe.run?_id=QpZIzlVV3BGlqYqe6kjTQA&_render=kml]]></url><icon>red</icon>
+  <name><![CDATA[Y! Google Noticias Espa&ntilde;a]]></name><type>kml</type><url><![CDATA[http://pipes.yahoo.com/pipes/pipe.run?_id=QpZIzlVV3BGlqYqe6kjTQA&_render=kml]]></url><icon>red</icon>
   </feed>
+  <feed>
+  <name><![CDATA[Google Noticias Espa&ntilde;a]]></name><type>rss</type><url><![CDATA[http://news.google.es/?ned=es&topic=w&output=rss]]></url><icon>red</icon>
+  </feed>
+
 <feed> 
 <name>BBC Internacional</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/spanish/international/rss.xml]]></url><icon>yellow</icon>
   </feed>
@@ -20,11 +24,6 @@
 <feed>
     <name>FCO travel</name><type>rss</type><url><![CDATA[http://travel.thegovernmentsays.com/cgi-bin/rss.cgi]]></url><icon>lightblue</icon>
 </feed>
-  <feed>
-    <name>Wemapr blog</name><type>kml</type>
-<link><![CDATA[http://wemapr.blogspot.com/]]></link>
-<url><![CDATA[http://wemapr.s3.amazonaws.com/wemapr_blog.kml]]></url><icon>sunny</icon>
-  </feed>
   <feed>
     <name>Wemapr blog</name><type>rss</type>
 <link><![CDATA[http://wemapr.blogspot.com/]]></link>

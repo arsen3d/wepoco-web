@@ -16,6 +16,7 @@ var mapChoice;  // an array of choice objects
 var configFile = "";
 var configIdx = 0;
 var chartOpacity = 0.5;
+var copyrightText = "";
 
 function changeOpacity( opacity ){
   chartOpacity = opacity;
@@ -29,13 +30,13 @@ function setSearch(){
   return false;
 }
 
-function add_choice( choices, index, name, title, map_url, refzoom, centre, zoom, feeds ) {
+function add_choice(choices,index,name,title,map_url,refzoom,centre,zoom,copyright) {
   var sel = document.getElementById('map-select');
   var el = document.createElement('option');
   el.innerHTML = name;
   el.setAttribute("value",index);
   sel.appendChild(el);
-  choices.push( new choiceObj(name, title, map_url, refzoom, centre, zoom, feeds));
+  choices.push( new choiceObj(name,title,map_url,refzoom,centre,zoom,copyright));
 }
 
 
@@ -59,6 +60,7 @@ function setmap( index ) {
   zoom = mapChoice[index].zoom;
   centre = mapChoice[index].centre;
   title =  mapChoice[index].title;
+  copyrightText = mapChoice[index].copyright;
   document.getElementById('maptitle').innerHTML=title;
   info_div = document.getElementById('info');
   info_div.appendChild(document.createTextNode( 
@@ -74,14 +76,14 @@ function setmap( index ) {
 
 }
 
-function choiceObj(name, title, gmap, refzoom, centre, zoom, feeds){
+function choiceObj(name, title, gmap, refzoom, centre, zoom, copyright){
     this.name = name;
     this.title = title;
     this.gmap = gmap;
     this.refzoom = refzoom;
     this.centre = centre;
     this.zoom = zoom;
-    this.feeds = feeds;
+    this.copyright = copyright;
 }
 
 
@@ -106,8 +108,9 @@ function loadFeeds( feedsList ){
 
 function add_feed( name, type, url, icon ){
   //var rss2kml = "http://pipes.yahoo.com/pipes/pipe.run?_id=QtW0WlhS3BGeRrmxl7okhQ&_render=kml&feed=";
-  var stylekml = "http://www.wepoco.com/cgi/wemaprkmlstyle?kind=kml&style="+icon+"&url=";
-  var rss2kml = "http://www.wepoco.com/cgi/wemaprkmlstyle?kind=rss&style="+icon+"&url=";
+  var t=new Date().valueOf();
+  var stylekml = "http://www.wepoco.com/cgi/wemaprkmlstyle?time="+t+"&kind=kml&style="+icon+"&url=";
+  var rss2kml = "http://www.wepoco.com/cgi/wemaprkmlstyle?time="+t+"&kind=rss&style="+icon+"&url=";
   var div = document.getElementById('feed-menu');
   var el = document.createElement('input');
   el.setAttribute("type","checkbox");
@@ -126,7 +129,7 @@ function add_feed( name, type, url, icon ){
   im.setAttribute("src","http://maps.google.com/mapfiles/ms/micons/"+icon+".png");
   div.appendChild(im);
   var txtn = document.createElement( 'a' );
-  txtn.setAttribute("href",g_url);
+  txtn.setAttribute("href",url);
   txtn.innerHTML = name;
   div.appendChild( txtn );
   div.appendChild(document.createElement('br'));
@@ -163,12 +166,17 @@ function loadxml() {
     var layers = xml.documentElement.getElementsByTagName("Layer");
     for(i=0;i<layers.length;i++){
       try{
-      var name, title, centre, zoom, lon, lat, feeds, refzoom;
+      var name, title, copyright, centre, zoom, lon, lat, refzoom;
       name=layers[i].getElementsByTagName("name")[0].childNodes[0].data;
       try{
       title=layers[i].getElementsByTagName("title")[0].childNodes[0].data;
       }catch(err){
        title=name;
+      }
+      try{
+      copyright=layers[i].getElementsByTagName("copyright")[0].childNodes[0].data;
+      }catch(err){
+       copyright="";
       }
       var gmapNode=layers[i].getElementsByTagName("gmap")[0];
       gmap = gmapNode.childNodes[0].data;
@@ -191,7 +199,7 @@ function loadxml() {
       }catch(err){
          zoom=2
       }
-      add_choice( mapChoice, i, name, title, gmap, refzoom, centre, zoom, feeds );
+      add_choice( mapChoice, i, name, title, gmap, refzoom, centre, zoom, copyright );
     }catch(err){
       alert(err + " with layer=" + i);
     } 
@@ -278,7 +286,7 @@ function setup() {
   map2.addControl(new GScaleControl());
   map2.enableContinuousZoom();
 
-  var gridlayer = new GTileLayer(new GCopyrightCollection(""),1,5);
+  var gridlayer = new GTileLayer(new GCopyrightCollection(""),0,12);
 
   var mapLayer = G_NORMAL_MAP.getTileLayers()[0];
   var basiclayers = [ mapLayer, gridlayer ];
@@ -294,7 +302,7 @@ function setup() {
   gridlayer.isPng = function() {return 1;}
   gridlayer.getOpacity = function() {return chartOpacity;}
   gridlayer.getCopyright = function(a,b) {
-    return { prefix: "", copyrightTexts:[""]};
+    return { prefix: "&copy;2007", copyrightTexts:[copyrightText]};
   }
   
   basicmap = new GMapType(basiclayers, G_SATELLITE_MAP.getProjection(), 
@@ -464,6 +472,7 @@ function tabClick(name) {
      <div id="map-menu"><select id="map-select" onchange="setmap(this.value)" name="map-select">
 <!-- <option value="null">---</option> -->
 </select>
+<br/><input type="button" value="chart info" onclick="chartInfo()" />
 </div>
      <div id="feed-menu"></div>
    </div>   
