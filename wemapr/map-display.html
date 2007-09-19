@@ -17,6 +17,7 @@ var configFile = "";
 var configIdx = 0;
 var chartOpacity = 0.5;
 var copyrightText = "";
+var feedsUrl = null;
 
 function changeOpacity( opacity ){
   chartOpacity = opacity;
@@ -91,7 +92,15 @@ function loadFeeds( feedsList ){
   GDownloadUrl(feedsList, function(data, responseCode) {
      xml=GXml.parse(data);
      feeds = xml.documentElement.getElementsByTagName("feed");
-     document.getElementById('feed-menu').innerHTML="";
+     var div = document.getElementById('feed-menu');
+     div.innerHTML="";
+     var el = document.createElement('input');
+     el.setAttribute("type","button");
+     el.setAttribute("value","reload");
+     el.setAttribute("onclick","reload_feeds()");
+     div.appendChild(el);
+     var el = document.createElement('br');
+     div.appendChild(el);
      for(i=0;i<feeds.length;i++){
       name=feeds[i].getElementsByTagName("name")[0].childNodes[0].data;
       type=feeds[i].getElementsByTagName("type")[0].childNodes[0].data;
@@ -99,11 +108,15 @@ function loadFeeds( feedsList ){
       try{
       icon=feeds[i].getElementsByTagName("icon")[0].childNodes[0].data;
       }catch(e){
-      icon="blue";
+      icon=null;
       }
       add_feed( name, type, url, icon);
      } 
   });
+}
+
+function reload_feeds(){
+  loadFeeds( feedsUrl );
 }
 
 function add_feed( name, type, url, icon ){
@@ -124,10 +137,12 @@ function add_feed( name, type, url, icon ){
   el.geoxml = g_url;
   el.overlay = null;//new GGeoXml(g_url);
   div.appendChild(el);
-  var im = document.createElement('img');
-  im.setAttribute("height","20");
-  im.setAttribute("src","http://maps.google.com/mapfiles/ms/micons/"+icon+".png");
-  div.appendChild(im);
+  if(icon){
+    var im = document.createElement('img');
+    im.setAttribute("height","20");
+    im.setAttribute("src","http://maps.google.com/mapfiles/ms/micons/"+icon+".png");
+    div.appendChild(im);
+  }
   var txtn = document.createElement( 'a' );
   txtn.setAttribute("href",url);
   txtn.innerHTML = name;
@@ -159,7 +174,8 @@ function loadxml() {
     var feeds = xml.documentElement.getElementsByTagName("Feeds");
     for(i=0;i<feeds.length;i++){
       try{
-      var feedsUrl =  feeds[i].childNodes[0].data;
+      // feedsUrl is global as may need to reload.
+      feedsUrl =  feeds[i].childNodes[0].data;
       loadFeeds(feedsUrl);
       }catch(err){}
     }
