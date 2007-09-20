@@ -1,5 +1,8 @@
 <feedlist>
   <feed>
+    <name>BBC World News</name><type>rss</type><url><![CDATA[http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/world/rss.xml]]></url><icon>green</icon>
+  </feed>
+  <feed>
     <name>CNN</name><type>rss</type><url><![CDATA[http://rss.cnn.com/rss/cnn_world.rss]]></url><icon>blue</icon>
   </feed>
   <feed>
