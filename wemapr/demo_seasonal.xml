@@ -23,4 +23,16 @@
     <geo:lat>0.000000</geo:lat>
     <zoom>1</zoom>
    </Layer>
+   <Layer>
+    <name>number_flooded</name>
+    <src>number_flooded.png</src>
+    <title>Number of people in flooded areas</title>
+    <link>http://www.metoffice.gov.uk</link>
+    <copyright>Met Office</copyright>
+    <gmap max="2">http://wemapr.s3.amazonaws.com/public/nobody/number_flooded</gmap>
+    <feeds>feeds.xml</feeds>
+    <geo:lon>0.000000</geo:lon>
+    <geo:lat>0.000000</geo:lat>
+    <zoom>2</zoom>
+   </Layer>
 </Layers>
