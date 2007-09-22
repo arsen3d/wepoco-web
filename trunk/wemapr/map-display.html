@@ -184,7 +184,7 @@ function loadxml() {
     }
     var layers = xml.documentElement.getElementsByTagName("Layer");
     for(i=0;i<layers.length;i++){
-      try{
+      //try{
       var name, title, copyright, centre, zoom, lon, lat, refzoom;
       name=layers[i].getElementsByTagName("name")[0].childNodes[0].data;
       try{
@@ -209,8 +209,8 @@ function loadxml() {
       lat=layers[i].getElementsByTagName("lat")[0].childNodes[0].data;
       centre = new GLatLng(parseFloat(lat),parseFloat(lon));
       }catch(err){
-         alert("lat lon missing: " + err.tostring() );
-         centre = new GLatLng(0,0);
+         //alert("lat lon missing");
+         centre = new GLatLng(0.0,0.0);
       }
 
       try{
@@ -219,9 +219,9 @@ function loadxml() {
          zoom=2
       }
       add_choice( mapChoice, i, name, title, gmap, refzoom, centre, zoom, copyright );
-    }catch(err){
-      alert(err + " with layer=" + i);
-    } 
+    //}catch(err){
+      //alert(err + " with layer=" + i);
+    //}
     }
     setmap(configIdx);
  }); //GDownloadUrl
