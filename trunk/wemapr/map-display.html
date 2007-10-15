@@ -45,11 +45,12 @@ function add_choice(choices,index,name,title,map_url,refzoom,centre,zoom,copyrig
 
 
 function feed_click(cb){
+ //alert("checked =" + cb.checked + " " + cb.value);
  if(cb.checked){
    if(cb.overlay){
      map2.addOverlay(cb.overlay);
    }else{ 
-     cb.overlay = new GGeoXml(cb.geoxml, function(){map2.addOverlay(cb.overlay);});
+     cb.overlay = new GGeoXml(cb.value, function(){map2.addOverlay(cb.overlay);});
    }
  }else{
    map2.removeOverlay(cb.overlay);
@@ -73,11 +74,12 @@ function setmap( index ) {
 
   prefix_el = document.getElementById('prefix1');
   prefix_el.value = map_url;
-  map2.setMapType(G_NORMAL_MAP);
-  map2.setMapType(basicmap);
-  map2.setZoom(zoom);
-  map2.panTo(centre);
-
+  if(map2 != null){
+    map2.setMapType(G_NORMAL_MAP);
+    map2.setMapType(basicmap);
+    map2.setZoom(zoom);
+    map2.panTo(centre);
+  }
 }
 
 function choiceObj(name, title, gmap, refzoom, centre, zoom, copyright){
@@ -97,13 +99,6 @@ function loadFeeds( feedsList ){
      feeds = xml.documentElement.getElementsByTagName("feed");
      var div = document.getElementById('feed-menu');
      div.innerHTML="";
-     var el = document.createElement('input');
-     el.setAttribute("type","button");
-     el.setAttribute("value","reload");
-     el.setAttribute("onclick","reload_feeds()");
-     div.appendChild(el);
-     var el = document.createElement('br');
-     div.appendChild(el);
      for(i=0;i<feeds.length;i++){
       name=feeds[i].getElementsByTagName("name")[0].childNodes[0].data;
       type=feeds[i].getElementsByTagName("type")[0].childNodes[0].data;
@@ -114,7 +109,14 @@ function loadFeeds( feedsList ){
       icon=null;
       }
       add_feed( name, type, url, icon);
-     } 
+     }
+     var el = document.createElement('br');
+     div.appendChild(el);
+     var el = document.createElement('input');
+     el.setAttribute("type","button");
+     el.setAttribute("value","reload feeds");
+     el.setAttribute("onclick","reload_feeds()");
+     div.appendChild(el);
   });
 }
 
@@ -123,34 +125,42 @@ function reload_feeds(){
 }
 
 function add_feed( name, type, url, icon ){
+  // The way this function adds the checkboxes, mix of DOM and innerHTML, is messy
+  // and not inutitive.  It's this way because it kept breaking on either IE7 or
+  // Firefox.  This compromise seems to work on both.  I wouldn't do it
+  // this way again.
+
   //var rss2kml = "http://pipes.yahoo.com/pipes/pipe.run?_id=QtW0WlhS3BGeRrmxl7okhQ&_render=kml&feed=";
   var t=new Date().valueOf();
   var stylekml = "http://www.wepoco.com/cgi/wemaprkmlstyle?time="+t+"&kind=kml&style="+icon+"&url=";
   var rss2kml = "http://www.wepoco.com/cgi/wemaprkmlstyle?time="+t+"&kind=rss&style="+icon+"&url=";
-  var div = document.getElementById('feed-menu');
-  var el = document.createElement('input');
-  el.setAttribute("type","checkbox");
-  el.setAttribute("value",name);
-  el.setAttribute("onclick","feed_click(this)");
+  // May as well start loading icon now... 
+  if(icon){
+    var iconImage = new Image;
+    iconImage.src =  "http://maps.google.com/mapfiles/ms/micons/"+icon+".png";
+    var im = document.createElement('img');
+    im.setAttribute("src",iconImage.src);
+    im.setAttribute("height","20");
+    im.setAttribute("width","20");
+  }
   if(type=="rss"){
     var g_url = rss2kml + encodeURIComponent(url);
   }else{
     var g_url = stylekml + encodeURIComponent(url);
   }
-  el.geoxml = g_url;
-  el.overlay = null;//new GGeoXml(g_url);
-  div.appendChild(el);
-  if(icon){
-    var im = document.createElement('img');
-    im.setAttribute("height","20");
-    im.setAttribute("src","http://maps.google.com/mapfiles/ms/micons/"+icon+".png");
-    div.appendChild(im);
-  }
+  var div = document.getElementById('feed-menu');
+  var eld = document.createElement('div');
+  div.appendChild(eld);
+
   var txtn = document.createElement( 'a' );
   txtn.setAttribute("href",url);
   txtn.innerHTML = name;
-  div.appendChild( txtn );
-  div.appendChild(document.createElement('br'));
+  eld.innerHTML = '<input type="checkbox" onclick="feed_click(this)" overlay="" value="'+g_url+'">';
+  if(icon){
+    eld.appendChild(im);
+  }
+  eld.appendChild( txtn );
+  eld.appendChild(document.createElement('br'));
 }
 
 function popupXML( xml ){
@@ -219,9 +229,6 @@ function loadxml() {
          zoom=2
       }
       add_choice( mapChoice, i, name, title, gmap, refzoom, centre, zoom, copyright );
-    //}catch(err){
-      //alert(err + " with layer=" + i);
-    //}
     }
     setmap(configIdx);
  }); //GDownloadUrl
@@ -479,24 +486,25 @@ function tabClick(name) {
        <tr>
          <td>opacity</td>
          <td><select id="opacity"onchange="changeOpacity(this.value/100.0)">
-         <option value="25">25%</option>
-         <option selected value="50">50%</option>
+         <option selected value="25">25%</option>
+         <option value="50">50%</option>
          <option value="75">75%</option>
          </select></td>
        </tr>
        </tbody>
        </table>
       </div>
-   <div id="map-sidebar">
-     <div id="map-menu"><select id="map-select" onchange="setmap(this.value)" name="map-select">
-<!-- <option value="null">---</option> -->
-</select>
-<br/><input type="button" value="chart info" onclick="chartInfo()" />
-</div>
-     <div id="feed-menu"></div>
-   </div>   
-
-
+     <div id="map-sidebar">
+       <form>
+       <div id="map-menu">
+         <select id="map-select" onchange="setmap(this.value)" name="map-select">
+         <!-- <option value="null">---</option> -->
+         </select>
+         <input type="button" value="chart info" onclick="chartInfo()" />
+       </div>
+       <div id="feed-menu"></div>
+       </form>
+     </div>
    </div>
    <div id="settings" >
        <div>
