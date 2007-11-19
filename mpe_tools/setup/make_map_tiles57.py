@@ -11,8 +11,8 @@ datadir='/home/mike/wepoco/data/mpe57/'
 mapdir = datadir + "map/"
 lutdir = datadir + "lut/"
     
-import os, Image, ImageDraw, cbdmap, metcoords
-from gzip import GzipFile
+import os, Image, ImageDraw
+import metcoords
 
 def do_draw(img,map,proj,flip=(False,True)):
     (cols,rows) = img.size
@@ -78,6 +78,9 @@ def do_draw(img,map,proj,flip=(False,True)):
     return
 
 def proj4_map(projfn, dims):
+    import cbdmap
+    from gzip import GzipFile
+
     (width,height) = dims
     img = Image.new('L', dims, color=255)
     map = cbdmap.cbdfile(GzipFile("coast.bin.gz","rb"))
