@@ -214,7 +214,7 @@ function setupNDVI()
     
     CustomGetRain1TileUrl=function(a,b){
 	if(b>5){
-	  return "http://localhost:8080/fetchzoom?type=mpe&map=MPE_"+
+	  return "/fetchzoom?type=mpe&map=MPE_"+
 	    selected_raindate+"_M9_00"+"&x="+a.x+"&y="+a.y+"&zoom="+b
         }else{
 	  return "http://wepoco.s3.amazonaws.com/mpe/MPE_"+
