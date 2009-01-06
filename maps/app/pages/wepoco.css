@@ -1,0 +1,105 @@
+.heading {
+   position: absolute;
+   margin-left: 0px;
+   margin-top: 0px;
+   width: 500px;
+   height: 30px;
+   background-color: white;
+   color: black;
+}
+
+.map-info {
+   // z-index: 15;
+   position: absolute;
+   overflow: auto;
+   margin-left: 640px;
+   margin-top: 80px;
+   // padding: 5px;
+   font-family: courier;
+   color: black;
+   background-color: gray;
+   width: 120px;
+   height: 300px;
+}
+
+.map-scale {
+   z-index: 1;
+   position: absolute;
+   overflow: auto;
+   margin-left: 330px;
+   margin-top: 10px;
+   // padding: 5px;
+   font-family: courier;
+   color: black;
+   background-color: white;
+   width: 260px;
+   height: 40px;
+}
+
+
+.map-box {
+   z-index: 2;
+   position: absolute;
+   margin-left: 0px;
+   margin-top: 50px;
+   width: 630px;
+   height: 380px;
+   background-color: gray;
+}
+
+.timeline {
+   position: absolute;
+   margin-left: 0px;
+   margin-top: 440px;
+   width: 790px;
+   height: 50px;
+   background-color: white;
+}
+
+.google {
+   position: absolute;
+   margin-left: 0px;
+   margin-top: 440px;
+   width: 790px;
+   height: 80px;
+   background-color: white;
+
+}
+
+BODY{
+	background: white;
+	color: black;
+	link: #0000ff;
+	vlink: #800080;
+	margin-top: 1px;
+	margin-left: 1px;
+	margin-right: 1px;
+	font-family: 'Gill Sans', Arial, sans-serif
+}
+
+TABLE{
+	font-family: 'Gill Sans', Arial, sans-serif
+}
+
+A:link{
+	color: #400080;
+	background: #FFFFFF
+}
+
+H1{
+	font-weight: bold;
+	text-align: center;
+	margin-left: 0;
+	color: #000000;
+	font-family: 'Gill Sans', Arial, sans-serif
+}
+
+H2{
+	font-weight: bold;
+	text-align: left;
+	margin-left: 0;
+	font-size: 18;
+	color: #000000;
+	font-family: 'Gill Sans', Arial, sans-serif
+}
+
