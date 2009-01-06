@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <script type="text/javascript" language="javascript" src="st-xmlhttp.js"></script>
+    <style type="text/css">
+    @import url("wepoco.css");
+    </style>
+  </head>
+  <body>
+    <div id="map" class="map-box"></div>
+    <div id="info" class="map-info"></div>
+    <div id="timeline" class="timeline"></div>
+    <script type="text/javascript">
+    //<![CDATA[
+
+    function printTimeline( text )
+    {
+       var timeline_div = document.getElementById( "timeline"  );
+       timeline_div.innerHTML = text;
+    }
+
+    function selectMap( but ) {
+      // reset all buttons to default style
+      var timeline_div = document.getElementById( "timeline"  ); 
+      var buttons = timeline_div.getElementsByTagName( 'button' );
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].style.color = "black";
+	buttons[i].style.fontWeight = "normal";
+      }
+      // mark selected button
+      but.style.color = "#CC0000";
+      but.style.fontWeight = "bold";
+
+      // Other stuff
+      var info_div = document.getElementById( "info"  );
+      info_div.innerHTML = "<p>" + but.id + "</p>";
+      return;
+    }
+    
+     // fetch the dataset list
+     var the_url = 'timeline.php';
+     makeHttpRequest(the_url, 'printTimeline');
+     
+    //]]>
+    </script>
+  </body>
+</html>
