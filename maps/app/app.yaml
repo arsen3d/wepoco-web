@@ -13,6 +13,10 @@ handlers:
   static_files: pages/\1
   upload: pages/(.*\.(html|css|js))
 
+- url: /
+  static_files: pages/observations-dev.html
+  upload: pages/observations-dev.html
+
 - url: /about
   static_files: pages/about.html
   upload: pages/about.html

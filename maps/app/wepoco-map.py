@@ -31,7 +31,8 @@ from google.appengine.ext import webapp
 from fetchzoom import FetchZoom
 
 application = webapp.WSGIApplication([
-  ('/fetchzoom', FetchZoom)
+  ('/fetchzoom', FetchZoom),
+  ('/latestrain', LatestRainEstimate),       # Return most recent rainfall estimate
 ], debug=True)
 
 def main():
