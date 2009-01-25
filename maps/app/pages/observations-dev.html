@@ -45,12 +45,6 @@ month = '' + m;
 if(month.length < 2){ month = '0' + month; }
 var lastmonth = year+month+'01';
 
-
-/*
- * There are several choices the user can make that affect the map
- * display.  Rather than use a callback from each input, this one is 
- * called for everything.
- */
 function checkSelections()
 {
   // Check type and date for each map layer that's enabled.
@@ -58,36 +52,21 @@ function checkSelections()
   var raintype = null; var raindate = null;
   var ndvitype = null; var ndvidate = null;
 
-  //if(document.getElementById("ndvi_checkbox").checked){
-    //info = info + 'ndvi:on ';
-    // Which product and date are required?
-    //ndvitype = document.getElementById("ndvitype").value;
-    //info = info + raintype + ' ';
-    //ndvidate = document.getElementById("ndvidate").value;
-    //info = info + raindate + ' ';
-  //}
-  //else{ 
-  ndvitype = null; 
-  //}
-
-  /*
-  if(document.getElementById("rain_checkbox").checked){
-    info = info + 'rain:on ';
-    // Which product and date are required?
-    raintype = document.getElementById("raintype").value;
-    info = info + raintype + ' ';
-    raindate = document.getElementById("raindate").value;
-    info = info + raindate + ' ';
-  }
-  else{ 
-  */
-  raintype = null; 
-  //}
-
   raindate = "20090107";
   raintype="day";
   NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
+  loadRainInfo( "/latestrain" );
 }
+
+function loadRainInfo( infoURL ){
+     GDownloadUrl(infoURL, function(data, responseCode) {
+     xml=GXml.parse(data);
+     date = xml.documentElement.getElementsByTagName("date");
+     // Do something!!
+     dateinp = document.getElementById("dateinp");
+     dateinp.value = date[0].childNodes[0].data;
+  }); 
+} 
 
 </script>
 </head>
@@ -118,26 +97,20 @@ function checkSelections()
        <img alt="wepoco: making weather and climate information useful "
        src="http://www.wepoco.com/wepoco-look/logo_small_text30_circ.gif" style="width:531px; height:130px;" />
      </div>
-     <div id="wepoco-nav-right" style="z-index:2" >
-       <ul>
-         <li><a href="/?page_id=14">About us</a></li>
-         <li><a href="/?page_id=14">Can we help you?</a></li>
-         <li><a href="/?page_id=14">Can you help us?</a></li>
-         <li><a href="/?page_id=13">Developers' corner</a></li>
-       </ul>
-     </div><!-- wepoco-nav-right -->
+
 </div><!-- header -->
 
 <div style="position:relative;background:#FFFFFF;width:660px;height:580px;padding:20px;margin-top:0">
 
+<div>
+<form>
+<input id="dateinp" type="text" name="zzz" value="1066"/>
+</form>
+</div>
+
 <!-- the actual map -->
 <div id="map" class="map-box" style="margin:0">
 </div>
-
-<div id="select" class="map-select" style="visibility:hidden" >
-<input id="ndvi_checkbox" type="checkbox" checked="true" onClick="checkSelections()">NDVI</input><br/>
-<input id="rain_checkbox" type="checkbox" checked="true" onClick="checkSelections()">Rainfall</input>
-</div><!-- select -->
 
 </div>
 
