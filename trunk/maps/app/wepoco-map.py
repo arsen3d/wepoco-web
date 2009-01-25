@@ -28,9 +28,12 @@
 import wsgiref.handlers
 from google.appengine.ext import webapp
 #from pages import *
+from wemaprzoom import WemaprZoom
 from fetchzoom import FetchZoom
+from latestrain import LatestRainEstimate
 
 application = webapp.WSGIApplication([
+  ('/wemaprzoom', WemaprZoom), 
   ('/fetchzoom', FetchZoom),
   ('/latestrain', LatestRainEstimate),       # Return most recent rainfall estimate
 ], debug=True)
