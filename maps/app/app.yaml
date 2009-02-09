@@ -13,6 +13,10 @@ handlers:
   static_files: pages/\1
   upload: pages/(.*\.(html|css|js))
 
+- url: /atlas/(.*)
+  static_files: atlas/\1
+  upload: atlas/(.*)
+
 - url: /
   static_files: pages/observations-dev.html
   upload: pages/observations-dev.html
