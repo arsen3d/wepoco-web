@@ -29,6 +29,11 @@ handlers:
   static_files: pages/help.html
   upload: pages/help.html
 
+
+
+- url: /tile.*
+  script: maptile.py     
+
 - url: .*
   script: wepoco-map.py
 
