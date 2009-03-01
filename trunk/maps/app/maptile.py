@@ -17,20 +17,26 @@ class MapTile(db.Model):
 class Store(webapp.RequestHandler):
     def post(self):
         maptile = MapTile()
-        maptile.name = self.request.get("name")
+        maptile.name = self.request.get("name").encode('ascii')
         img = self.request.get("img")
         maptile.png = db.Blob(img)
         maptile.put()
-        self.redirect('/')
+        #self.redirect('/tiletest')
+        return
 
 class GetTile(webapp.RequestHandler):
     def get(self):
         query = db.Query(MapTile)
-        query.filter('name = ',self.request.get("name"))
+        name = self.request.get("name")
+        if not name:
+            # Name is URL path excluding '/tileget/'
+            name = self.request.path[9:]
+        query.filter('name = ',name)
         result = query.fetch(limit=1)
         maptile = result[0]
         self.response.headers['Content-Type'] = "image/png"
         self.response.out.write(maptile.png)
+        return
 
 class TestPage(webapp.RequestHandler):
     def get(self):
@@ -40,7 +46,8 @@ class TestPage(webapp.RequestHandler):
 <input type="text" name="name" />
 <input type="submit" />
 </form>
-<p>tiles</p>""")
+<p>%s</p>
+<p>tiles</p>""" % self.request.path)
         tiles = db.GqlQuery("SELECT * FROM MapTile") 
         for tile in tiles:
             self.response.out.write("""<a href="/tileget?name=%s">%s</a><br />""" 
@@ -50,9 +57,9 @@ class TestPage(webapp.RequestHandler):
         return
 
 application = webapp.WSGIApplication([
-        ('/tiletest', TestPage),
+        ('/tiletest.*', TestPage),
         ('/tilestore', Store),
-        ('/tileget', GetTile)
+        ('/tileget.*', GetTile)
 ], debug=True)
 
 def main():
