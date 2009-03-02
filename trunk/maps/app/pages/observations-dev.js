@@ -1,6 +1,5 @@
 // observations-dev.js
-// This version uses wepoco.s3.amazonaws.com as tile source.
-// Michael Saunby.  For Wepoco.  July 2007
+// Michael Saunby.  For Wepoco.
 //
 
 var selected_rain = "none";
@@ -8,6 +7,8 @@ var selected_raindate = "none";
 var selected_ndvi = "none";
 var ndvimap, rainmap, bothmap, currentmap;
 var map = null;
+var tilesite = "/tileget/";
+//var tilesite = "http://wepoco.s3.amazonaws.com/mpe/";
 
 function getCookie(c_name)
 {
@@ -217,7 +218,7 @@ function setupNDVI()
 	  return "/fetchzoom?type=mpe&map=MPE_"+
 	    selected_raindate+"_M9_00"+"&x="+a.x+"&y="+a.y+"&zoom="+b
         }else{
-	  return "http://wepoco.s3.amazonaws.com/mpe/MPE_"+
+	  return tilesite+"MPE_"+
 	    selected_raindate+"_M9_00/"+b+"/"+a.x+"_"+a.y+".png"
 	}
     }
