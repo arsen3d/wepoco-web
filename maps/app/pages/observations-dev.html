@@ -52,10 +52,10 @@ function checkSelections()
   var raintype = null; var raindate = null;
   var ndvitype = null; var ndvidate = null;
 
-  raindate = "20090107";
+  raindate = "20090301";
   raintype="day";
-  NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
   loadRainInfo( "/latestrain" );
+  NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
 }
 
 function loadRainInfo( infoURL ){

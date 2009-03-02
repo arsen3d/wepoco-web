@@ -24,7 +24,7 @@ class LatestRainEstimate(webapp.RequestHandler):
     def returnDate(self):
         data = Element( 'data' )
         date = SubElement( data, 'date' )
-        date.text = "20090101"
+        date.text = "20090301"
         self.response.headers['Content-type'] = 'text/xml'
         #self.response.headers['Content-length'] = "%d"%len(rstr)
         ElementTree( data ).write( self.response.out )
