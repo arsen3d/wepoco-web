@@ -7,6 +7,8 @@ from google.appengine.api import urlfetch, images
 from google.appengine.ext import webapp, db
 from xml.etree.ElementTree import Element, SubElement, ElementTree, fromstring
 from google.appengine.ext.webapp.util import run_wsgi_app
+from StringIO import StringIO
+import array
 
 class MapTile(db.Model):
     name = db.StringProperty()
@@ -26,16 +28,40 @@ class Store(webapp.RequestHandler):
 
 class GetTile(webapp.RequestHandler):
     def get(self):
-        query = db.Query(MapTile)
         name = self.request.get("name")
         if not name:
             # Name is URL path excluding '/tileget/'
             name = self.request.path[9:]
+        query = db.Query(MapTile)
         query.filter('name = ',name)
         result = query.fetch(limit=1)
         maptile = result[0]
         self.response.headers['Content-Type'] = "image/png"
         self.response.out.write(maptile.png)
+        return
+
+class MakeTile(webapp.RequestHandler):
+    def get(self):
+        src = self.request.get("src")
+        dest = self.request.get("dest")
+        lut = self.request.get("lut")
+        # open the LUT
+        query = db.Query(MapTile)
+        query.filter('name = ',lut)
+        havedata = "no"
+        try:
+            lutdata = query.fetch(limit=1)[0].png
+            havedata = "yes"
+        except:
+            pass
+        matrix = array.array('h')
+        matrix.fromstring(lutdata)
+        self.response.out.write("""<html><body>
+<p>src = %s</p>
+<p>dest = %s</p>
+<p>lut = %s</p>
+<p>havedata = %s</p>
+</html></body>""" % (src,dest,lut,havedata))
         return
 
 class TestPage(webapp.RequestHandler):
@@ -57,9 +83,10 @@ class TestPage(webapp.RequestHandler):
         return
 
 application = webapp.WSGIApplication([
-        ('/tiletest.*', TestPage),
+        ('/tiletest', TestPage),
         ('/tilestore', Store),
-        ('/tileget.*', GetTile)
+        ('/tileget.*', GetTile),
+        ('/tileproj', MakeTile)
 ], debug=True)
 
 def main():
