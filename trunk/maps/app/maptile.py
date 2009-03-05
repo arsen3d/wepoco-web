@@ -14,7 +14,9 @@ class MapTile(db.Model):
     name = db.StringProperty()
     png = db.BlobProperty()
 
-
+class LutMatrix(db.Model):
+    name = db.StringProperty()
+    matrix = db.BlobProperty()
 
 class Store(webapp.RequestHandler):
     def post(self):
@@ -23,7 +25,15 @@ class Store(webapp.RequestHandler):
         img = self.request.get("img")
         maptile.png = db.Blob(img)
         maptile.put()
-        #self.redirect('/tiletest')
+        return
+
+class StoreLut(webapp.RequestHandler):
+    def post(self):
+        lutmatrix = LutMatrix()
+        lutmatrix.name = self.request.get("name").encode('ascii')
+        lut = self.request.get("lut")
+        lutmatrix.matrix = db.Blob(lut)
+        lutmatrix.put()
         return
 
 class GetTile(webapp.RequestHandler):
@@ -46,11 +56,11 @@ class MakeTile(webapp.RequestHandler):
         dest = self.request.get("dest")
         lut = self.request.get("lut")
         # open the LUT
-        query = db.Query(MapTile)
+        query = db.Query(LutMatrix)
         query.filter('name = ',lut)
         havedata = "no"
         try:
-            lutdata = query.fetch(limit=1)[0].png
+            lutdata = query.fetch(limit=1)[0].matrix
             havedata = "yes"
         except:
             pass
@@ -86,6 +96,7 @@ application = webapp.WSGIApplication([
         ('/tiletest', TestPage),
         ('/tilestore', Store),
         ('/tileget.*', GetTile),
+        ('/tilelut', StoreLut),
         ('/tileproj', MakeTile)
 ], debug=True)
 
