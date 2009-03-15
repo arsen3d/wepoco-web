@@ -2,66 +2,83 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Wepoco: Observations (dev vn)</title>
-<link rel="stylesheet" href="http://www.wepoco.com/wepoco-look/banner.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" type="text/css"
+      href="http://ajax.googleapis.com/ajax/libs/dojo/1.2.3/dijit/themes/nihilo/nihilo.css" />
+<link rel="stylesheet" type="text/css"
+      href="http://ajax.googleapis.com/ajax/libs/dojo/1.2.3/dojo/resources/dojo.css" />
+
+<!-- Probably won't need this stylesheet in future -->
 <link rel="stylesheet" href="observations.css" type="text/css" media="screen, projection" />
 
-<script src="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAF5oUqxaWkq3HzHxEjwFoMhSqLCR4vqZD7ui-J2nkp63kVD9LDRS75VKmRTRVCob68yw1NBkMXZHKsg" type="text/javascript"></script>
-<script type="text/javascript" src="observations-dev.js"></script>
-<script type="text/javascript" src="wCalendarDateInput.js">
-/***********************************************
-* A slightly modified (by Michael Saunby for Wepoco) version of the following -
-*
-* Jason's Date Input Calendar- By Jason Moon http://calendar.moonscript.com/dateinput.cfm
-* Script featured on and available at http://www.dynamicdrive.com
-* Keep this notice intact for use.
-* 
-* The modification is to call a function when the date is changed.
-***********************************************/
-/*
- * 24hr satellite rainfall estimates are generated at midnight so
- * set default date to yesterday.
- */
-</script>
 <script type="text/javascript">
-yesterdate = new Date();
-yesterdate.setDate(yesterdate.getDate()-1);
-year = '' + yesterdate.getFullYear();
-/* month is 0-11 !! */ 
-month = '' + (yesterdate.getMonth() + 1);
-if(month.length < 2){ month = '0' + month; }
-date = '' +  (yesterdate.getDate());
-if(date.length < 2){ date = '0' + date; }
-var yesterday = year+month+date;
-/* for NDVI use last month */
-today =  new Date();
-y = today.getFullYear();
-m = today.getMonth();
-if( m == 0){
-  m = 12;
-  y = y - 1;
-}
-year = '' + y;
-month = '' + m;
-if(month.length < 2){ month = '0' + month; }
-var lastmonth = year+month+'01';
+	djConfig = { parseOnLoad:true, isDebug:true };
+</script>
 
-function checkSelections()
+<script src="http://www.google.com/jsapi"></script>
+<script>
+  // Load Dojo
+  google.load("dojo", "1.2.3");
+</script>
+<script>
+  //dojo.require("dojo.event.*");
+  //dojo.require("dojo.io.*");
+  //dojo.require("dojo.widget.*");
+  dojo.require("dijit.form.DateTextBox");
+  //dojo.require("dojo.parser");
+</script>
+
+<!-- keys 
+http://map.wepoco.com/  
+ABQIAAAAjrevdOcDzRtc2JWIyTrRPBQ1yMtdzTNiYVoL5nrgs3sXr6g1CRSwY1K9Qoi_8zNKy-FV1wfgFadRoQ
+
+http://www.wepoco.com/
+ABQIAAAAF5oUqxaWkq3HzHxEjwFoMhSqLCR4vqZD7ui-J2nkp63kVD9LDRS75VKmRTRVCob68yw1NBkMXZHKsg
+-->
+
+<script src="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAjrevdOcDzRtc2JWIyTrRPBQ1yMtdzTNiYVoL5nrgs3sXr6g1CRSwY1K9Qoi_8zNKy-FV1wfgFadRoQ" type="text/javascript"></script>
+<script type="text/javascript" src="observations-dev.js"></script>
+
+<script type="text/javascript">
+var raintype = null; var raindate = null;
+var ndvitype = null; var ndvidate = null;
+
+function pageLoad()
 {
   // Check type and date for each map layer that's enabled.
   var info = "";
-  var raintype = null; var raindate = null;
-  var ndvitype = null; var ndvidate = null;
 
-  raindate = "20090301";
+  //raindate = "set by loadRainInfo";
   raintype="day";
-  loadRainInfo( "/latestrain" );
+  //loadRainInfo( "/latestrain" );
+  raindate =  parseDate(document.getElementById("dateinp").value);
   NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
+}
+
+function changeDate()
+{
+  // Check type and date for each map layer that's enabled.
+  var info = "";
+  raintype="day";
+  raindate =  parseDate(document.getElementById("dateinp").value);
+  NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
+}
+
+function parseDate( text ){
+  if (/^(\d{2}).(\d{2}).(\d{4})$/.test(text)){
+    day = RegExp.$1;
+    month = RegExp.$2;
+    year = RegExp.$3;
+    return "" + year + month + day;
+  } else {
+    return "00000000";
+  }
 }
 
 function loadRainInfo( infoURL ){
      GDownloadUrl(infoURL, function(data, responseCode) {
      xml=GXml.parse(data);
      date = xml.documentElement.getElementsByTagName("date");
+     raindate = "Hello";
      // Do something!!
      dateinp = document.getElementById("dateinp");
      dateinp.value = date[0].childNodes[0].data;
@@ -70,27 +87,9 @@ function loadRainInfo( infoURL ){
 
 </script>
 </head>
-<body onload="checkSelections();setupNDVI();" onunload="saveLocation();GUnload()">
+<body class="nihilo" onload="pageLoad();setupNDVI();" onunload="saveLocation();GUnload()">
 <div id="container">
 
-<script type="text/javascript" language="javascript">
-   function minimize(){
-    hdr=document.getElementById("header");
-    hdr.style.height = "2px";
-    hdr.style.visibility = "hidden";
-   }
-   function maximize(){
-    hdr=document.getElementById("header");
-    hdr.style.height = "130px";
-    hdr.style.visibility = "visible";
-   }
-</script>
-<div style="position:absolute; right:0; top:0; z-index:3; cursor:pointer">
-  <a style="background-color:white;color:black;border:1px solid black;
-     padding:2px; font:small Arial; marginBottom:3px" onclick="minimize()">min</a>
-  <a style="background-color:white;color:black;border:1px solid black;
-     padding:2px; font:small Arial; marginBottom:3px" onclick="maximize()">max</a> 
-</div>
 <div id="header" style=
      "background:#FFFFff;width:660px;height:130px;margin-top:0;border:0;padding:0;left:0;position:relative;">
      <div id="wepoco">
@@ -103,8 +102,11 @@ function loadRainInfo( infoURL ){
 <div style="position:relative;background:#FFFFFF;width:660px;height:580px;padding:20px;margin-top:0">
 
 <div>
-<form>
-<input id="dateinp" type="text" name="zzz" value="1066"/>
+<form id="form1" action="" name="datesel" method="post">
+<input type="text" name="date1" id="dateinp" value="2008-12-30"
+        dojoType="dijit.form.DateTextBox" onChange="changeDate();"
+        required="true" />
+<label for="date1">dd/mm/yyyy</label>
 </form>
 </div>
 
