@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="observations.css" type="text/css" media="screen, projection" />
 
 <script type="text/javascript">
-	djConfig = { parseOnLoad:true, isDebug:true };
+	djConfig = { parseOnLoad:true, isDebug:false };
 </script>
 
 <script src="http://www.google.com/jsapi"></script>
@@ -45,19 +45,12 @@ var ndvitype = null; var ndvidate = null;
 function pageLoad()
 {
   // Check type and date for each map layer that's enabled.
-  var info = "";
-
-  //raindate = "set by loadRainInfo";
-  raintype="day";
-  //loadRainInfo( "/latestrain" );
-  raindate =  parseDate(document.getElementById("dateinp").value);
-  NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
+  loadRainInfo( "/latestrain" );
 }
 
 function changeDate()
 {
   // Check type and date for each map layer that's enabled.
-  var info = "";
   raintype="day";
   raindate =  parseDate(document.getElementById("dateinp").value);
   NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
@@ -78,10 +71,9 @@ function loadRainInfo( infoURL ){
      GDownloadUrl(infoURL, function(data, responseCode) {
      xml=GXml.parse(data);
      date = xml.documentElement.getElementsByTagName("date");
-     raindate = "Hello";
-     // Do something!!
      dateinp = document.getElementById("dateinp");
      dateinp.value = date[0].childNodes[0].data;
+     changeDate();
   }); 
 } 
 
@@ -103,7 +95,7 @@ function loadRainInfo( infoURL ){
 
 <div>
 <form id="form1" action="" name="datesel" method="post">
-<input type="text" name="date1" id="dateinp" value="2008-12-30"
+<input type="text" name="date1" id="dateinp" value="00000000"
         dojoType="dijit.form.DateTextBox" onChange="changeDate();"
         required="true" />
 <label for="date1">dd/mm/yyyy</label>
