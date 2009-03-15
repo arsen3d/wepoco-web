@@ -3,7 +3,7 @@
 # $$
 #
 
-from google.appengine.api import urlfetch, images
+from google.appengine.api import urlfetch, images, memcache
 from google.appengine.ext import webapp, db
 from xml.etree.ElementTree import Element, SubElement, ElementTree, fromstring
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -36,7 +36,9 @@ class StoreLut(webapp.RequestHandler):
         lutmatrix.put()
         return
 
+
 class GetTile(webapp.RequestHandler):
+    site = 'http://wepoco.s3.amazonaws.com/mpe/'
     def get(self):
         name = self.request.get("name")
         if not name:
@@ -45,10 +47,36 @@ class GetTile(webapp.RequestHandler):
         query = db.Query(MapTile)
         query.filter('name = ',name)
         result = query.fetch(limit=1)
-        maptile = result[0]
-        self.response.headers['Content-Type'] = "image/png"
-        self.response.out.write(maptile.png)
+        try:
+            maptile = result[0]
+            self.response.headers['Content-Type'] = "image/png"
+            self.response.out.write(maptile.png)
+        except:
+            tile_data = self.download( self.site, name )
+            self.response.headers['Content-Type'] = "image/png"
+            self.response.out.write(tile_data)
         return
+
+    def download(self, site, name ):
+        img_data = memcache.get( site + name )
+        if img_data is not None:
+            return img_data
+        else:
+            urlres = urlfetch.fetch( site + name )
+            if urlres.status_code != 200:
+                return None
+            img_data = urlres.content
+            memcache.add(site + name, img_data, 3600)
+            pass
+        # Now store it
+        if img_data is not None:
+            maptile = MapTile()
+            maptile.name = name
+            maptile.png = db.Blob(img_data)
+            maptile.put()
+            pass
+        return img_data
+
 
 class MakeTile(webapp.RequestHandler):
     def get(self):
