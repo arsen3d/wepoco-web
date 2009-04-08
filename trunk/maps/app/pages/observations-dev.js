@@ -2,9 +2,9 @@
 // Michael Saunby.  For Wepoco.
 //
 
-var selected_rain = "none";
-var selected_raindate = "none";
-var selected_ndvi = "none";
+var selected_rain = null;
+var selected_raindate = null;
+var selected_ndvi = null;
 var ndvimap, rainmap, bothmap, currentmap;
 var map = null;
 var tilesite = "/tileget/";
@@ -214,6 +214,7 @@ function setupNDVI()
     }
     
     CustomGetRain1TileUrl=function(a,b){
+	if(!selected_raindate) return "";
 	if(b>5){
 	  return "/fetchzoom?type=mpe&map=MPE_"+
 	    selected_raindate+"_M9_00"+"&x="+a.x+"&y="+a.y+"&zoom="+b

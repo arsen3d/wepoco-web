@@ -9,6 +9,14 @@ handlers:
   static_files: images/favicon.ico
   upload: images/favicon.ico
 
+- url: /(.*\.jpg)
+  static_files: images/jpegs/\1
+  upload: images/jpegs(.*\.jpg)
+
+- url: /(.*\.kml)
+  static_files: images/\1
+  upload: images/(.*\.kml)
+
 - url: /(.*\.(html|css|js))
   static_files: pages/\1
   upload: pages/(.*\.(html|css|js))
