@@ -25,8 +25,11 @@ contenttype = "image/png"
 
 class FetchZoom(webapp.RequestHandler):
     def get(self):
-        self.getArgs()
-        self.zoom()
+        try:
+            self.getArgs()
+            self.zoom()
+        except:
+            pass
         return
     
     def getArgs(self):
