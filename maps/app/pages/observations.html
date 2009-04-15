@@ -1,15 +1,10 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
 <title>Wepoco: Observations</title>
 <link rel="stylesheet" type="text/css"
       href="http://ajax.googleapis.com/ajax/libs/dojo/1.2.3/dijit/themes/nihilo/nihilo.css" />
 <link rel="stylesheet" type="text/css"
       href="http://ajax.googleapis.com/ajax/libs/dojo/1.2.3/dojo/resources/dojo.css" />
-
-<!-- Probably won't need this stylesheet in future -->
-<link rel="stylesheet" href="observations.css" type="text/css" media="screen, projection" />
-
 <script type="text/javascript">
 	djConfig = { parseOnLoad:true, isDebug:false };
 </script>
@@ -20,11 +15,23 @@
   google.load("dojo", "1.2.3");
 </script>
 <script>
-  //dojo.require("dojo.event.*");
-  //dojo.require("dojo.io.*");
-  //dojo.require("dojo.widget.*");
+function pageLoad()
+{
+  // Check type and date for each map layer that's enabled.
+  loadRainInfo( "/latestrain" );
+  setupNDVI();
+}
+
+  dojo.require("dojo.parser");
   dojo.require("dijit.form.DateTextBox");
-  //dojo.require("dojo.parser");
+  dojo.require("dijit.layout.ContentPane");
+  dojo.require("dijit.layout.BorderContainer");
+  dojo.require("dijit.layout.AccordionContainer");
+  dojo.require("dijit.form.Button");
+  dojo.require("dijit.form.Textarea");
+  dojo.require("dojo.data.ItemFileReadStore");
+  dojo.require("dijit.form.FilteringSelect");
+  dojo.addOnLoad(pageLoad);
 </script>
 
 <!-- keys 
@@ -42,11 +49,6 @@ ABQIAAAAF5oUqxaWkq3HzHxEjwFoMhSqLCR4vqZD7ui-J2nkp63kVD9LDRS75VKmRTRVCob68yw1NBkM
 var raintype = null; var raindate = null;
 var ndvitype = null; var ndvidate = null;
 
-function pageLoad()
-{
-  // Check type and date for each map layer that's enabled.
-  loadRainInfo( "/latestrain" );
-}
 
 function changeDate()
 {
@@ -79,35 +81,30 @@ function loadRainInfo( infoURL ){
 
 </script>
 </head>
-<body class="nihilo" onload="pageLoad();setupNDVI();" onunload="saveLocation();GUnload()">
-<div id="container">
-
-<div id="header" style=
-     "background:#FFFFff;width:660px;height:130px;margin-top:0;border:0;padding:0;left:0;position:relative;">
-     <div id="wepoco">
-       <img alt="wepoco: making weather and climate information useful "
-       src="http://www.wepoco.com/wepoco-look/logo_small_text30_circ.gif" style="width:531px; height:130px;" />
-     </div>
-
-</div><!-- header -->
-
-<div style="position:relative;background:#FFFFFF;width:660px;height:580px;padding:20px;margin-top:0">
-
-<div>
-<form id="form1" action="" name="datesel" method="post">
-<input type="text" name="date1" id="dateinp" value="00000000"
+<body class="nihilo" onunload="saveLocation();GUnload()">
+<div  dojoType="dijit.layout.BorderContainer" design="screenDesign" id="container"
+       style="height: 100%;">
+  <div dojoType="dijit.layout.ContentPane" id="top" region="top" splitter="false" 
+    style="height:134px"> 
+      <img alt="wepoco: making weather and climate information useful "
+       src="http://www.wepoco.com/wepoco-look/logo_small_text30_circ.gif" 
+       style="width:531px; height:130px;" />
+  </div><!-- top -->
+  <div dojoType="dijit.layout.ContentPane" id="left" region="left"
+        splitter="false" style="width:25%">
+    <h3>Rainfall estimate</h3>
+    <form id="form1" action="" name="datesel" method="post">
+      <label for="dateinp">Date</label>
+      <input type="text" name="date1" id="dateinp" value="00000000"
         dojoType="dijit.form.DateTextBox" onChange="changeDate();"
         required="true" />
-<label for="date1">dd/mm/yyyy</label>
-</form>
+    </form>
+  </div><!-- left -->
+  <div dojoType="dijit.layout.ContentPane" id="center" region="center"
+        splitter="false">
+  <!-- the actual map -->
+  <div id="map" style="margin:0;width:100%;height:100%;"></div>
+  </div><!-- center -->
 </div>
-
-<!-- the actual map -->
-<div id="map" class="map-box" style="margin:0">
-</div>
-
-</div>
-
-</div> <!-- container -->
 </body>
 </html>
