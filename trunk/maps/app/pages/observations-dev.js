@@ -7,8 +7,15 @@ var selected_raindate = null;
 var selected_ndvi = null;
 var ndvimap, rainmap, bothmap, currentmap;
 var map = null;
+
+// On Google App Engine we've got a smart tile caching system.
+// Fetching tiles from /tileget will load from the database
+// and fetch from s3 as needed. 
+// Without App Engine can use 
+// -  var tilesite = "http://wepoco.s3.amazonaws.com/mpe/"
+// to fetch from s3 every time.
 var tilesite = "/tileget/";
-//var tilesite = "http://wepoco.s3.amazonaws.com/mpe/";
+
 
 function getCookie(c_name)
 {
@@ -202,11 +209,11 @@ function setupNDVI()
     
     
     map = new GMap2(document.getElementById("map"));
-    map.addControl(new GLargeMapControl());
-    map.addControl(new GScaleControl());
-    
-    map.addControl(new SelectMapType());
-    
+    //map.addControl(new GLargeMapControl());
+    //map.addControl(new GScaleControl());   
+    //map.addControl(new SelectMapType());
+    map.setUIToDefault();
+
     // Provide our own getTileUrl functions 
     
     CustomGetNdviTileUrl=function(a,b){
@@ -243,9 +250,9 @@ function setupNDVI()
     var ndvilayer = new GTileLayer(new GCopyrightCollection("Meteorological data: Wepoco"),2,5);
     
     var rainlayers = [
-		      G_HYBRID_MAP.getTileLayers()[0],
-		      rainlayer1,rainlayer2,
-		      G_HYBRID_MAP.getTileLayers()[1]
+		      G_PHYSICAL_MAP.getTileLayers()[0],
+		      rainlayer1,rainlayer2
+		      /*,G_HYBRID_MAP.getTileLayers()[1]*/
 		      ];
     
     var ndvilayers = [
@@ -254,24 +261,11 @@ function setupNDVI()
 		      G_HYBRID_MAP.getTileLayers()[1]
 		      ];
     
-    var tilelayers = [
-		      // G_NORMAL_MAP.getTileLayers()[0],
-		      ndvilayer,
-		      rainlayer1,rainlayer2,
-		      G_HYBRID_MAP.getTileLayers()[1]
-		      ];
-    
-    
-    //tilelayers[0].getOpacity = function() {return 0.6;}
-    
-    //var ndvi_idx = 0;
-    //var rain_idx = 1;
-    
     rainlayer1.getTileUrl = CustomGetRain1TileUrl;
     rainlayer2.getTileUrl = CustomGetRain2TileUrl;
     rainlayer1.isPng = function() {return 1;}
     rainlayer2.isPng = rainlayer1.isPng;
-    rainlayer1.getOpacity = function() {return 0.9;}
+    rainlayer1.getOpacity = function() {return 0.6;}
     rainlayer2.getOpacity = rainlayer1.getOpacity;
     rainlayer1.getCopyright = function(a,b) {
 	return { prefix: "Meteorological Data:", copyrightTexts:["Wepoco"]};
@@ -285,19 +279,16 @@ function setupNDVI()
 	return { prefix: "Meteorological Data:", copyrightTexts:["Wepoco"]};
     }
     
-    var maxres = 10;
+    var maxres = 8;
     // == Create the GMapType, copying most things from G_SATELLITE_MAP ==
-    var bothmap = new GMapType(tilelayers, G_SATELLITE_MAP.getProjection(), "Sat weather",
-			       {maxResolution:maxres,minResolution:2,errorMessage:"error"});    
-    
-    var rainmap = new GMapType(rainlayers, G_SATELLITE_MAP.getProjection(), "Sat weather",
+    var rainmap = new GMapType(rainlayers, G_SATELLITE_MAP.getProjection(), "Rainfall",
 			       {maxResolution:maxres,minResolution:2,errorMessage:"error"});
     
-    var ndvimap = new GMapType(ndvilayers, G_SATELLITE_MAP.getProjection(), "Sat weather",
+    var ndvimap = new GMapType(ndvilayers, G_SATELLITE_MAP.getProjection(), "Vegetation",
 			       {maxResolution:maxres,minResolution:2,errorMessage:"error"});
     
     // == Add the maptype to the map ==
-    map.addMapType(bothmap);
+    map.addMapType(rainmap);
     map.enableContinuousZoom();
     currentmap = rainmap;
     centre = getSavedLocation();
