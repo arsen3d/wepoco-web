@@ -17,17 +17,17 @@ handlers:
   static_files: images/\1
   upload: images/(.*\.kml)
 
-- url: /(.*\.(html|css|js))
+- url: /(.*\.(html|css|js|gif))
   static_files: pages/\1
-  upload: pages/(.*\.(html|css|js))
+  upload: pages/(.*\.(html|css|js|gif))
 
 - url: /atlas/(.*)
   static_files: atlas/\1
   upload: atlas/(.*)
 
 - url: /
-  static_files: pages/observations-dev.html
-  upload: pages/observations-dev.html
+  static_files: pages/observations.html
+  upload: pages/observations.html
 
 - url: /about
   static_files: pages/about.html
