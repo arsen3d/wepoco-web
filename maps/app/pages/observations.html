@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css"
       href="http://ajax.googleapis.com/ajax/libs/dojo/1.2.3/dojo/resources/dojo.css" />
 <script type="text/javascript">
-	djConfig = { parseOnLoad:true, isDebug:false };
+	djConfig = { parseOnLoad:true, isDebug:true };
 </script>
 
 <script src="http://www.google.com/jsapi"></script>
@@ -24,6 +24,8 @@ function pageLoad()
 
   dojo.require("dojo.parser");
   dojo.require("dijit.form.DateTextBox");
+  // RadioButton is declared in CheckBox.js
+  dojo.require("dijit.form.CheckBox");
   dojo.require("dijit.layout.ContentPane");
   dojo.require("dijit.layout.BorderContainer");
   dojo.require("dijit.layout.AccordionContainer");
@@ -91,14 +93,24 @@ function loadRainInfo( infoURL ){
        style="width:531px; height:130px;" />
   </div><!-- top -->
   <div dojoType="dijit.layout.ContentPane" id="left" region="left"
-        splitter="false" style="width:25%">
+        splitter="false" style="width:280px">
     <h3>Rainfall estimate</h3>
     <form id="form1" action="" name="datesel" method="post">
-      <label for="dateinp">Date</label>
+      <input type="radio" checked="checked" value="1" name="datespan" id="sp1" dojoType="dijit.form.RadioButton" />
+      <label for="sp1">Day</label>
+      <input type="radio" value="7" name="datespan" id="sp2" dojoType="dijit.form.RadioButton" />
+      <label for="sp2">Week</label>
+      <input type="radio" value="31" name="datespan" id="sp3" dojoType="dijit.form.RadioButton" />
+      <label for="sp3">Month</label>
+      <br />
+
       <input type="text" name="date1" id="dateinp" value="00000000"
         dojoType="dijit.form.DateTextBox" onChange="changeDate();"
         required="true" />
+      <label for="dateinp">Date</label>
     </form>
+      <br /><br />
+      <img alt="MPE scale" src="mpe_scale.gif" style="width:256px;height:20px"/>
   </div><!-- left -->
   <div dojoType="dijit.layout.ContentPane" id="center" region="center"
         splitter="false">
