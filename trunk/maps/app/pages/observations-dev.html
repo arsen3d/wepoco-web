@@ -52,7 +52,9 @@ function changeDate()
 {
   // Check type and date for each map layer that's enabled.
   raintype="day";
-  raindate =  parseDate(document.getElementById("dateinp").value);
+  var dateval = document.getElementById("dateinp").value;
+  alert("date " + dateval);
+  raindate =  parseDate(dateval);
   NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
 }
 

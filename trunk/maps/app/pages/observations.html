@@ -6,7 +6,7 @@
 <link rel="stylesheet" type="text/css"
       href="http://ajax.googleapis.com/ajax/libs/dojo/1.2.3/dojo/resources/dojo.css" />
 <script type="text/javascript">
-	djConfig = { parseOnLoad:true, isDebug:true };
+	djConfig = { parseOnLoad:true, isDebug:false };
 </script>
 
 <script src="http://www.google.com/jsapi"></script>
@@ -56,19 +56,21 @@ function changeDate()
 {
   // Check type and date for each map layer that's enabled.
   raintype="day";
-  raindate =  parseDate(document.getElementById("dateinp").value);
+  // Get the selected date and calculate start of week and of month.
+  var dateval = dijit.byId("dateinp").attr("value");
+  var weekval = new Date(dateval - (dateval.getDay()*24*60*60000));
+  var monthval = new Date(dateval - ((dateval.getDate()-1)*24*60*60000));
+  raindate =  parseDate(dateval);
   NdviAndRainLoad(ndvitype,ndvidate,raintype,raindate);
 }
 
-function parseDate( text ){
-  if (/^(\d{2}).(\d{2}).(\d{4})$/.test(text)){
-    day = RegExp.$1;
-    month = RegExp.$2;
-    year = RegExp.$3;
-    return "" + year + month + day;
-  } else {
-    return "00000000";
-  }
+function parseDate( s ){
+  var date = s.getUTCDate();
+  var month = s.getUTCMonth() + 1;
+  var year = s.getUTCFullYear();
+  if(date<10){date = "0" + date;}
+  if(month<10){month = "0" + month;} 
+  return "" + year + month + date;
 }
 
 function loadRainInfo( infoURL ){
