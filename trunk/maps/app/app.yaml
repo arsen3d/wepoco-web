@@ -17,13 +17,21 @@ handlers:
   static_files: images/\1
   upload: images/(.*\.kml)
 
-- url: /(.*\.(html|css|js|gif))
-  static_files: pages/\1
-  upload: pages/(.*\.(html|css|js|gif))
+- url: /demo/
+  static_files: demo/index.html
+  upload: demo/index.html
+
+- url: /demo/(.*)
+  static_files: demo/\1
+  upload: demo/(.*)
 
 - url: /atlas/(.*)
   static_files: atlas/\1
   upload: atlas/(.*)
+
+- url: /(.*\.(html|css|js|gif))
+  static_files: pages/\1
+  upload: pages/(.*\.(html|css|js|gif))
 
 - url: /
   static_files: pages/observations.html
@@ -36,8 +44,6 @@ handlers:
 - url: /help
   static_files: pages/help.html
   upload: pages/help.html
-
-
 
 - url: /tile.*
   script: maptile.py     
