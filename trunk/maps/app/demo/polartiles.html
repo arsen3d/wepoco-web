@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"> 
+  <head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/> 
+    <title>Polar map example - Custom tiles</title> 
+    <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAjrevdOcDzRtc2JWIyTrRPBQ1yMtdzTNiYVoL5nrgs3sXr6g1CRSwY1K9Qoi_8zNKy-FV1wfgFadRoQ"
+            type="text/javascript"></script> 
+    <script src="http://alderaan.arc.nasa.gov/maps/nasamaps.js"
+        type="text/javascript"></script>
+    <script type="text/javascript"> 
+
+
+    function initialize() {
+      if (GBrowserIsCompatible()) {
+        var map = new GMap2(document.getElementById("map_canvas"),
+          {draggableCursor:'crosshair'});
+        // var npolar="npolar/";
+        var npolar="http://wepoco.s3.amazonaws.com/npolar/";
+        // var spolar="spolar/";
+        var spolar="http://wepoco.s3.amazonaws.com/spolar/";
+        var projectionN = new PolarStereographicProjection( 5, NORTH );
+        var np_layers = [new GTileLayer(new GCopyrightCollection(""),0,18)];
+        np_layers[0].getTileUrl = function(a,b){
+          return npolar+b+"/"+a.x+"_"+a.y+".png";
+        }
+        np_layers[0].isPng = function() {return 1;}
+        np_layers[0].getCopyright = function(a,b) {
+          return { prefix: "", copyrightTexts:[""]};
+        }
+        polarmapN = new GMapType(np_layers, projectionN, 
+          "North Polar", {errorMessage:"Error"});   
+        map.addMapType(polarmapN);
+        var projectionS = new PolarStereographicProjection( 5, SOUTH );
+        var sp_layers = [new GTileLayer(new GCopyrightCollection(""),0,18)];
+        sp_layers[0].getTileUrl = function(a,b){
+          return spolar+b+"/"+a.x+"_"+a.y+".png";
+        }
+        sp_layers[0].isPng = function() {return 1;}
+        sp_layers[0].getCopyright = function(a,b) {
+          return { prefix: "", copyrightTexts:[""]};
+        }
+        polarmapS = new GMapType(sp_layers, projectionS, 
+          "South Polar", {errorMessage:"Error"});   
+        map.addMapType(polarmapS);
+        map.setCenter(new GLatLng(30, 0), 2);
+        var customUI = map.getDefaultUI();
+        customUI.maptypes.hybrid = false;
+        customUI.maptypes.physical = false;
+        customUI.maptypes.satellite = false;
+        map.setUI(customUI);
+
+        GEvent.addListener(map, "click",
+          function(marker, point) {
+          document.getElementById('where').innerHTML=
+             point.lat().toFixed(4) + "N " +
+             point.lng().toFixed(4) + "E";
+          });
+      }
+    }
+    </script> 
+  </head> 
+  <body onload="initialize()" onunload="GUnload()"> 
+    <div id="map_canvas" style="width: 500px; height: 300px;"></div> 
+    <span id="where">-</span>
+  </body> 
+</html> 

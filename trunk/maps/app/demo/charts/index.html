@@ -1,0 +1,46 @@
+<html> 
+  <head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/> 
+    <title>Google chart API examples</title>
+
+<script>
+var simpleEncoding = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+function simpleEncode(valueArray,maxValue) {
+
+var chartData = ['s:'];
+  for (var i = 0; i < valueArray.length; i++) {
+    var currentValue = valueArray[i] + 0.8;
+    if (!isNaN(currentValue) && currentValue >= 0) {
+    chartData.push(simpleEncoding.charAt(Math.round((simpleEncoding.length-1) * currentValue / maxValue)));
+    }
+      else {
+      chartData.push('_');
+      }
+  }
+return chartData.join('');
+}
+
+var hadcrut3_s21 = new Array(-0.374,-0.365,-0.358,-0.358,-0.367,-0.385,-0.409,-0.432,-0.452,-0.465,-0.473,-0.471,-0.458,-0.432,-0.396,-0.356,-0.320,-0.291,-0.273,-0.265,-0.267,-0.275,-0.285,-0.289,-0.280,-0.255,-0.220,-0.187,-0.168,-0.169,-0.185,-0.210,-0.235,-0.257,-0.273,-0.282,-0.285,-0.285,-0.287,-0.297,-0.314,-0.333,-0.346,-0.345,-0.330,-0.307,-0.283,-0.266,-0.260,-0.266,-0.283,-0.311,-0.342,-0.370,-0.390,-0.406,-0.424,-0.448,-0.475,-0.497,-0.504,-0.493,-0.468,-0.438,-0.414,-0.400,-0.395,-0.392,-0.385,-0.373,-0.358,-0.345,-0.333,-0.320,-0.305,-0.288,-0.272,-0.260,-0.250,-0.241,-0.232,-0.224,-0.218,-0.209,-0.192,-0.165,-0.129,-0.090,-0.055,-0.027,-0.011,-0.005,-0.010,-0.026,-0.053,-0.090,-0.132,-0.170,-0.198,-0.209,-0.206,-0.195,-0.185,-0.183,-0.185,-0.185,-0.175,-0.155,-0.131,-0.110,-0.100,-0.100,-0.112,-0.130,-0.148,-0.156,-0.152,-0.138,-0.119,-0.103,-0.092,-0.088,-0.090,-0.095,-0.098,-0.093,-0.076,-0.046,-0.011,0.023,0.049,0.064,0.068,0.066,0.064,0.068,0.082,0.102,0.124,0.140,0.149,0.152,0.156,0.166,0.188,0.219,0.255,0.289,0.317,0.339,0.360,0.381,0.401,0.418,0.425,0.420,0.405,0.383,0.361);
+
+var enc = simpleEncode(hadcrut3_s21,1.6);
+
+</script>
+</head> 
+<body> 
+    <h1>Google chart API examples</h1>
+    <p>
+   <img src="http://chart.apis.google.com/chart?chs=250x100&chd=t:30,70&cht=p3&chl=Centre|Hadley" />
+   </p>
+
+   <script>
+    document.writeln('<img src="http://chart.apis.google.com/chart?cht=lc&chs=500x300&chd=' + enc + 
+     '&chxt=x,y&chxl=0:|1850|1900|1950|2000|1:|-0.8|0|0.8" />');
+   </script>
+
+</body> 
+</html> 
+
+
+
+

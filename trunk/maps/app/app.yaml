@@ -37,6 +37,9 @@ handlers:
   static_files: pages/observations.html
   upload: pages/observations.html
 
+- url: /admin
+  script: admin.py
+
 - url: /about
   static_files: pages/about.html
   upload: pages/about.html
