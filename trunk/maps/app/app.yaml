@@ -39,6 +39,7 @@ handlers:
 
 - url: /admin
   script: admin.py
+  login: admin
 
 - url: /about
   static_files: pages/about.html
