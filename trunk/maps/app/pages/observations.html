@@ -65,9 +65,9 @@ function changeDate()
 }
 
 function parseDate( s ){
-  var date = s.getUTCDate();
-  var month = s.getUTCMonth() + 1;
-  var year = s.getUTCFullYear();
+  var date = s.getDate();
+  var month = s.getMonth() + 1;
+  var year = s.getFullYear();
   if(date<10){date = "0" + date;}
   if(month<10){month = "0" + month;} 
   return "" + year + month + date;
