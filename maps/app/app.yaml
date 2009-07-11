@@ -17,7 +17,7 @@ handlers:
   static_files: images/\1
   upload: images/(.*\.kml)
 
-- url: /demo/
+- url: /demo
   static_files: demo/index.html
   upload: demo/index.html
 
@@ -33,10 +33,6 @@ handlers:
   static_files: pages/\1
   upload: pages/(.*\.(html|css|js|gif))
 
-- url: /
-  static_files: pages/observations.html
-  upload: pages/observations.html
-
 - url: /admin
   script: admin.py
   login: admin
@@ -49,9 +45,19 @@ handlers:
   static_files: pages/help.html
   upload: pages/help.html
 
+- url: /|/map
+  static_files: pages/observations.html
+  upload: pages/observations.html
+
 - url: /tile.*
   script: maptile.py     
 
-- url: .*
+- url: /wemaprzoom
+  script: wepoco-map.py
+
+- url: /fetchzoom
+  script: wepoco-map.py
+
+- url: /latestrain
   script: wepoco-map.py
 
