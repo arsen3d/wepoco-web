@@ -197,10 +197,12 @@ function setupNDVI()
     
     
     map = new GMap2(document.getElementById("map"));
-    //map.addControl(new GLargeMapControl());
-    //map.addControl(new GScaleControl());   
-    //map.addControl(new SelectMapType());
-    map.setUIToDefault();
+    //map.setUIToDefault();
+    var customUI = map.getDefaultUI();
+    customUI.maptypes.hybrid = false;
+    customUI.maptypes.physical = false;
+    customUI.maptypes.satellite = false;
+    map.setUI(customUI);
 
     // Provide our own getTileUrl functions 
     

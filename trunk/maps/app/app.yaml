@@ -45,7 +45,11 @@ handlers:
   static_files: pages/help.html
   upload: pages/help.html
 
-- url: /|/map
+- url: /
+  static_files: pages/observations.html
+  upload: pages/observations.html
+
+- url: /map
   static_files: pages/observations.html
   upload: pages/observations.html
 
