@@ -217,15 +217,13 @@ function setupNDVI()
 	}
     }
     CustomGetRain2TileUrl=function(a,b){
-        /*
         if(b>5){
-	  return "http://localhost:8080/fetchzoom?type=mpe&map=MPE_"+
+	  return "/fetchzoom?type=mpe&map=MPE_"+
 	selected_raindate+"_M7_57"+"&x="+a.x+"&y="+a.y+"&zoom="+b
         }else{
  	  return "http://wepoco.s3.amazonaws.com/mpe/MPE_"+
 	    selected_raindate+"_M7_57/"+b+"/"+a.x+"_"+a.y+".png"
 	}
-	*/
 	return "";
     }  
 
