@@ -1,0 +1,215 @@
+// mpetiles.js
+// Michael Saunby.  For Wepoco.
+//
+
+var selected_rain = null;
+var selected_raindate = null;
+var rainmap, bothmap, currentmap;
+var map = null;
+
+// On Google App Engine we've got a smart tile caching system.
+// Fetching tiles from /tileget will load from the database
+// and fetch from s3 as needed. 
+// Without App Engine can use 
+// -  var tilesite = "http://wepoco.s3.amazonaws.com/mpe/"
+// to fetch from s3 every time.
+var tilesite = "/tileget/";
+
+
+function getCookie(c_name)
+{
+    if (document.cookie.length>0)
+	{
+	    c_start=document.cookie.indexOf(c_name + "=")
+		if (c_start!=-1)
+		    { 
+			c_start=c_start + c_name.length+1;
+			c_end=document.cookie.indexOf(";",c_start);
+			if (c_end==-1) c_end=document.cookie.length;
+			return unescape(document.cookie.substring(c_start,c_end));
+		    } 
+	}
+    return null;
+}
+
+function setCookie(c_name,value,expiredays)
+{
+    var exdate=new Date();
+    exdate.setDate(exdate.getDate()+expiredays);
+    document.cookie=c_name+ "=" +escape(value)+
+	((expiredays==null) ? "" : ";expires="+exdate);
+}
+
+/*
+ * Store a cookie with present map centre and zoom level.
+ * If user returns within x days these values will be used
+ * rather than default.
+ */
+function saveLocation() {
+    centre = map.getCenter();
+    lat=centre.lat();
+    lng=centre.lng();
+    loc = "" + lat + "," + lng;
+    setCookie( "WepocoLatLng", loc, 20 );
+    zoom = map.getZoom();
+    setCookie( "WepocoZoom", "" + zoom, 20 );
+    return;
+}
+
+function getSavedLocation() {
+    centre = getCookie( "WepocoLatLng" );
+    zoom = getCookie( "WepocoZoom" );
+    if (centre === null){
+	return null;
+    }else{
+	ll = centre.split(",");
+        if(zoom == null){ zoom = 3; }  // unlikely, but possible. 
+	return [Number(ll[0]), Number(ll[1]), Number(zoom)];
+    }
+}
+
+function setRainType( value ){
+    rain_type = value;
+    return;
+}
+
+
+function NdviAndRainLoad( ndvitype, ndvidate, raintype, raindate ){
+    if(raintype == "day"){
+	selected_raindate = raindate;
+    }else if(raintype == "dekad"){
+	if (/^(\d{4})(\d{2})(\d{2})$/.test(raindate)){
+	    year = RegExp.$1;
+	    month = RegExp.$2;
+	    day = RegExp.$3;
+	    d = parseInt(day,10);
+	    if( d < 11 ){
+		dek = "1";
+	    }else if(d > 20){
+		dek = "3";
+	    }else{
+		dek = "2";
+	    }
+	    selected_rain = 'MPE_' + year + month + '_DEK' + dek;
+	}
+    }
+    
+    if(map){ map.setMapType(currentmap); }
+    
+    return;
+}
+
+
+function printToDiv( divname, text )
+{
+    var div = document.getElementById( divname );
+    div.innerHTML = text;
+}
+
+function MPEidToDate( id )
+{
+    if(id.substr(11,3) == 'DEK'){
+	return "dekad "  + id.substr(14,1)
+	    }else{
+	return id.substr(4,4) + '-' + id.substr(8,2) + '-' + id.substr(10,2);
+    }
+}
+
+
+function SelectMapType() {
+}
+
+
+function setup()
+{
+    
+    map = new GMap2(document.getElementById("map"));
+    //map.setUIToDefault();
+    var customUI = map.getDefaultUI();
+    customUI.maptypes.hybrid = false;
+    customUI.maptypes.physical = false;
+    customUI.maptypes.satellite = false;
+    map.setUI(customUI);
+
+    // Provide our own getTileUrl functions 
+    
+    CustomGetRain1TileUrl=function(a,b){
+	if(!selected_raindate) return "";
+	if(b>5){
+	  return "/fetchzoom?type=mpe&map=MPE_"+
+	    selected_raindate+"_M9_00"+"&x="+a.x+"&y="+a.y+"&zoom="+b
+        }else{
+	  return tilesite+"MPE_"+
+	    selected_raindate+"_M9_00/"+b+"/"+a.x+"_"+a.y+".png"
+	}
+    }
+
+    /*
+    CustomGetRain2TileUrl=function(a,b){
+        if(b>5){
+	  return "/fetchzoom?type=mpe&map=MPE_"+
+	selected_raindate+"_M7_57"+"&x="+a.x+"&y="+a.y+"&zoom="+b
+        }else{
+ 	  return "http://wepoco.s3.amazonaws.com/mpe/MPE_"+
+	    selected_raindate+"_M7_57/"+b+"/"+a.x+"_"+a.y+".png"
+	}
+	return "";
+    }  
+    */
+    
+    var rainlayer1 = new GTileLayer(new GCopyrightCollection("Meteorological data: Wepoco"),2,5);
+    //var rainlayer2 = new GTileLayer(new GCopyrightCollection("Meteorological data: Wepoco"),2,5);
+    
+    //var ndvilayer = new GTileLayer(new GCopyrightCollection("Meteorological data: Wepoco"),2,5);
+    
+    var rainlayers = [
+		      G_PHYSICAL_MAP.getTileLayers()[0],
+		      rainlayer1 // ,rainlayer2
+		      /*,G_HYBRID_MAP.getTileLayers()[1]*/
+		      ];
+    /*
+    var ndvilayers = [
+		      //G_NORMAL_MAP.getTileLayers()[0],
+		      ndvilayer,
+		      G_HYBRID_MAP.getTileLayers()[1]
+		      ];
+    */
+    rainlayer1.getTileUrl = CustomGetRain1TileUrl;
+    //rainlayer2.getTileUrl = CustomGetRain2TileUrl;
+    rainlayer1.isPng = function() {return 1;}
+    //rainlayer2.isPng = rainlayer1.isPng;
+    rainlayer1.getOpacity = function() {return 0.6;}
+    //rainlayer2.getOpacity = rainlayer1.getOpacity;
+    rainlayer1.getCopyright = function(a,b) {
+	return { prefix: "Meteorological Data:", copyrightTexts:["Wepoco"]};
+    }
+    //rainlayer2.getCopyright = rainlayer1.getCopyright;
+
+    var maxres = 8;
+    var rainmap = new GMapType(rainlayers, G_SATELLITE_MAP.getProjection(), "Rainfall",
+			       {maxResolution:maxres,minResolution:2,errorMessage:"error"});
+    
+    /*var ndvimap = new GMapType(ndvilayers, G_SATELLITE_MAP.getProjection(), "Vegetation",
+			       {maxResolution:maxres,minResolution:2,errorMessage:"error"});
+    */
+
+    // == Add the maptype to the map ==
+    map.addMapType(rainmap);
+    map.enableContinuousZoom();
+    currentmap = rainmap;
+    centre = getSavedLocation();
+    if(centre == null){
+	mapll = new GLatLng(10.0, 16.0);
+        zoom = 3;
+    }else{
+	mapll = new GLatLng( centre[0], centre[1] );
+        zoom = centre[2];
+    }
+
+    /* fix for high zoom in forecast view resulting in missing
+     * data tiles in obs view.
+     */
+    if(zoom > 5){zoom = 5;}
+    map.setCenter( mapll, zoom, currentmap);
+    return;
+}
