@@ -39,7 +39,7 @@ application = webapp.WSGIApplication([
   ('/wemaprzoom', WemaprZoom), 
   ('/fetchzoom', FetchZoom),
   ('/latestrain', LatestRainEstimate),       # Return most recent rainfall estimate
-  ('/form', FormHandler),
+  ('/uploadform', FormHandler),
   ('/upload', UploadHandler),
   ('/serve/([^/]+)?', ServeHandler),
 ], debug=True)

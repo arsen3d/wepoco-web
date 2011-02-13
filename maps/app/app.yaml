@@ -59,7 +59,7 @@ handlers:
 - url: /arfe
   script: wepoco-map.py
 
-- url: /form
+- url: /uploadform
   script: wepoco-map.py
 
 - url: /upload.*
