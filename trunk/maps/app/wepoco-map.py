@@ -31,11 +31,17 @@ from google.appengine.ext import webapp
 from wemaprzoom import WemaprZoom
 from fetchzoom import FetchZoom
 from latestrain import LatestRainEstimate
+from arfe import ARfe
+from upload import *
 
-application = webapp.WSGIApplication([
+application = webapp.WSGIApplication([  
+  ('/arfe', ARfe),
   ('/wemaprzoom', WemaprZoom), 
   ('/fetchzoom', FetchZoom),
   ('/latestrain', LatestRainEstimate),       # Return most recent rainfall estimate
+  ('/form', FormHandler),
+  ('/upload', UploadHandler),
+  ('/serve/([^/]+)?', ServeHandler),
 ], debug=True)
 
 def main():

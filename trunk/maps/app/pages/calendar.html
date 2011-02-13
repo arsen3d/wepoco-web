@@ -1,0 +1,56 @@
+<html>
+<head>
+<title>Wepoco: Observations</title>
+<script type="text/javascript">
+	djConfig = { parseOnLoad:true, isDebug:true };
+</script>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.4.1/dijit/themes/tundra/tundra.css" /> 
+<link rel="stylesheet" type="text/css"href="http://ajax.googleapis.com/ajax/libs/dojo/1.4.1/dojo/resources/dojo.css" /> 
+
+<script src="http://www.google.com/jsapi"></script>
+<script>
+  // Load Dojo
+  google.load("dojo", "1.4.1");
+</script>
+<script>
+  dojo.require("dijit.dijit"); // optimize: load dijit layer
+  dojo.require("dijit.Calendar");
+  dojo.require("dojo.date.locale");
+  dojo.require("dojo.parser"); // scan page for widgets
+
+ // dojo.addOnLoad(pageLoad);
+</script>
+</head>
+<body class="tundra">
+<div class="container showgrid">
+<div class="span-24 last">
+      <img alt="wepoco: making weather and climate information useful "
+       src="logo_small_text30_circ.gif" 
+       style="width:531px; height:130px;" />
+</div>
+  <div class="span-8">
+    <h3>Rainfall estimate</h3>
+    <form id="form1" action="" name="datesel" method="post">
+      <fieldset>
+      <input type="radio" checked="checked" value="1" name="datespan" id="sp1" />
+      <label for="sp1">Day</label>
+      <input type="radio" value="7" name="datespan" id="sp2" />
+      <label for="sp2">Week</label>
+      <input type="radio" value="31" name="datespan" id="sp3" />
+      <label for="sp3">Month</label>
+      <br />
+      <input id="calendar1" dojoType="dijit.Calendar" onChange="myHandler(this.id,arguments[0])"> 
+      <label for="dateinp">Date</label><input type="text" name="date1" id="dateinp" value="00000000"
+        onChange="changeDate()" required="true" />
+    </fieldset>
+    </form>
+      <br /><br />
+      <img alt="MPE scale" src="mpe_scale.gif" style="width:256px;height:20px"/>
+  </div><!-- left -->
+  <div class="span-16 last">
+  <!-- the actual map -->
+  <div id="map" style="margin:0;width:600px;height:500px;"></div>
+  </div><!-- center -->
+</div>
+</body>
+</html>
