@@ -46,16 +46,28 @@ handlers:
   upload: pages/help.html
 
 - url: /
-  static_files: pages/observations.html
-  upload: pages/observations.html
+  static_files: pages/index.html
+  upload: pages/index.html
 
-- url: /map
-  static_files: pages/observations.html
-  upload: pages/observations.html
+- url: /done
+  static_files: pages/index.html
+  upload: pages/index.html
 
 - url: /tile.*
   script: maptile.py     
 
+- url: /arfe
+  script: wepoco-map.py
+
+- url: /form
+  script: wepoco-map.py
+
+- url: /upload.*
+  script: wepoco-map.py
+
+- url: /serve/.*
+  script: wepoco-map.py
+ 
 - url: /wemaprzoom
   script: wepoco-map.py
 

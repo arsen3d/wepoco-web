@@ -1,0 +1,60 @@
+/**
+ * For use with BluePrint CSS
+ * Michael Saunby tried to make this Met Office brand-like.
+ *
+ * marquis.css  Feb 12th 2019. hadmt
+ *
+ * For Met Office colours see -
+ * http://www01.metoffice.com/metnet/reference/brand/clearerlook/colours_corporate.shtml
+ *
+ **/
+
+body {
+    font-family: "Lucida Grande", Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+    font-size: 80%;
+    color: #222;
+    background: #fff;
+    margin: 1em 1.5em;
+}
+a[href] {
+    color: #436976;
+    background-color: transparent;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #000000;
+    background-color: transparent;
+    font: 100% Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding-top: 0.5em;
+}
+h1 {
+    font-size: 130%;
+    color: #FFFFFF;
+    padding-left: 0.2em;
+    background-color:  #000000;
+    margin-bottom: 0.5em;
+    border-bottom: 3px solid #CCFF33;
+}
+h2 {
+    font-size: 120%;
+    margin-bottom: 0.5em;
+    border-bottom: 1px solid #9CA299;
+}
+h3 {
+    font-size: 110%;
+    margin-bottom: 0.5em;
+    text-decoration: underline;
+}
+h4 {
+    font-size: 100%;
+    font-weight: bold;
+}
+h5 {
+    font-size: 100%;
+    font-weight: bold;
+}
+h6 {
+    font-size: 80%;
+    font-weight: bold;
+}
+
