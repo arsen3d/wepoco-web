@@ -27,18 +27,11 @@
 
 import wsgiref.handlers
 from google.appengine.ext import webapp
-#from pages import *
-from wemaprzoom import WemaprZoom
-from fetchzoom import FetchZoom
-from latestrain import LatestRainEstimate
 from arfe import ARfe
 from upload import *
 
 application = webapp.WSGIApplication([  
   ('/arfe', ARfe),
-  ('/wemaprzoom', WemaprZoom), 
-  ('/fetchzoom', FetchZoom),
-  ('/latestrain', LatestRainEstimate),       # Return most recent rainfall estimate
   ('/uploadform', FormHandler),
   ('/upload', UploadHandler),
   ('/serve/([^/]+)?', ServeHandler),
