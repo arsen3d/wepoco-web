@@ -1,4 +1,0 @@
-#!/bin/sh
-scp $1 msaunby@saunby.net:/home/wepoco/htdocs/maps/
-#scp -r *.png *.gif *.jpg *.xml *.kml *.js *.php *.html *.css  msaunby@saunby.net:/home/wepoco/htdocs/maps/
-
