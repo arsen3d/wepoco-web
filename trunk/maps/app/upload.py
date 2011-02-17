@@ -9,13 +9,7 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp import blobstore_handlers
 import os
 import urllib
-
-class DekadTile(db.Model):
-    y = db.IntegerProperty(required=True)
-    x = db.IntegerProperty(required=True)
-    year = db.IntegerProperty(required=True)
-    data = blobstore.BlobReferenceProperty(required=True)
-    pass
+from dekadtile import DekadTile
 
 class FormHandler(webapp.RequestHandler):
     def get(self):
@@ -29,6 +23,11 @@ Year: <input type="text" name="year"><br>
 Upload File: <input type="file" name="file"><br> 
 <input type="submit" name="submit" value="Submit"> </form></body></html>
 """)
+
+class UploadUrlHandler(webapp.RequestHandler):
+    def get(self):
+        upload_url = blobstore.create_upload_url('/upload')
+        self.response.out.write(upload_url)
 
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
