@@ -62,6 +62,9 @@ handlers:
 - url: /uploadform
   script: wepoco-map.py
 
+- url: /uploadurl
+  script: wepoco-map.py
+
 - url: /upload.*
   script: wepoco-map.py
 

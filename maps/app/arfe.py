@@ -6,18 +6,11 @@
 from google.appengine.ext import webapp
 from google.appengine.ext import blobstore
 from google.appengine.ext import db
-
+from dekadtile import DekadTile
 from array import array
-# Using simplejson as json library not available in App Engine - they're equivalent.
+# Using simplejson as json library not available in App Engine 
+# - they're equivalent.
 import simplejson
-
-
-class DekadTile(db.Model):
-    yidx = db.IntegerProperty(required=True)
-    xidx = db.IntegerProperty(required=True)
-    year = db.IntegerProperty(required=True)
-    tile = db.BlobProperty(required=True)
-    pass
 
 class Dekad:
     def __init__(self,startyr,startmo,startdk):
@@ -48,19 +41,25 @@ class ARfe(webapp.RequestHandler):
     
     def getArgs(self):
         global x
+        global y
+        global year
         x = float(self.request.get("x"))
         y = float(self.request.get("y"))
+        year = int(self.request.get("year"))
         return
 
     def returnJson(self):
         self.response.headers['Content-type'] = 'text/json'
-        dk = Dekad(2008,1,1)
+        dk = Dekad(2010,1,1)
         dekadrain = []
         for e in range(36):
             dekadrain.append([dk.str(),[e-10,e,e+20]])
             dk.incr()
             pass
-        self.response.out.write(simplejson.dumps(dekadrain));
+        retdata = {}
+        retdata['dekadrain'] = dekadrain
+        retdata['message'] = "x:%f y:%f yr:%d" %  (x, y, year)
+        self.response.out.write(simplejson.dumps(retdata));
         return
 
     def readBlob(self,key,x,y):

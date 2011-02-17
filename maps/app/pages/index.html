@@ -187,8 +187,9 @@ function ARFExy(p){
 }
 
 
-function plotGraph(data){
-
+function plotGraph(retdata){
+  data = retdata.dekadrain;
+  alert(retdata.message);
      for(var i in data){
        data[i][0] = new Date(data[i][0]);
      } 

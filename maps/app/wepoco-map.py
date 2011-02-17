@@ -33,6 +33,7 @@ from upload import *
 application = webapp.WSGIApplication([  
   ('/arfe', ARfe),
   ('/uploadform', FormHandler),
+  ('/uploadurl', UploadUrlHandler),
   ('/upload', UploadHandler),
   ('/serve/([^/]+)?', ServeHandler),
 ], debug=True)
