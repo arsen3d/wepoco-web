@@ -189,7 +189,8 @@ function ARFExy(p){
 
 function plotGraph(retdata){
   data = retdata.dekadrain;
-  alert(retdata.message);
+  //alert(retdata.message);
+  dojo.byId("info").innerHTML = retdata.message;
      for(var i in data){
        data[i][0] = new Date(data[i][0]);
      } 
@@ -210,25 +211,13 @@ function fetchDataByPosn(latlng) {
      var p;
      var text = "";
      /*
-     p = RFExy({x:-23.490,y:-42.243});
-     text += "bot-lft x:" + p.x + " y:" + p.y;
-     p = RFExy({x:-24.600,y:43.711});
-     text += "<br> top-lft x:" + p.x + " y:" + p.y;
-     p = RFExy({x:63.414,y:-42.242});
-     text += "<br> bot-rgt x:" + p.x + " y:" + p.y;
-     p = RFExy({x:64.523,y:43.712});
-     text += "<br> top-rgt x:" + p.x + " y:" + p.y;
-     text += "<br>****";
-     p = RFEll(p);
-     text += "<br> top-lng:" + p.x + " lat:" + p.y;
-     text += "<br>****";
-     */
      p = ARFEll({x:0,y:0});
      text += "<br> hdr top left lng:" + p.x + " lat:" + p.y;
      p = ARFEll({x:994,y:1089});
      text += "<br> hdr top left lng:" + p.x + " lat:" + p.y;
      dojo.byId("info").innerHTML = text;
-
+     */
+     p = ARFExy({y:latlng.lat(),x:latlng.lng()});
      var xhrArgs = {
      url: "arfe",
      content: {x:p.x,y:p.y,year:2010,dekad:1,count:36},
