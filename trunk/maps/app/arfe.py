@@ -34,44 +34,60 @@ class Dekad:
         
 
 class ARfe(webapp.RequestHandler):
+    message = "ARfe:"
     def get(self):
         self.getArgs()
+        #self.readBlob()
+        self.xtile = int(self.x/100)
+        self.ytile = int(self.y/100)
+        self.findBlobkey(self.year,self.xtile,self.ytile)
+        self.xoff = int(self.x - (100*self.xtile))
+        self.yoff = int(self.y - (100*self.ytile))
+        b = self.readBlob(self.xoff,self.yoff)
+        self.message += " read %d " % b
+        self.message += "(%d,%d, %d,%d %d)" % (self.xtile, self.xoff, self.ytile, self.yoff, self.year)
         self.returnJson()
         return
     
     def getArgs(self):
-        global x
-        global y
-        global year
-        x = float(self.request.get("x"))
-        y = float(self.request.get("y"))
-        year = int(self.request.get("year"))
+        self.x = float(self.request.get("x"))
+        self.y = float(self.request.get("y"))
+        self.year = int(self.request.get("year"))
         return
 
     def returnJson(self):
         self.response.headers['Content-type'] = 'text/json'
-        dk = Dekad(2010,1,1)
+        dk = Dekad(self.year,1,1)
         dekadrain = []
-        for e in range(36):
-            dekadrain.append([dk.str(),[e-10,e,e+20]])
+        for e in self.data:
+            dekadrain.append([dk.str(),[e,e,e]])
             dk.incr()
             pass
         retdata = {}
         retdata['dekadrain'] = dekadrain
-        retdata['message'] = "x:%f y:%f yr:%d" %  (x, y, year)
+        retdata['message'] = self.message
         self.response.out.write(simplejson.dumps(retdata));
         return
 
-    def readBlob(self,key,x,y):
+    def findBlobkey(self, year, xtile, ytile):
+        q = db.GqlQuery("SELECT * FROM DekadTile WHERE year=:1 AND x=:2 AND y=:3",
+                         year,xtile,ytile)
+        results = q.fetch(1)
+        if len(results):
+            self.blobkey=results[0].data
+        return
+
+    def readBlob(self,x,y):
         # Data stored in blocks of 100x100
         # Will need to seek to (y*100+x)*ob_size then read ob_size bytes
         # ob_size is 36*2
-        ob_size = 72
+        ob_size = 36*2
         pos =  (y*100+x)*ob_size
-        blob_reader = blobstore.BlobReader(key, position=pos, buffer_size=ob_size*2)
-        data = blob_reader.read(ob_size)
-        
-        return data
+        blob_reader = blobstore.BlobReader(self.blobkey, 
+                                           position=pos, buffer_size=ob_size*2)
+        self.data = array('h')
+        self.data.fromstring(blob_reader.read(ob_size))
+        return len(self.data)
 
         # See http://code.google.com/appengine/docs/python/blobstore/blobreaderclass.html
         # blob_key = ...
