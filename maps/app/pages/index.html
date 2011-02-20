@@ -81,9 +81,11 @@ fieldset label {
 <script type="text/javascript">
   dojo.require('dojo.parser');
   dojo.require("dijit.form.Form");
+  dojo.require("dijit.form.RadioButton");
   dojo.require("dijit.form.ValidationTextBox");
   dojo.require("dijit.form.NumberTextBox");
   dojo.require("dijit.form.FilteringSelect");
+
   dojo.addOnLoad(setup);
 
   Proj4js.reportError = function(msg) {alert(msg);}
@@ -188,18 +190,29 @@ function ARFExy(p){
 
 
 function plotGraph(retdata){
-  data = retdata.dekadrain;
-  //alert(retdata.message);
-  dojo.byId("info").innerHTML = retdata.message;
-     for(var i in data){
-       data[i][0] = new Date(data[i][0]);
-     } 
-      var g = new Dygraph(document.getElementById("graphdiv"), data,
-			 {labels:['date','x'],customBars:true,errorBars:true});
-  
-     // Or keep graph and update using -
-     //g.updateOptions( { 'file': graphData } );
 
+  f = dojo.byId('rainForm');
+  console.dir(f['period']);
+
+  if(1){
+    data = retdata.dekadrain;
+    settings =  {labels:['date','dekad rain'],customBars:true,errorBars:true};
+  }
+  else
+  {
+    data = retdata.monthrain;
+    settings =  {labels:['date','month rain']};
+  }
+
+  for(var i in data){
+    data[i][0] = new Date(data[i][0]);
+  } 
+  var g = new Dygraph(document.getElementById("graphdiv"), data,settings);
+  
+  // Or keep graph and update using -
+  //g.updateOptions( { 'file': graphData } );
+
+  //dojo.byId("info").innerHTML = retdata.message;
 }
 
 // Map click listener
@@ -207,7 +220,7 @@ function plotGraph(retdata){
 function fetchDataByPosn(latlng) {
      mylatlng = latlng;
      drawCircle(latlng);
-     dijit.byId('editForm').set('value',{lat:latlng.lat(),lng:latlng.lng()});
+     dijit.byId('locationForm').set('value',{lat:latlng.lat(),lng:latlng.lng()});
      var p;
      var text = "";
      /*
@@ -219,17 +232,17 @@ function fetchDataByPosn(latlng) {
      */
      p = ARFExy({y:latlng.lat(),x:latlng.lng()});
      var xhrArgs = {
-     url: "arfe",
-     content: {x:p.x,y:p.y,year:2010,dekad:1,count:36},
-     handleAs: "json",
-     load: function(data) {
+        url: "arfe",
+        content: {x:p.x,y:p.y,year:2010,dekad:1,count:36},
+        handleAs: "json",
+        load: function(data) {
                     plotGraph( data );
                 },
                 error: function(error) {
                     alert("Error");
                 }
  
-     };
+        };
      var deferred = dojo.xhrGet(xhrArgs);
   }
 
@@ -258,19 +271,35 @@ function setup() {
 
 
 <div class="span-12">
-  <div id="map_canvas" style="width:465px;height:460px"></div>
+  <div id="map_canvas" style="width:460px;height:460px"></div>
 </div>
 <div  class="span-12 last" style="background-color:white">
 <div>
-<form  dojoType="dijit.form.Form" id="editForm">
+<form  dojoType="dijit.form.Form" id="locationForm">
 lat<input type="text" name="lat" class="short" dojoType="dijit.form.NumberTextBox" readonly />N
 &nbsp;
 lng<input type="text" name="lng" class="short" dojoType="dijit.form.NumberTextBox" readonly />E
 <input type="text" name="alt" class="medium" dojoType="dijit.form.ValidationTextBox" readonly />
 </form>
-<p>&nbsp;</p>
+<p>Rainfall estimate (mm)</p>
 </div>
-<div id="graphdiv" style="width:450px;height:420px" ></div>
+<div id="graphdiv" style="width:455px;height:420px" ></div>
+<form  dojoType="dijit.form.Form" id="rainForm">
+    <input type="radio"  dojoType="dijit.form.RadioButton" name="period" id="radioDay" value="day" />
+    <label for="radioDay">
+        Day
+    </label>
+    <input type="radio" dojoType="dijit.form.RadioButton" name="period" id="radioDekad"
+    value="dekad" checked />
+    <label for="radioDekad">
+        Dekad
+    </label>
+    <input type="radio" dojoType="dijit.form.RadioButton" name="period" id="radioMonth"
+    value="month" />
+    <label for="radioMonth">
+        Month
+    </label>
+</form>
 </div>
 <div  class="span-24 last" style="background-color:white">
 <span id="info">Hello world</span>

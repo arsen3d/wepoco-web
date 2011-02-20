@@ -17,15 +17,17 @@ class Dekad:
         self.yr = startyr;
         self.mo = startmo;
         self.dk = startdk;
-    def incr(self):
-        self.dk += 1
-        if self.dk == 4:
-            self.dk = 1
-            self.mo += 1
-            pass
-        if self.mo == 13:
-            self.mo = 1
-            self.yr += 1
+    def incr(self,n=1):
+        for i in range(n):
+            self.dk += 1
+            if self.dk == 4:
+                self.dk = 1
+                self.mo += 1
+                pass
+            if self.mo == 13:
+                self.mo = 1
+                self.yr += 1
+                pass
             pass
         return
     def str(self):
@@ -59,10 +61,6 @@ class ARfe(webapp.RequestHandler):
         self.response.headers['Content-type'] = 'text/json'
         dk = Dekad(self.year,1,1)
         dekadrain = []
-        #for e in self.data:
-        #    dekadrain.append([dk.str(),[e,e,e]])
-        #    dk.incr()
-        #    pass
         for i in range(len(self.data)):
             edat = self.data[i]
             try:
@@ -78,8 +76,16 @@ class ARfe(webapp.RequestHandler):
             dekadrain.append([dk.str(),[emin,edat,emax]])
             dk.incr()
             pass
+        dk = Dekad(self.year,1,1)
+        monthrain = []
+        for i in range(len(self.data)/3):
+            edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
+            monthrain.append([dk.str(),edat])
+            dk.incr(3)
+            pass
         retdata = {}
         retdata['dekadrain'] = dekadrain
+        retdata['monthrain'] = monthrain
         retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0]) #self.message
         self.response.out.write(simplejson.dumps(retdata));
         return
