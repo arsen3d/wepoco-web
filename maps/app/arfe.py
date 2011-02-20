@@ -59,13 +59,28 @@ class ARfe(webapp.RequestHandler):
         self.response.headers['Content-type'] = 'text/json'
         dk = Dekad(self.year,1,1)
         dekadrain = []
-        for e in self.data:
-            dekadrain.append([dk.str(),[e,e,e]])
+        #for e in self.data:
+        #    dekadrain.append([dk.str(),[e,e,e]])
+        #    dk.incr()
+        #    pass
+        for i in range(len(self.data)):
+            edat = self.data[i]
+            try:
+                emin = self.dmin[i]
+            except:
+                emax = edat
+                pass
+            try:
+                emax = self.dmax[i]
+            except:
+                emax = edat
+                pass
+            dekadrain.append([dk.str(),[emin,edat,emax]])
             dk.incr()
             pass
         retdata = {}
         retdata['dekadrain'] = dekadrain
-        retdata['message'] = self.message
+        retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0]) #self.message
         self.response.out.write(simplejson.dumps(retdata));
         return
 
@@ -74,51 +89,32 @@ class ARfe(webapp.RequestHandler):
                          year,xtile,ytile)
         results = q.fetch(1)
         if len(results):
-            self.blobkey=results[0].data
+            self.datakey=results[0].data
+            self.dminkey=results[0].dmin
+            self.dmaxkey=results[0].dmax
         return
 
     def readBlob(self,x,y):
         # Data stored in blocks of 100x100
         # Will need to seek to (y*100+x)*ob_size then read ob_size bytes
         # ob_size is 36*2
+        # See http://code.google.com/appengine/docs/python/blobstore/blobreaderclass.html
         ob_size = 36*2
         pos =  (y*100+x)*ob_size
-        blob_reader = blobstore.BlobReader(self.blobkey, 
-                                           position=pos, buffer_size=ob_size*2)
         self.data = array('h')
-        self.data.fromstring(blob_reader.read(ob_size))
+        try:
+            blob_reader = blobstore.BlobReader(self.datakey,position=pos,buffer_size=ob_size*2)
+            self.data.fromstring(blob_reader.read(ob_size))
+        except: pass
+        self.dmin = array('h')
+        #try:
+        blob_reader = blobstore.BlobReader(self.dminkey,position=pos,buffer_size=ob_size*2)
+        self.dmin.fromstring(blob_reader.read(ob_size))
+        #except: pass
+        self.dmax = array('h')
+        try:
+            blob_reader = blobstore.BlobReader(self.dmaxkey,position=pos,buffer_size=ob_size*2)
+            self.dmax.fromstring(blob_reader.read(ob_size))  
+        except: pass
         return len(self.data)
-
-        # See http://code.google.com/appengine/docs/python/blobstore/blobreaderclass.html
-        # blob_key = ...
-
-        # Instantiate a BlobReader for a given Blobstore value.
-
-        #blob_reader = blobstore.BlobReader(blob_key)
-        
-        # Instantiate a BlobReader for a given Blobstore value, setting the
-        # buffer size to 1 MB.
-
-        #blob_reader = blobstore.BlobReader(blob_key, buffer_size=1048576)
-        
-        # Instantiate a BlobReader for a given Blobstore value, setting the
-        # initial read position.
-
-        #blob_reader = blobstore.BlobReader(blob_key, position=4194304)
-        
-        # Read the entire value into memory. This may take a while depending
-        # on the size of the value and the size of the read buffer, and is not
-        # recommended for large values.
-
-        #value = blob_reader.read()
-        
-        # Set the read position, then read 100 bytes.
-
-        #blob_reader.seek(2097152)
-        #data = blob_reader.read(100)
-        
-        # Read the value, one line (up to and including a '\n' character) at a time.
-
-        #for line in blob_reader:
-        # ...
-        return
+    pass
