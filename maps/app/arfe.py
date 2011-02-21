@@ -55,6 +55,7 @@ class ARfe(webapp.RequestHandler):
         self.x = float(self.request.get("x"))
         self.y = float(self.request.get("y"))
         self.year = int(self.request.get("year"))
+        self.callback = self.request.get("callback")
         return
 
     def returnJson(self):
@@ -87,7 +88,13 @@ class ARfe(webapp.RequestHandler):
         retdata['dekadrain'] = dekadrain
         retdata['monthrain'] = monthrain
         retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0]) #self.message
-        self.response.out.write(simplejson.dumps(retdata));
+        if self.callback:
+            self.response.out.write("%s(" % self.callback)
+            pass
+        self.response.out.write(simplejson.dumps(retdata))
+        if self.callback:
+            self.response.out.write(");")
+            pass
         return
 
     def findBlobkey(self, year, xtile, ytile):
