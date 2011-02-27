@@ -39,16 +39,25 @@ class ARfe(webapp.RequestHandler):
     message = "ARfe:"
     def get(self):
         self.getArgs()
-        #self.readBlob()
         self.xtile = int(self.x/100)
         self.ytile = int(self.y/100)
-        self.findBlobkey(self.year,self.xtile,self.ytile)
-        self.xoff = int(self.x - (100*self.xtile))
-        self.yoff = int(self.y - (100*self.ytile))
-        b = self.readBlob(self.xoff,self.yoff)
-        self.message += " read %d " % b
-        self.message += "(%d,%d, %d,%d %d)" % (self.xtile, self.xoff, self.ytile, self.yoff, self.year)
-        self.returnJson()
+        if self.findBlobkey(self.year,self.xtile,self.ytile):
+            self.xoff = int(self.x - (100*self.xtile))
+            self.yoff = int(self.y - (100*self.ytile))
+            b = self.readBlob(self.xoff,self.yoff)
+            self.returnJson()
+        else:
+            self.response.headers['Content-type'] = 'text/json'
+            retdata = {}
+            retdata['message'] = "Error - no data"
+            if self.callback:
+                self.response.out.write("%s(" % self.callback)
+                pass
+            self.response.out.write(simplejson.dumps(retdata))
+            if self.callback:
+                self.response.out.write(");")
+                pass
+            pass
         return
     
     def getArgs(self):
@@ -87,7 +96,7 @@ class ARfe(webapp.RequestHandler):
         retdata = {}
         retdata['dekadrain'] = dekadrain
         retdata['monthrain'] = monthrain
-        retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0]) #self.message
+        retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0])
         if self.callback:
             self.response.out.write("%s(" % self.callback)
             pass
@@ -105,7 +114,8 @@ class ARfe(webapp.RequestHandler):
             self.datakey=results[0].data
             self.dminkey=results[0].dmin
             self.dmaxkey=results[0].dmax
-        return
+            return True
+        return False
 
     def readBlob(self,x,y):
         # Data stored in blocks of 100x100

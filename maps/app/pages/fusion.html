@@ -116,6 +116,7 @@ fieldset label {
   dojo.require('dijit.form.Button');
   dojo.require('dijit.form.Select');
   dojo.require('dijit.form.ValidationTextBox');
+  dojo.require('dijit.form.TextBox');
   dojo.require('dijit.form.NumberTextBox');
   dojo.require('dijit.form.FilteringSelect');
 
@@ -319,6 +320,49 @@ function fetchDataByPosn(latlng) {
   }
 
 
+function stationGraph( resp ){
+  var data = resp.table.rows;
+  var settings =  {labels:['date','daily rain'],valueRange:[0,300]};
+  for(var i in data){
+     var d = new Date();
+     var e = data[i][0].split("-");
+     d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
+     data[i][0] = d;
+  } 
+  graph = new Dygraph(document.getElementById("graphdiv"), data, settings);
+  return 0;
+}
+
+function stationMarkers( data ){
+  var rows = data.table.rows;
+  for(var i in rows){
+    var latlng = rows[i][2].split(',');
+    var posn = new google.maps.LatLng(latlng[0],latlng[1]);
+    var marker = new google.maps.Marker({
+            map: map,
+            title: rows[i][0] + " " + rows[i][1],
+            position: posn
+        });
+    google.maps.event.addListener(marker, 'click', function() {
+            //alert(this.title);
+            fusionQuery("SELECT Date, Rain FROM 510576 WHERE Date STARTS WITH '2010' AND id=64387",stationGraph);
+          });
+    markers.push(marker);
+  }
+  return 0;
+}
+
+function fusionQuery(sql,fn) {
+  var jsonpArgs = {
+        url: "https://www.google.com/fusiontables/api/query",
+        content: {sql:sql},  
+        callbackParamName: "jsonCallback",
+        load: function(data) {fn(data); return 0;},
+        error: function(error) {alert("Error " + error);return 0;}
+        };
+   dojo.io.script.get(jsonpArgs);
+}
+
 function clearMap() {
    for (var m=0; m<markers.length; m++){
         markers[m].setMap(null);
@@ -342,12 +386,19 @@ function setup() {
     <h1>RFE map</h1>
   </div>
 
-
 <div  class="span-12">
   <div id="map_canvas" style="width:460px;height:460px"></div>
 </div>
 <div  class="span-12 last" style="background-color:white">
 <div>
+<form  dojoType="dijit.form.Form" id="fusionForm">
+Table<input type="text" name="table" class="short" value="505313" dojoType="dijit.form.TextBox"/>
+<br>
+<button type="button"  dojoType="dijit.form.Button" 
+onClick="fusionQuery('SELECT id, name, location FROM 505313',stationMarkers);">
+  fetch
+</button>
+</form>
 <form  dojoType="dijit.form.Form" id="locationForm">
 lat<input type="text" name="lat" class="short" dojoType="dijit.form.NumberTextBox" readonly />N
 &nbsp;
