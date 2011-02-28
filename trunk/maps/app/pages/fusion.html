@@ -214,35 +214,35 @@ function plotGraph(retdata){
   var vals = dijit.byId('rainForm').getValues();
   var period = vals.period;
 
-  var data;
+  //var data;
   var settings;
   
   if(period == 'day'){
-    data = retdata.dekadrain;
-    for(var i in data){
-       data[i][1][0] = data[i][1][0]/10.0;
-       data[i][1][1] = data[i][1][1]/10.0;
-       data[i][1][2] = data[i][1][2]/10.0;
+    graphData = retdata.dekadrain;
+    for(var i in graphData){
+       graphData[i][1][0] = graphData[i][1][0]/10.0;
+       graphData[i][1][1] = graphData[i][1][1]/10.0;
+       graphData[i][1][2] = graphData[i][1][2]/10.0;
     }
     settings =  {labels:['date','avg daily rain'],customBars:true,errorBars:true};
   }
   else if(period == 'dekad'){
-    data = retdata.dekadrain;
+    graphData = retdata.dekadrain;
     settings =  {labels:['date','dekad rain'],customBars:true,errorBars:true};
   }
   else{
-    data = retdata.monthrain;
+    graphData = retdata.monthrain;
     settings =  {labels:['date','month rain']};
   }
 
-  for(var i in data){
+  for(var i in graphData){
      var d = new Date();
-     var e = data[i][0].split("-");
+     var e = graphData[i][0].split("-");
      d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
-     data[i][0] = d;
+     graphData[i][0] = d;
   } 
 
-  graph = new Dygraph(document.getElementById("graphdiv"), data,settings);  
+  graph = new Dygraph(document.getElementById("graphdiv"), graphData,settings);  
   // Or keep graph and update using -
   //graph.updateOptions( { 'file': graphData } );
   
@@ -322,14 +322,22 @@ function fetchDataByPosn(latlng) {
 
 function stationGraph( resp ){
   var data = resp.table.rows;
-  var settings =  {labels:['date','daily rain'],valueRange:[0,300]};
+  //var settings =  {labels:['date','daily rain','b'],valueRange:[0,300]}; 
+  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true};
   for(var i in data){
      var d = new Date();
      var e = data[i][0].split("-");
      d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
      data[i][0] = d;
+     graphData[i][0] = d;
+     graphData[i][2] = new Array();
+     graphData[i][2][0] = Number(data[i][1]);
+     graphData[i][2][1] = Number(data[i][1]);
+     graphData[i][2][2] = Number(data[i][1]);
   } 
-  graph = new Dygraph(document.getElementById("graphdiv"), data, settings);
+  graph = new Dygraph(document.getElementById("graphdiv"), graphData, settings);
+  //graph.updateOptions( { file: graphData } );
+  //graph.updateOptions( settings );
   return 0;
 }
 
@@ -341,12 +349,14 @@ function stationMarkers( data ){
     var marker = new google.maps.Marker({
             map: map,
             title: rows[i][0] + " " + rows[i][1],
+	    wmo: rows[i][0], // WMO station ID and date used as index in rainfall table 
             position: posn
         });
     google.maps.event.addListener(marker, 'click', function() {
-            //alert(this.title);
-            fusionQuery("SELECT Date, Rain FROM 510576 WHERE Date STARTS WITH '2010' AND id=64387",stationGraph);
-          });
+	 var vals = dijit.byId('rainForm').getValues();
+	 var year = vals['year'];
+         fusionQuery("SELECT Date, Rain FROM 510576 WHERE Date STARTS WITH '"+year+"' AND id="+this.wmo,stationGraph);
+        });
     markers.push(marker);
   }
   return 0;
