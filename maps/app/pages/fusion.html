@@ -355,7 +355,7 @@ function stationMarkers( data ){
     google.maps.event.addListener(marker, 'click', function() {
 	 var vals = dijit.byId('rainForm').getValues();
 	 var year = vals['year'];
-         fusionQuery("SELECT Date, Rain FROM 510576 WHERE Date STARTS WITH '"+year+"' AND id="+this.wmo,stationGraph);
+         fusionQuery("SELECT Date, Rain FROM 519729 WHERE Date STARTS WITH '"+year+"' AND id="+this.wmo,stationGraph);
         });
     markers.push(marker);
   }
