@@ -34,7 +34,10 @@ class Dekad:
         dy = [99,1,11,21]
         return "%4d-%02d-%02d" % (self.yr, self.mo, dy[self.dk])
         
-
+#
+# HTTP GET with query ?x=ddd.dd&y=ddd.dd&year=yyyy 
+# return is json text or jsonp if callback=somefnname
+#
 class ARfe(webapp.RequestHandler):
     message = "ARfe:"
     def get(self):
@@ -141,3 +144,9 @@ class ARfe(webapp.RequestHandler):
         except: pass
         return len(self.data)
     pass
+
+class checkArfe(webapp.RequestHandler):
+    def get(self):
+        self.year = int(self.request.get("year"))
+        self.callback = self.request.get("callback")
+        q = db.GqlQuery("SELECT * FROM DekadTile WHERE year=:1",year)
