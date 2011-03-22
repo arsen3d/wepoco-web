@@ -238,7 +238,7 @@ function plotGraph(retdata){
      graphData[i][0] = d;
   } 
 
-  graphhi = new Dygraph(document.getElementById("graphdiv"), graphData,settings);  
+  graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData,settings);  
   // Or keep graph and update using -
   //graph.updateOptions( { 'file': graphData } );
   
@@ -288,7 +288,7 @@ function stationGraph( resp ){
      graphData[i][2][1] = rain;
      graphData[i][2][2] = rain;
   } 
-  graphhi = new Dygraph(document.getElementById("graphdiv"), graphData, settings);
+  graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);
   return 0;
 }
 
@@ -297,7 +297,8 @@ function stationGraph( resp ){
 function fetchDataByPosn(latlng) {
 
      last_latlng = latlng;
-     document.getElementById("graphdiv").innerHTML="Loading...";
+     document.getElementById("graphdivhi").innerHTML="";
+     document.getElementById("graphdivlo").innerHTML="";
      mylatlng = latlng;
      drawCircle(latlng);
      dijit.byId('locationForm').set('value',{lat:latlng.lat(),lng:latlng.lng()});
@@ -345,7 +346,11 @@ function fetchDataByPosn(latlng) {
   }
 
 function stationGraph( resp ){
-  var data = resp.table.rows;
+  var data = resp.table.rows; 
+  if(data.length == 0){
+    // no data for this station,year
+    return 0;
+  }
   var dekrain = new Array();
   for(var i in data){
     var e = data[i][0].split("-");
@@ -360,7 +365,7 @@ function stationGraph( resp ){
      graphData[i][2][1] = rain;
      graphData[i][2][2] = rain;
   } 
-  graph = new Dygraph(document.getElementById("graphdiv"), graphData, settings);
+  graph = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);
   return 0;
 }
 
@@ -378,6 +383,7 @@ function stationMarkers( data ){
     google.maps.event.addListener(marker, 'click', function() {
 	 var vals = dijit.byId('rainForm').getValues();
 	 var year = vals['year'];
+         if(graphData.length == 0){ fetchDataByPosn(this.position); }
          fusionQuery("SELECT date, rain FROM 522347 WHERE date STARTS WITH '"+year+"' AND id="+this.wmo,stationGraph);
         });
     markers.push(marker);
@@ -385,15 +391,15 @@ function stationMarkers( data ){
   return 0;
 }
 
-function fusionQuery(sql,fn) {
+function fusionQuery(sql,fn,errfn) {
   var jsonpArgs = {
         url: "https://www.google.com/fusiontables/api/query",
         content: {sql:sql},  
         callbackParamName: "jsonCallback",
         load: function(data) {fn(data); return 0;},
         error: function(error) {
-              // No data
-              return 0; }
+              if(errfn){errfn(error);}
+        }
         };
    dojo.io.script.get(jsonpArgs);
 }
@@ -419,6 +425,7 @@ function setup() {
     <img src="met_logo.gif" alt="Met Office logo" title="Met Office alpha"/><b>alpha</b>
     -->
     <h1>RFE map</h1>
+    <p><a href="https://docs.google.com/document/pub?id=1CBaaZRCVDcGiuVuoM3XY14jNEXJO_QjlWv4n8KSGi5A">Help</a></p>
   </div>
 
 <div  class="span-12">
@@ -432,7 +439,7 @@ lng<input type="text" name="lng" class="short" dojoType="dijit.form.NumberTextBo
 </div>
 <div  class="span-12 last" style="background-color:white">
 <p>Rainfall estimate (mm)</p>
-<div id="graphdiv" style="width:455px;height:220px" ></div>
+<div id="graphdivhi" style="width:455px;height:220px" ></div>
 <p>Mean max temperature (&deg;C)</p>
 <div id="graphdivlo" style="width:455px;height:220px" ></div>
 <form dojoType="dijit.form.Form" id="rainForm">
