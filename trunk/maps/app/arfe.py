@@ -10,7 +10,7 @@ from dekadtile import DekadTile
 from array import array
 # Using simplejson as json library not available in App Engine 
 # - they're equivalent.
-import simplejson
+from django.utils import simplejson
 
 class Dekad:
     def __init__(self,startyr,startmo,startdk):

@@ -1,0 +1,137 @@
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>RFE map - admin</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.5/dijit/themes/tundra/tundra.css" />
+
+<style type="text/css"><!--
+.tinyHeaderClass {font-size:50%;}
+.formQuestion {
+	background-color:#d0e3f5;
+	padding:0.3em;
+	font-weight:900;
+	font-family:Verdana, Arial, sans-serif;
+	font-size:0.8em;
+	color:#5a5a5a;
+}
+.formAnswer {
+	background-color:#f5eede;
+	padding:0.3em;
+	margin-bottom:1em;
+	width: 100%;
+}
+.pageSubContentTitle {
+		color:#8e8e8e;
+		font-size:1em;
+		font-family:Verdana, Arial, sans-serif;
+		margin-bottom:0.75em;
+}
+body .short {
+	width: 3em;
+}
+body .medium {
+	width: 10em;
+}
+body .long {
+	width: 20em;
+}
+.firstLabel {
+	display: inline-block;
+	display: -moz-inline-box;
+	width: 10em;
+	min-width: 10em;
+}
+.secondLabel {
+	width: auto;
+	margin-left: 5em;
+	margin-right: 1em;
+}
+fieldset label {
+	margin-right: 1em;
+}
+.noticeMessage {
+	display: block;
+	float: right;
+	font-weight: normal;
+	font-family:Arial, Verdana, sans-serif;
+	color:#663;
+	font-size:0.9em;
+}
+/* grid.css */
+.container {width:950px;margin:0 auto;}
+.showgrid {background:url(src/grid.png);}
+.column, .span-1, .span-2, .span-3, .span-4, .span-5, .span-6, .span-7, .span-8, .span-9, .span-10, .span-11, .span-12, .span-13, .span-14, .span-15, .span-16, .span-17, .span-18, .span-19, .span-20, .span-21, .span-22, .span-23, .span-24 {float:left;margin-right:10px;}
+.last {margin-right:0;}
+.span-1 {width:30px;}
+.span-2 {width:70px;}
+.span-3 {width:110px;}
+.span-4 {width:150px;}
+.span-5 {width:190px;}
+.span-6 {width:230px;}
+.span-7 {width:270px;}
+.span-8 {width:310px;}
+.span-9 {width:350px;}
+.span-10 {width:390px;}
+.span-11 {width:430px;}
+.span-12 {width:470px;}
+.span-13 {width:510px;}
+.span-14 {width:550px;}
+.span-15 {width:590px;}
+.span-16 {width:630px;}
+.span-17 {width:670px;}
+.span-18 {width:710px;}
+.span-19 {width:750px;}
+.span-20 {width:790px;}
+.span-21 {width:830px;}
+.span-22 {width:870px;}
+.span-23 {width:910px;}
+.span-24 {width:950px;margin-right:0;}
+--></style>
+
+<script type="text/javascript">
+	djConfig = { parseOnLoad:true, isDebug:false };
+</script>
+<script src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+  google.load('dojo', '1.5');  
+  google.load('visualization', '1', {packages:['table']});
+</script>
+<script type="text/javascript">
+  dojo.require('dojo.parser');
+  dojo.require('dojo.io.script');
+  dojo.require('dijit.form.Form');
+  dojo.require('dijit.form.RadioButton');
+  dojo.require('dijit.form.Button');
+  dojo.require('dijit.form.Select');
+  dojo.require('dijit.form.ValidationTextBox');
+  dojo.require('dijit.form.NumberTextBox');
+  dojo.require('dijit.form.FilteringSelect');
+
+  dojo.addOnLoad(setup);
+
+  // Brand colours
+  var bcols = {green:"#CCFF33",blue:"#031F73",cyan:"#00ADD0", olive:"#878800"};
+
+  function initialise() {
+    return 0;
+  }
+</script>
+</head>
+<body class="tundra" style="background-color:white;margin:0px;padding:0px;">
+<div class="container" > 
+
+  <div class="span-24 last"  style="background-color:black">
+    <h1>RFE map - admin</h1>
+  </div>
+
+  <div  class="span-24 last" style="background-color:white">
+   <form  dojoType="dijit.form.Form" id="adminForm">
+   </form>
+  </div>
+
+   <span id="info"></span>
+</div> <!-- container -->
+</body>
+</html>
