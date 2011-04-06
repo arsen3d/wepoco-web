@@ -11,6 +11,8 @@ import os
 import urllib
 from dekadtile import DekadTile
 
+# This form could be used to manually upload data to the datastore and blobstore.
+# To upload using curl call UploadUrlHandler instead. 
 class FormHandler(webapp.RequestHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
@@ -26,6 +28,11 @@ Upload File: <input type="file" name="dmax"><br>
 <input type="submit" name="submit" value="Submit"> </form></body></html>
 """)
 
+# A get on this url (probably /uploadurl) will return a blobstore url to which the data should be posted.
+# From a bash script something like this is needed -
+# url=`curl -s http://wepoco-map.appspot.com/uploadurl`
+# curl -F x=$x -F y=$y -F year=$year -F data=@$datfile -F dmin=@$minfile -F dmax=@$maxfile $url
+#
 class UploadUrlHandler(webapp.RequestHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/upload')
@@ -52,4 +59,4 @@ class ServeHandler(blobstore_handlers.BlobstoreDownloadHandler):
         blob_info = blobstore.BlobInfo.get(resource)
         self.response.out.write('<html><body>')
         self.response.out.write('<p>%s</p></body></html>' %  blob_info.key())
-        #self.send_blob(blob_info)
+

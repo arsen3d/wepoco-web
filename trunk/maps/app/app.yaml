@@ -68,15 +68,15 @@ handlers:
 - url: /upload.*
   script: wepoco-map.py
 
+- url: /rfeuploadurl
+  script: wepoco-map.py
+
+- url: /rfeupload.*
+  script: wepoco-map.py
+
 - url: /serve/.*
   script: wepoco-map.py
  
-- url: /wemaprzoom
-  script: wepoco-map.py
 
-- url: /fetchzoom
-  script: wepoco-map.py
 
-- url: /latestrain
-  script: wepoco-map.py
 
