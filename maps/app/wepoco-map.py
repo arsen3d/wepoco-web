@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2008 Wepoco.  http://www.wepoco.org/
+# Copyright 2011 Wepoco.  http://www.wepoco.org/
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,18 +29,20 @@ import wsgiref.handlers
 from google.appengine.ext import webapp
 from arfe import ARfe
 from upload import *
+from uploadrfe import *
 
 application = webapp.WSGIApplication([  
   ('/arfe', ARfe),
   ('/uploadform', FormHandler),
   ('/uploadurl', UploadUrlHandler),
   ('/upload', UploadHandler),
+  ('/rfeuploadurl', RfeUploadUrlHandler),
+  ('/rfeupload', RfeUploadHandler),
   ('/serve/([^/]+)?', ServeHandler),
 ], debug=True)
 
 def main():
   wsgiref.handlers.CGIHandler().run(application)
-
 
 if __name__ == '__main__':
   main()
