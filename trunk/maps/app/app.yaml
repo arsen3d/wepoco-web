@@ -53,10 +53,10 @@ handlers:
   static_files: pages/index.html
   upload: pages/index.html
 
-- url: /tile.*
-  script: maptile.py     
-
 - url: /arfe
+  script: wepoco-map.py
+
+- url: /arfeimg
   script: wepoco-map.py
 
 - url: /uploadform

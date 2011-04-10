@@ -14,25 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-
-###
 ###
 # Notes on testing in SDK.
 # Delete database if changes in code cause failures.  'rm $TMP/dev_appstore.*'
-#
-# Notes on deployment.
+# or use -c  (clear option) on dev_appserver.py command line
+# also http://localhost:8080/_ah/admin can delete, etc.
 #
 #
 
 import wsgiref.handlers
 from google.appengine.ext import webapp
 from arfe import ARfe
+from arfeimg import ARfeImg
 from upload import *
 from uploadrfe import *
 
 application = webapp.WSGIApplication([  
   ('/arfe', ARfe),
+  ('/arfeimg', ARfeImg),
   ('/uploadform', FormHandler),
   ('/uploadurl', UploadUrlHandler),
   ('/upload', UploadHandler),
