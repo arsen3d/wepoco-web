@@ -57,9 +57,9 @@ def mktiles(filename, tileprefix):
                     outmax.append(maxv)
                     pass
                 pass
-            tiledat = "%s%02d_%02d" % (tileprefix, y, x)
-            tilemin = "%s%02d_%02d_min" % (tileprefix, y, x)
-            tilemax = "%s%02d_%02d_max" % (tileprefix, y, x)
+            tiledat = "%s/%02d_%02d" % (tileprefix, y, x)
+            tilemin = "%s/%02d_%02d_min" % (tileprefix, y, x)
+            tilemax = "%s/%02d_%02d_max" % (tileprefix, y, x)
             print "saving tile",tiledat
             outdat.tofile(file(tiledat, "wb"))
             print "saving tile",tilemin
@@ -73,6 +73,12 @@ def mktiles(filename, tileprefix):
 
 if __name__ == "__main__":
     import sys
-    mktiles( sys.argv[1], sys.argv[2] )
+    import re
+    m = re.match("(\w+)\.bil$", sys.argv[1])
+    try:
+        os.mkdir(m.group(1))
+    except:
+        pass
+    mktiles( sys.argv[1], m.group(1) )
 
 

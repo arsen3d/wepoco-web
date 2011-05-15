@@ -13,8 +13,8 @@ def readtile(filename):
     return matrix
 
 def composite(yr,suffix=""):
-    for y in range(10):
-        for x in range(9):
+    for y in range(11):
+        for x in range(10):
             tile = "%02d_%02d%s" % (y,x,suffix)
             matrices = []
             for mo in range(12):
@@ -40,9 +40,10 @@ def composite(yr,suffix=""):
 
 if __name__ == "__main__":
     import sys
-    composite("09")
-    composite("09","_min")
-    composite("09","_max")
+    year = sys.argv[1]  # e.g. "09"
+    composite(year)
+    composite(year,"_min")
+    composite(year,"_max")
 
 
 
