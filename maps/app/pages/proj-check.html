@@ -1,0 +1,105 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Projection checker</title>
+
+<script src="proj4js-combined.js"></script> 
+<script type="text/javascript">
+  Proj4js.reportError = function(msg) {alert(msg);}
+  var my_proj_str = "+proj=aea +lat_1=-19 +lat_2=21 +lat_0=1 +lon_0=20 +x_0=0 +y_0=0 +units=m +ellps=clrk66 +to_meter=8000 +no_defs";   var latlng_proj_str = "+proj=longlat +ellps=intl +towgs84=-637,-549,-203,0,0,0,0, +no_defs";
+  Proj4js.defs["LONGLAT"] = latlng_proj_str;
+  srcProj = new Proj4js.Proj('LONGLAT');    //source coordinates Longitude/Latitude
+
+function projToLL(p, my_proj_str){
+     Proj4js.defs["MYPROJ"] = my_proj_str;
+     dstProj = new Proj4js.Proj('MYPROJ');
+     Proj4js.transform(dstProj, srcProj, p);
+     return p;
+}
+
+function projToXY(p, my_proj_str){
+     Proj4js.defs["MYPROJ"] = my_proj_str;
+     dstProj = new Proj4js.Proj('MYPROJ');
+     Proj4js.transform(srcProj, dstProj, p);
+     return p;
+}
+
+function tolatlng(){
+  var x = Number(document.getElementById("x").value);
+  var y = Number(document.getElementById("y").value);
+  var tometer = Number(document.getElementById("tometer").value);
+  var xoff = Number(document.getElementById("xoff").value);
+  var yoff = Number(document.getElementById("yoff").value);
+  var proj_str = document.getElementById("proj").value;
+  x -= (xoff/tometer);
+  y = (yoff/tometer) - y;
+  var point = projToLL({x:x, y:y}, proj_str); 
+  document.getElementById("lng").value = point.x;
+  document.getElementById("lat").value = point.y;
+}
+
+function toxy(){
+  var lat = Number(document.getElementById("lat").value);
+  var lng = Number(document.getElementById("lng").value);
+  var tometer = Number(document.getElementById("tometer").value);
+  var xoff = Number(document.getElementById("xoff").value);
+  var yoff = Number(document.getElementById("yoff").value);
+  var proj_str = document.getElementById("proj").value;
+  var point = projToXY({x:lng, y:lat}, proj_str); 
+  point.x += (xoff/tometer);
+  point.y = (yoff/tometer) - point.y;
+  document.getElementById("x").value = point.x;
+  document.getElementById("y").value = point.y;
+}
+
+</script>
+</head>
+<body>
+    <h1>Proj-check</h1>
+<p>Michael Saunby. May 2011</p>
+<form>
+<input type="text" id="proj"  style="width:100%" value="+proj=aea +lat_1=-19 +lat_2=21 +lat_0=1 +lon_0=20 +x_0=0 +y_0=0 +units=m +ellps=clrk66 +to_meter=8000 +no_defs" />
+<br>
+X offset<input type="text" id="xoff" value="0">&nbsp;
+Y offset<input type="text" id="yoff" value="0">&nbsp;
+Pixel size<input type="text" id="tometer" value="8000">m&nbsp;
+<br>
+X:<input type="text" id="x" />&nbsp;
+Y:<input type="text" id="y" />&nbsp;
+<input type="button" value="to lat lng" onclick="tolatlng()"/>
+<br>
+Lat:<input type="text" id="lat" />&nbsp;
+Lng:<input type="text" id="lng" />&nbsp;
+<input type="button" value="to x y" onclick="toxy()"/>
+</form>
+<p>
+Take a look at the source code for this page to see how coordinates are converted using proj4-js. 
+</p>
+<p>
+USAID RFE values:  xoffset=4237357  yoffset=4272328 pixsize=8000m
+<br>Files have 994 cols and 1089 rows.
+</p>
+<pre>
+BLW file reads:
+                8000.00000000000000 
+                   0.00000000000000 
+                   0.00000000000000 
+               -8000.00000000000000 
+            -4237357.15488333906978 
+             4272328.59128606319427 
+</pre>
+<p>
+USAID NDVI values:  xoffset=4607990  yoffset=4608032 pixsize=8000m
+<br>Files have 1152 cols and 1152 rows.
+</p>
+<pre>
+BLW file reads:
+                8000.00000000000000 
+                   0.00000000000000 
+                   0.00000000000000 
+               -8000.00000000000000 
+            -4607990.24849999975413 
+             4608032.50690000038594 
+</pre>
+</body>
+</html>

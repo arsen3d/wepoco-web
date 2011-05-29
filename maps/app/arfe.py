@@ -40,6 +40,10 @@ class Dekad:
 #
 class ARfe(webapp.RequestHandler):
     message = "ARfe:"
+    dekadname = "dekadrain"
+    monthname = "monthrain"
+    paramname = "rfe"
+
     def get(self):
         self.getArgs()
         self.xtile = int(self.x/100)
@@ -48,6 +52,7 @@ class ARfe(webapp.RequestHandler):
             self.xoff = int(self.x - (100*self.xtile))
             self.yoff = int(self.y - (100*self.ytile))
             b = self.readBlob(self.xoff,self.yoff)
+            self.scaleData()
             self.returnJson()
         else:
             self.response.headers['Content-type'] = 'text/json'
@@ -97,8 +102,8 @@ class ARfe(webapp.RequestHandler):
             dk.incr(3)
             pass
         retdata = {}
-        retdata['dekadrain'] = dekadrain
-        retdata['monthrain'] = monthrain
+        retdata[self.dekadname] = dekadrain
+        retdata[self.monthname] = monthrain
         retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0])
         if self.callback:
             self.response.out.write("%s(" % self.callback)
@@ -110,8 +115,8 @@ class ARfe(webapp.RequestHandler):
         return
 
     def findBlobkey(self, year, xtile, ytile):
-        q = db.GqlQuery("SELECT * FROM DekadTile WHERE year=:1 AND x=:2 AND y=:3",
-                         year,xtile,ytile)
+        q = db.GqlQuery("SELECT * FROM DekadTile WHERE year=:1 AND x=:2 AND y=:3 AND param=:4",
+                         year,xtile,ytile,self.paramname)
         results = q.fetch(1)
         if len(results):
             self.datakey=results[0].data
@@ -119,6 +124,9 @@ class ARfe(webapp.RequestHandler):
             self.dmaxkey=results[0].dmax
             return True
         return False
+
+    def scaleData(self):
+        return
 
     def readBlob(self,x,y):
         # Data stored in blocks of 100x100
@@ -143,6 +151,29 @@ class ARfe(webapp.RequestHandler):
             self.dmax.fromstring(blob_reader.read(ob_size))  
         except: pass
         return len(self.data)
+    pass
+
+class ANdvi(ARfe):
+    message = "ANdvi:"
+    dekadname = "dekadndvi"
+    monthname = "monthndvi"
+    paramname = "ndvi"
+    def scaleData(self):
+        ndata = []
+        nmin = []
+        nmax = []
+        for i in range(len(self.data)):
+            ndata.append(self.data[i] / 250.0)
+            pass
+        for i in range(len(self.dmin)):
+            nmin.append(self.dmin[i] / 250.0)
+            pass
+        for i in range(len(self.dmax)):
+            nmax.append(self.dmax[i] / 250.0)
+            pass
+        self.data = ndata
+        self.dmin = nmin
+        self.dmax = nmax
     pass
 
 class checkArfe(webapp.RequestHandler):

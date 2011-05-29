@@ -33,6 +33,11 @@ handlers:
   static_files: atlas/\1
   upload: atlas/(.*)
 
+- url: /datastore
+  static_files: admin/datastore.html
+  upload: admin/datastore.html
+  login: admin
+
 - url: /(.*\.(html|css|js|gif))
   static_files: pages/\1
   upload: pages/(.*\.(html|css|js|gif))
@@ -57,10 +62,23 @@ handlers:
   static_files: pages/index.html
   upload: pages/index.html
 
+- url: /list.*
+  script: wepoco-map.py
+  login: admin
+
+- url: /del.*
+  script: wepoco-map.py
+
 - url: /arfe
   script: wepoco-map.py
 
 - url: /arfeimg
+  script: wepoco-map.py
+
+- url: /andvi
+  script: wepoco-map.py
+
+- url: /andviimg
   script: wepoco-map.py
 
 - url: /uploadform
