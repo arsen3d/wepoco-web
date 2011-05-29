@@ -22,6 +22,7 @@ class FormHandler(webapp.RequestHandler):
 X: <input type="text" name="x"><br>
 Y: <input type="text" name="y"><br>
 Year: <input type="text" name="year"><br>
+Param: <input type="text" name="param"><br>
 Upload File: <input type="file" name="data"><br> 
 Upload File: <input type="file" name="dmin"><br> 
 Upload File: <input type="file" name="dmax"><br> 
@@ -43,13 +44,14 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         x = int(self.request.get('x'))
         y = int(self.request.get('y'))
         year = int(self.request.get('year'))
+        param = self.request.get('param')
         upload_files = self.get_uploads('data')  # 'data' is file upload field in the form
         blob_info = upload_files[0]
         upload_files_min = self.get_uploads('dmin') 
         blob_info_min = upload_files_min[0]
         upload_files_max = self.get_uploads('dmax') 
         blob_info_max = upload_files_max[0]
-        d = DekadTile(x=x,y=y,year=year,data=blob_info.key(),dmin=blob_info_min.key(),dmax=blob_info_max.key())
+        d = DekadTile(x=x,y=y,year=year,param=param,data=blob_info.key(),dmin=blob_info_min.key(),dmax=blob_info_max.key())
         d.put()
         self.redirect('/done')
 

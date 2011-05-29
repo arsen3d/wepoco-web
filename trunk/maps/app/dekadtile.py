@@ -7,6 +7,7 @@ from google.appengine.ext import blobstore
 from google.appengine.ext import db
 
 class DekadTile(db.Model):
+    param = db.StringProperty(required=True)
     y = db.IntegerProperty(required=True)
     x = db.IntegerProperty(required=True)
     year = db.IntegerProperty(required=True)

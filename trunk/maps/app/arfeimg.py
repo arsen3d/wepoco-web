@@ -83,3 +83,6 @@ class ARfeImg(webapp.RequestHandler):
     pass
 
 
+
+class ANdviImg(ARfeImg):
+    pass
