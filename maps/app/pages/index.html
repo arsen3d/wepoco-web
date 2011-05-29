@@ -311,7 +311,7 @@ function rainGraph(retdata){
   }
   else{
     graphData = retdata.monthrain;
-    settings =  {labels:['date','month rain']};
+    settings =  {labels:['date','month rain'],customBars:true,errorBars:true};
   }
 
   for(var i in graphData){
@@ -417,7 +417,7 @@ function ndviGraph( retdata ){
   }
   else if(period == 'month'){
     ndviData = retdata.monthndvi;
-    settings =  {labels:['date','month NDVI']};
+    settings =  {labels:['date','month NDVI'],customBars:true,errorBars:true};
   }
 
   for(var i in ndviData){

@@ -75,6 +75,17 @@ class ARfe(webapp.RequestHandler):
         self.callback = self.request.get("callback")
         return
 
+    def makeMonth(self):
+        monthrain = []
+        dk = Dekad(self.year,1,1)
+        for i in range(len(self.data)/3):
+            edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
+            monthrain.append([dk.str(),[edat,edat,edat]])
+            dk.incr(3)
+            pass
+        self.retdata[self.monthname] = monthrain
+        return
+
     def returnJson(self):
         self.response.headers['Content-type'] = 'text/json'
         dk = Dekad(self.year,1,1)
@@ -94,21 +105,15 @@ class ARfe(webapp.RequestHandler):
             dekadrain.append([dk.str(),[emin,edat,emax]])
             dk.incr()
             pass
-        dk = Dekad(self.year,1,1)
-        monthrain = []
-        for i in range(len(self.data)/3):
-            edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
-            monthrain.append([dk.str(),edat])
-            dk.incr(3)
-            pass
-        retdata = {}
-        retdata[self.dekadname] = dekadrain
-        retdata[self.monthname] = monthrain
-        retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0])
+
+        self.retdata = {}
+        self.retdata[self.dekadname] = dekadrain
+        self.makeMonth()
+        self.retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0])
         if self.callback:
             self.response.out.write("%s(" % self.callback)
             pass
-        self.response.out.write(simplejson.dumps(retdata))
+        self.response.out.write(simplejson.dumps(self.retdata))
         if self.callback:
             self.response.out.write(");")
             pass
@@ -163,18 +168,49 @@ class ANdvi(ARfe):
         nmin = []
         nmax = []
         for i in range(len(self.data)):
-            ndata.append(self.data[i] / 250.0)
+            if self.data[i] > 250:
+                ndata.append(None)
+            else:
+                ndata.append(self.data[i] / 250.0)
+                pass
             pass
         for i in range(len(self.dmin)):
-            nmin.append(self.dmin[i] / 250.0)
+            if self.dmin[i] > 250:
+                nmin.append(None)
+            else:
+                nmin.append(self.dmin[i] / 250.0)
+                pass
             pass
         for i in range(len(self.dmax)):
-            nmax.append(self.dmax[i] / 250.0)
+            if self.dmax[i] > 250:
+                nmax.append(None)
+            else:
+                nmax.append(self.dmax[i] / 250.0)
+                pass
             pass
         self.data = ndata
         self.dmin = nmin
         self.dmax = nmax
     pass
+
+    # makeMonth is applied after scaleData()
+    def makeMonth(self):
+        month = []
+        dk = Dekad(self.year,1,1)
+        for i in range(len(self.data)/3):
+            if (self.data[i*3] == None) or (self.data[i*3+1] == None) or (self.data[i*3+2] == None):
+                mean = None
+            else:
+                mean = (self.data[i*3]+self.data[i*3+1]+self.data[i*3+2])/3
+                pass
+            minval = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]])
+            maxval = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]])
+            month.append([dk.str(),[minval,mean,maxval]])
+            dk.incr(3)
+            pass
+        self.retdata[self.monthname] = month
+        return
+
 
 class checkArfe(webapp.RequestHandler):
     def get(self):
