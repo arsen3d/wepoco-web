@@ -3,11 +3,12 @@
 # $$
 #
 
+import logging
 from google.appengine.api import images
 from google.appengine.ext import webapp
 from google.appengine.ext import blobstore
 from google.appengine.ext import db
-from rfepic import RfePic
+from mappic import MapPic
 from array import array
 
 #
@@ -15,13 +16,14 @@ from array import array
 # return is json text or jsonp if callback=somefnname
 #
 class ARfeImg(webapp.RequestHandler):
+    param='rfe'
     def get(self):
         self.getArgs()
         if self.findBlobkey():
             #self.response.out.write("got it") 
             self.returnImg()
         else:
-           self.response.out.write("hello world") 
+            logging.error("Key not found, no image to return")
         return
     
     def getArgs(self):
@@ -49,8 +51,8 @@ class ARfeImg(webapp.RequestHandler):
         return
 
     def findBlobkey(self):
-        q = db.GqlQuery("SELECT * FROM RfePic WHERE year=:1 AND month=:2 AND dek=:3",
-                         self.year,self.month,self.dekad)
+        q = db.GqlQuery("SELECT * FROM MapPic WHERE year=:1 AND month=:2 AND dek=:3 AND param=:4",
+                         self.year,self.month,self.dekad,self.param)
         results = q.fetch(1)
         if len(results):
             self.fullpic=results[0].pic
@@ -85,4 +87,5 @@ class ARfeImg(webapp.RequestHandler):
 
 
 class ANdviImg(ARfeImg):
+    param='ndvi'
     pass

@@ -234,12 +234,14 @@ ImageOverlay.prototype.onRemove = function() {
    return 0;
  }
 
+/*
 function ARFEll(p){
      p.x -= (4237357/8000);
      p.y = (4272328/8000) - p.y;
      Proj4js.transform(dstProj, srcProj, p);
      return p;
 }
+*/
 
 function ARFExy(p){
      Proj4js.transform(srcProj, dstProj, p);
@@ -257,12 +259,14 @@ function ARFEpercent(p){
      return p;
 }
 
+/*
 function ANDVIll(p){
      p.x -= (4607990/8000);
      p.y = (4608032/8000) - p.y;
      Proj4js.transform(dstProj, srcProj, p);
      return p;
 }
+*/
 
 function ANDVIxy(p){
      Proj4js.transform(srcProj, dstProj, p);
@@ -291,11 +295,10 @@ function graphHighlightCb(canvas, area, g) {
             };
 
 function rainGraph(retdata){
-
   var vals = dijit.byId('rainForm').getValues();
   var period = vals.period;
-  var settings;
-  
+  var settings = {customBars:true,errorBars:true,colors:['cyan','blue']};
+
   if(period == 'day'){
     graphData = retdata.dekadrain;
     for(var i in graphData){
@@ -303,15 +306,15 @@ function rainGraph(retdata){
        graphData[i][1][1] = graphData[i][1][1]/10.0;
        graphData[i][1][2] = graphData[i][1][2]/10.0;
     }
-    settings =  {labels:['date','avg daily rain'],customBars:true,errorBars:true};
+    settings.labels=['date','avg daily rain'];
   }
   else if(period == 'dekad'){
     graphData = retdata.dekadrain;
-    settings =  {labels:['date','dekad rain'],customBars:true,errorBars:true};
+    settings.labels=['date','dekad rain'];
   }
   else{
     graphData = retdata.monthrain;
-    settings =  {labels:['date','month rain'],customBars:true,errorBars:true};
+    settings.labels=['date','month rain'];
   }
 
   for(var i in graphData){
@@ -324,7 +327,8 @@ function rainGraph(retdata){
 
   settings.clickCallback =  function(e, x, pts) {
                 selected_date = new Date(x);
-                graphhi.updateOptions( { 'underlayCallback': graphHighlightCb } );
+                graphlo.updateOptions( {underlayCallback: null } );
+                graphhi.updateOptions( {underlayCallback: graphHighlightCb } );
                 addOverlay(new Date(x), last_latlng);
               };
 
@@ -351,7 +355,7 @@ function addOverlay(date, posn){
     };
  
     var query = dojo.objectToQuery(args);
-    var tile = '/arfeimg?' + query;
+    var tile = 'http://map.wepoco.com/arfeimg?' + query;
     if(overlay){overlay.setMap(null)};
     overlay = new ImageOverlay(bounds, tile, map);
 }
@@ -361,17 +365,18 @@ function addNdviOverlay(date, posn){
     var neBound = new google.maps.LatLng(posn.lat()+2, posn.lng()+2);
     var bounds = new google.maps.LatLngBounds(swBound, neBound);
 
-    var topLeft = NDVIpercent({y:neBound.lat(),x:swBound.lng()});
-    var bottomRight = NDVIpercent({y:swBound.lat(),x:neBound.lng()});
+    var topLeft = ANDVIpercent({y:neBound.lat(),x:swBound.lng()});
+    var bottomRight = ANDVIpercent({y:swBound.lat(),x:neBound.lng()});
 
     var dek = Math.floor(date.getDate()/10) + 1; 
     var args = {
+      param:'ndvi',
       dek:dek,mon:date.getMonth()+1,year:date.getFullYear(),
       left:topLeft.x,top:topLeft.y,right:bottomRight.x,bottom:bottomRight.y
     };
  
     var query = dojo.objectToQuery(args);
-    var tile = '/ndviimg?' + query;
+    var tile = 'http://map.wepoco.com/andviimg?' + query;
     if(overlay){overlay.setMap(null)};
     overlay = new ImageOverlay(bounds, tile, map);
 }
@@ -429,6 +434,7 @@ function ndviGraph( retdata ){
   } 
   settings.clickCallback =  function(e, x, pts) {
                 selected_date = new Date(x);
+                graphhi.updateOptions( {underlayCallback: null } );
                 graphlo.updateOptions( { 'underlayCallback': graphHighlightCb } );
                 addNdviOverlay(new Date(x), last_latlng);
               };
@@ -463,6 +469,7 @@ function stationGraph( resp ){
 function fetchDataByPosn(latlng) {
 
      last_latlng = latlng;
+     if(overlay){overlay.setMap(null)};
      document.getElementById("graphdivhi").innerHTML="";
      document.getElementById("graphdivlo").innerHTML="";
      mylatlng = latlng;
@@ -517,7 +524,8 @@ function stationGraph( resp ){
     var e = data[i][0].split("-");
     dekrain[e[1]-1] = Number(data[i][1])/3;
   }
-  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true};
+  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true,
+  colors:['cyan','blue']};
   for(var i in graphData){
      mnth =  graphData[i][0].getMonth();
      graphData[i][2] = new Array();

@@ -32,7 +32,7 @@ class Dekad:
         return
     def str(self):
         dy = [99,1,11,21]
-        return "%4d-%02d-%02d" % (self.yr, self.mo, dy[self.dk])
+        return "%4d/%02d/%02d" % (self.yr, self.mo, dy[self.dk])
         
 #
 # HTTP GET with query ?x=ddd.dd&y=ddd.dd&year=yyyy 
@@ -48,30 +48,32 @@ class ARfe(webapp.RequestHandler):
         self.getArgs()
         self.xtile = int(self.x/100)
         self.ytile = int(self.y/100)
-        if self.findBlobkey(self.year,self.xtile,self.ytile):
-            self.xoff = int(self.x - (100*self.xtile))
-            self.yoff = int(self.y - (100*self.ytile))
-            b = self.readBlob(self.xoff,self.yoff)
+        self.xoff = int(self.x - (100*self.xtile))
+        self.yoff = int(self.y - (100*self.ytile))
+        self.data = array('h')
+        self.dmin = array('h')
+        self.dmax = array('h')
+        for iyr in range(self.yrs):
+            if self.findBlobkey(self.year + iyr,self.xtile,self.ytile,self.paramname):
+                self.readBlob()
+                pass
+            pass
+        if len(self.data) >0:
             self.scaleData()
             self.returnJson()
         else:
-            self.response.headers['Content-type'] = 'text/json'
-            retdata = {}
-            retdata['message'] = "Error - no data"
-            if self.callback:
-                self.response.out.write("%s(" % self.callback)
-                pass
-            self.response.out.write(simplejson.dumps(retdata))
-            if self.callback:
-                self.response.out.write(");")
-                pass
-            pass
+            self.error(204) # No content. (205, or 500 might be more appropriate)
         return
     
     def getArgs(self):
         self.x = float(self.request.get("x"))
         self.y = float(self.request.get("y"))
         self.year = int(self.request.get("year"))
+        if self.request.get("yrs"):
+            self.yrs = int(self.request.get("yrs"))
+        else:
+            self.yrs = 1
+            pass
         self.callback = self.request.get("callback")
         return
 
@@ -80,14 +82,20 @@ class ARfe(webapp.RequestHandler):
         dk = Dekad(self.year,1,1)
         for i in range(len(self.data)/3):
             edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
-            monthrain.append([dk.str(),[edat,edat,edat]])
+            emin = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
+            emax = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
+            monthrain.append([dk.str(),[emin,edat,emax]])
             dk.incr(3)
             pass
         self.retdata[self.monthname] = monthrain
         return
 
     def returnJson(self):
-        self.response.headers['Content-type'] = 'text/json'
+        if self.callback:
+            self.response.headers['Content-type'] = 'application/javascript'
+        else:
+            self.response.headers['Content-type'] = 'text/json'
+            pass
         dk = Dekad(self.year,1,1)
         dekadrain = []
         for i in range(len(self.data)):
@@ -109,7 +117,7 @@ class ARfe(webapp.RequestHandler):
         self.retdata = {}
         self.retdata[self.dekadname] = dekadrain
         self.makeMonth()
-        self.retdata['message'] = "min:%d v:%d" % (self.dmin[0],self.data[0])
+        self.retdata['message'] = ""
         if self.callback:
             self.response.out.write("%s(" % self.callback)
             pass
@@ -119,9 +127,9 @@ class ARfe(webapp.RequestHandler):
             pass
         return
 
-    def findBlobkey(self, year, xtile, ytile):
+    def findBlobkey(self, year, xtile, ytile, paramname):
         q = db.GqlQuery("SELECT * FROM DekadTile WHERE year=:1 AND x=:2 AND y=:3 AND param=:4",
-                         year,xtile,ytile,self.paramname)
+                         year,xtile,ytile,paramname)
         results = q.fetch(1)
         if len(results):
             self.datakey=results[0].data
@@ -133,29 +141,22 @@ class ARfe(webapp.RequestHandler):
     def scaleData(self):
         return
 
-    def readBlob(self,x,y):
+    def readBlob(self):
         # Data stored in blocks of 100x100
         # Will need to seek to (y*100+x)*ob_size then read ob_size bytes
         # ob_size is 36*2
         # See http://code.google.com/appengine/docs/python/blobstore/blobreaderclass.html
+        x = self.xoff
+        y = self.yoff
         ob_size = 36*2
         pos =  (y*100+x)*ob_size
-        self.data = array('h')
-        try:
-            blob_reader = blobstore.BlobReader(self.datakey,position=pos,buffer_size=ob_size*2)
-            self.data.fromstring(blob_reader.read(ob_size))
-        except: pass
-        self.dmin = array('h')
-        #try:
+        blob_reader = blobstore.BlobReader(self.datakey,position=pos,buffer_size=ob_size*2)
+        self.data.fromstring(blob_reader.read(ob_size))
         blob_reader = blobstore.BlobReader(self.dminkey,position=pos,buffer_size=ob_size*2)
         self.dmin.fromstring(blob_reader.read(ob_size))
-        #except: pass
-        self.dmax = array('h')
-        try:
-            blob_reader = blobstore.BlobReader(self.dmaxkey,position=pos,buffer_size=ob_size*2)
-            self.dmax.fromstring(blob_reader.read(ob_size))  
-        except: pass
-        return len(self.data)
+        blob_reader = blobstore.BlobReader(self.dmaxkey,position=pos,buffer_size=ob_size*2)
+        self.dmax.fromstring(blob_reader.read(ob_size))
+        return
     pass
 
 class ANdvi(ARfe):
