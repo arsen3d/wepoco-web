@@ -122,7 +122,7 @@ fieldset label {
 
   dojo.addOnLoad(setup);
 
-  Proj4js.reportError = function(msg) {alert(msg);}
+  Proj4js.reportError = function(msg) {my_alert(msg);}
   
   // Brand colours
   var bcols = {green:"#CCFF33",blue:"#031F73",cyan:"#00ADD0", olive:"#878800"};
@@ -181,6 +181,10 @@ ImageOverlay.prototype.onRemove = function() {
   this.div_ = null;
 }
 
+function my_alert(msg){
+  dojo.byId("info").innerHTML = msg;
+}
+
   function initialise() {
     Proj4js.defs["AFRAEA"] = "+proj=aea +lat_1=-19 +lat_2=21 +lat_0=1 +lon_0=20 +x_0=0 +y_0=0 +units=m +ellps=clrk66 +to_meter=8000 +no_defs";
     Proj4js.defs["LONGLAT"] = "+proj=longlat +ellps=intl +towgs84=-637,-549,-203,0,0,0,0, +no_defs";
@@ -234,12 +238,14 @@ ImageOverlay.prototype.onRemove = function() {
    return 0;
  }
 
+/*
 function ARFEll(p){
      p.x -= (4237357/8000);
      p.y = (4272328/8000) - p.y;
      Proj4js.transform(dstProj, srcProj, p);
      return p;
 }
+*/
 
 function ARFExy(p){
      Proj4js.transform(srcProj, dstProj, p);
@@ -257,12 +263,14 @@ function ARFEpercent(p){
      return p;
 }
 
+/*
 function ANDVIll(p){
      p.x -= (4607990/8000);
      p.y = (4608032/8000) - p.y;
      Proj4js.transform(dstProj, srcProj, p);
      return p;
 }
+*/
 
 function ANDVIxy(p){
      Proj4js.transform(srcProj, dstProj, p);
@@ -291,11 +299,10 @@ function graphHighlightCb(canvas, area, g) {
             };
 
 function rainGraph(retdata){
-
   var vals = dijit.byId('rainForm').getValues();
   var period = vals.period;
-  var settings;
-  
+  var settings = {customBars:true,errorBars:true,colors:['cyan','blue']};
+
   if(period == 'day'){
     graphData = retdata.dekadrain;
     for(var i in graphData){
@@ -303,36 +310,35 @@ function rainGraph(retdata){
        graphData[i][1][1] = graphData[i][1][1]/10.0;
        graphData[i][1][2] = graphData[i][1][2]/10.0;
     }
-    settings =  {labels:['date','avg daily rain'],customBars:true,errorBars:true};
+    settings.labels=['date','avg daily rain'];
   }
   else if(period == 'dekad'){
     graphData = retdata.dekadrain;
-    settings =  {labels:['date','dekad rain'],customBars:true,errorBars:true};
+    settings.labels=['date','dekad rain'];
   }
-  else{
+  else if(period == 'month') {
     graphData = retdata.monthrain;
-    settings =  {labels:['date','month rain'],customBars:true,errorBars:true};
+    settings.labels=['date','month rain'];
   }
 
   for(var i in graphData){
-     var e = graphData[i][0].split("-");
+     //var e = graphData[i][0].split("/");
      //var d = new Date();
      //d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
-     var d = new Date(e[0]+"/"+e[1]+"/"+e[2]);
+     var d = new Date(graphData[i][0]);
      graphData[i][0] = d;
   }
 
   settings.clickCallback =  function(e, x, pts) {
                 selected_date = new Date(x);
-                graphhi.updateOptions( { 'underlayCallback': graphHighlightCb } );
+                graphlo.updateOptions( {underlayCallback: null } );
+                graphhi.updateOptions( {underlayCallback: graphHighlightCb } );
                 addOverlay(new Date(x), last_latlng);
               };
 
   graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData,settings);  
   // Or keep graph and update using -
   //graphhi.updateOptions( { 'file': graphData } );
-  
-  dojo.byId("info").innerHTML = retdata.message;
   return 0;
 }
 
@@ -345,7 +351,7 @@ function addOverlay(date, posn){
     var bottomRight = ARFEpercent({y:swBound.lat(),x:neBound.lng()});
 
     var dek = Math.floor(date.getDate()/10) + 1; 
-    var args = {
+    var args = { param:'rfe',
       dek:dek,mon:date.getMonth()+1,year:date.getFullYear(),
       left:topLeft.x,top:topLeft.y,right:bottomRight.x,bottom:bottomRight.y
     };
@@ -361,17 +367,17 @@ function addNdviOverlay(date, posn){
     var neBound = new google.maps.LatLng(posn.lat()+2, posn.lng()+2);
     var bounds = new google.maps.LatLngBounds(swBound, neBound);
 
-    var topLeft = NDVIpercent({y:neBound.lat(),x:swBound.lng()});
-    var bottomRight = NDVIpercent({y:swBound.lat(),x:neBound.lng()});
+    var topLeft = ANDVIpercent({y:neBound.lat(),x:swBound.lng()});
+    var bottomRight = ANDVIpercent({y:swBound.lat(),x:neBound.lng()});
 
     var dek = Math.floor(date.getDate()/10) + 1; 
-    var args = {
+    var args = { param:'ndvi',
       dek:dek,mon:date.getMonth()+1,year:date.getFullYear(),
       left:topLeft.x,top:topLeft.y,right:bottomRight.x,bottom:bottomRight.y
     };
  
     var query = dojo.objectToQuery(args);
-    var tile = '/ndviimg?' + query;
+    var tile = 'http://map.wepoco.com/andviimg?' + query;
     if(overlay){overlay.setMap(null)};
     overlay = new ImageOverlay(bounds, tile, map);
 }
@@ -394,11 +400,7 @@ function temperatureGraph( resp ){
   var settings =  {labels:['date','mean max temperature']};
 
   for(var i in temData){
-     var e = temData[i][0].split("-");
-     //var d = new Date();
-     //d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
-     var d = new Date(e[0]+"/"+e[1]+"/"+e[2]);
-     temData[i][0] = d;
+     temData[i][0] = new Date(temData[i][0]);
   } 
 
   graphlo = new Dygraph(document.getElementById("graphdivlo"), temData,settings);  
@@ -421,14 +423,11 @@ function ndviGraph( retdata ){
   }
 
   for(var i in ndviData){
-     var e = ndviData[i][0].split("-");
-     //var d = new Date();
-     //d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
-     var d = new Date(e[0]+"/"+e[1]+"/"+e[2]);
-     ndviData[i][0] = d;
+     ndviData[i][0] = new Date(ndviData[i][0]);
   } 
   settings.clickCallback =  function(e, x, pts) {
                 selected_date = new Date(x);
+                graphhi.updateOptions( {underlayCallback: null } );
                 graphlo.updateOptions( { 'underlayCallback': graphHighlightCb } );
                 addNdviOverlay(new Date(x), last_latlng);
               };
@@ -463,6 +462,7 @@ function stationGraph( resp ){
 function fetchDataByPosn(latlng) {
 
      last_latlng = latlng;
+     if(overlay){overlay.setMap(null)};
      document.getElementById("graphdivhi").innerHTML="";
      document.getElementById("graphdivlo").innerHTML="";
      mylatlng = latlng;
@@ -470,24 +470,29 @@ function fetchDataByPosn(latlng) {
      dijit.byId('locationForm').set('value',{lat:latlng.lat(),lng:latlng.lng()});
      var vals = dijit.byId('rainForm').getValues();
      var year = vals['year'];
+     var yrs = vals['yrs'];
 
      var rp = ARFExy({y:latlng.lat(),x:latlng.lng()});
      var np = ANDVIxy({y:latlng.lat(),x:latlng.lng()});
 
-     /*
+     
      // Can use xhrGet when this page served from map.wepoco.com
      // Otherwise must use jsonp call.
-     var xhrArgs = {
-        url:"arfe", content:{x:rp.x,y:rp.y,year:year,dekad:1,count:36},handleAs:"json",
+     dojo.xhrGet({
+        url:"/arfe", content:{x:rp.x,y:rp.y,year:year,yrs:yrs},handleAs:"json",
         load: function(data) {rainGraph(data);},
-        error: function(error) {alert("Error " + error);}};
-     var deferred = dojo.xhrGet(xhrArgs);
-     */
+        error: function(error) {my_alert("Error " + error);}});
+    dojo.xhrGet({
+        url:"/andvi", content:{x:np.x,y:np.y,year:year,yrs:yrs},handleAs:"json",
+        load: function(data) {ndviGraph(data);},
+        error: function(error) {my_alert("Error " + error);}});
+     
 
+     /*
      // See http://docs.dojocampus.org/dojo/io/script
      var jsonpArgs = {
         //Cross domain works - use this URL 
-        url: "http://map.wepoco.com/arfe",content:{x:rp.x,y:rp.y,year:year,dekad:1,count:36},  
+        url: "http://map.wepoco.com/arfe",content:{x:rp.x,y:rp.y,year:year,yrs:yrs},  
         callbackParamName: "callback",
         load: function(data) {rainGraph(data);return 0;},
         error: function(error) {alert("Error " + error);return 0;}};
@@ -496,12 +501,12 @@ function fetchDataByPosn(latlng) {
      // See http://docs.dojocampus.org/dojo/io/script
      var jsonpArgs = {
         //Cross domain works - use this URL 
-        url: "http://map.wepoco.com/andvi",content:{x:np.x,y:np.y,year:year,dekad:1,count:36},  
+        url: "http://map.wepoco.com/andvi",content:{x:np.x,y:np.y,year:year,yrs:yrs},  
         callbackParamName: "callback",
         load: function(data) {ndviGraph(data);return 0;},
         error: function(error) {alert("Error " + error);return 0;}};
      dojo.io.script.get(jsonpArgs);
-
+     */
 
      return 0;
   }
@@ -517,7 +522,8 @@ function stationGraph( resp ){
     var e = data[i][0].split("-");
     dekrain[e[1]-1] = Number(data[i][1])/3;
   }
-  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true};
+  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true,
+  colors:['cyan','blue']};
   for(var i in graphData){
      mnth =  graphData[i][0].getMonth();
      graphData[i][2] = new Array();
@@ -623,24 +629,49 @@ lng<input type="text" name="lng" class="short" dojoType="dijit.form.NumberTextBo
     <label for="radioMonth">
         Month
     </label>
-    &nbsp;&nbsp;
+    &nbsp;
     <label for="selectYear">Year</label>
-    <div id="selectYear" style="width: 150px;" name="year" dojoType="dijit.form.Select"
+    <div id="selectYear" style="width: 110px;" name="year" dojoType="dijit.form.Select"
      onchange="fetchData()">
-      <span value="2006">
-      2006
+      <span value="2011">
+      2011
       </span>
-      <span value="2007">
-      2007
-      </span>
-      <span value="2008">
-      2008
+      <span value="2010">
+      2010
       </span>
       <span value="2009">
       2009
       </span>
-      <span value="2010">
-      2010
+      <span value="2008">
+      2008
+      </span>
+      <span value="2007">
+      2007
+      </span>
+      <span value="2006">
+      2006
+      </span>
+      <span value="2005">
+      2005
+      </span>
+    </div>
+    <label for="selectYrs">Years</label>
+    <div id="selectYrs" style="width: 50px;" name="yrs" dojoType="dijit.form.Select"
+     onchange="fetchData()">
+      <span value="1">
+      1
+      </span>
+      <span value="2">
+      2
+      </span>
+      <span value="3">
+      3
+      </span>
+      <span value="4">
+      4
+      </span>
+      <span value="5">
+      5
       </span>
     </div>
     <!--

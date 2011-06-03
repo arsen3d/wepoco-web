@@ -72,6 +72,9 @@ handlers:
 - url: /arfe
   script: wepoco-map.py
 
+- url: /arean
+  script: wepoco-map.py
+
 - url: /arfeimg
   script: wepoco-map.py
 
@@ -90,10 +93,10 @@ handlers:
 - url: /upload.*
   script: wepoco-map.py
 
-- url: /rfeuploadurl
+- url: /picuploadurl
   script: wepoco-map.py
 
-- url: /rfeupload.*
+- url: /picupload.*
   script: wepoco-map.py
 
 - url: /serve/.*

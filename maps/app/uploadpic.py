@@ -9,24 +9,25 @@ from google.appengine.ext import db
 from google.appengine.ext.webapp import blobstore_handlers
 import os
 import urllib
-from rfepic import RfePic
+from mappic import MapPic
 
 
-# Do a get /rfeuploadurl and the blobstore url is returned.
+# Do a get /picuploadurl and the blobstore url is returned.
 # See upload.py for more info if that doesn't make sense.
-class RfeUploadUrlHandler(webapp.RequestHandler):
+class PicUploadUrlHandler(webapp.RequestHandler):
     def get(self):
-        upload_url = blobstore.create_upload_url('/rfeupload')
+        upload_url = blobstore.create_upload_url('/picupload')
         self.response.out.write(upload_url)
 
-class RfeUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+class PicUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
         year = int(self.request.get('year'))
         month = int(self.request.get('month'))
         dek = int(self.request.get('dek'))
+        param = self.request.get('param')
         upload_files = self.get_uploads('pic')
         blob_info = upload_files[0]
-        d = RfePic(year=year,month=month,dek=dek,pic=blob_info.key())
+        d = MapPic(year=year,month=month,dek=dek,param=param,pic=blob_info.key())
         d.put()
         self.redirect('/done')
 

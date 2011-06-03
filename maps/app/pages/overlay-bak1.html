@@ -116,6 +116,7 @@ fieldset label {
   dojo.require('dijit.form.Button');
   dojo.require('dijit.form.Select');
   dojo.require('dijit.form.ValidationTextBox');
+  dojo.require('dijit.form.TextBox');
   dojo.require('dijit.form.NumberTextBox');
   dojo.require('dijit.form.FilteringSelect');
 
@@ -130,19 +131,54 @@ fieldset label {
   var outDiv;
   var map;
   var circle;
-  var clock;
-  var dispStyle = 0;  // Default to 12 hour clock style.
-  var sites = [];
-  var selectedSite;  // look like this - {latlng:latlng, id:id, lb:lb, min:minzoom}
-  var siteForecast = [];
-  var siteForecastDays = [];
-  var forecastTimes = [];
   var markers = [];
-  var typeMap = [];
   var graphData = [];
   var srcProj;
   var dstProj;
-  var graph;  // The Dygraph
+  var graphhi, graphlo;  // The Dygraphs
+  var overlay;  // The image overlay
+
+function ImageOverlay(bounds, image, map) {
+  this.bounds_ = bounds;
+  this.image_ = image;
+  this.map_ = map;
+  this.div_ = null;
+  this.setMap(map);
+}
+
+ImageOverlay.prototype = new google.maps.OverlayView();
+
+ImageOverlay.prototype.onAdd = function() {
+  var div = document.createElement('DIV');
+  div.style.border = "none";
+  div.style.borderWidth = "0px";
+  div.style.position = "absolute";
+
+  var img = document.createElement("img");
+  img.src = this.image_;
+  img.style.width = "100%";
+  img.style.height = "100%";
+  div.appendChild(img);
+  this.div_ = div;
+  var panes = this.getPanes();
+  panes.overlayLayer.appendChild(div);
+}
+
+ImageOverlay.prototype.draw = function() {
+  var overlayProjection = this.getProjection();
+  var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
+  var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
+  var div = this.div_;
+  div.style.left = sw.x + 'px';
+  div.style.top = ne.y + 'px';
+  div.style.width = (ne.x - sw.x) + 'px';
+  div.style.height = (sw.y - ne.y) + 'px';
+}
+
+ImageOverlay.prototype.onRemove = function() {
+  this.div_.parentNode.removeChild(this.div_);
+  this.div_ = null;
+}
 
   function initialise() {
      Proj4js.defs["AFRRFE"] = "+proj=aea +lat_1=-19 +lat_2=21 +lat_0=1 +lon_0=20 +x_0=0 +y_0=0 +units=m +ellps=clrk66 +to_meter=8000 +no_defs";
@@ -169,7 +205,7 @@ fieldset label {
    var wxMapOptions = {
     map: map,
     name: "Wx",
-    minZoom: 5,
+    minZoom: 3,
     maxZoom: 10
    }
 
@@ -177,6 +213,10 @@ fieldset label {
   
   map.mapTypes.set('wx', wxMapType);
   map.setMapTypeId('wx');
+
+  // Load CLIMAT stations
+  fusionQuery('SELECT id, name, location FROM 522056',stationMarkers);
+
   return 0;
   }
 
@@ -207,38 +247,52 @@ function ARFExy(p){
      return p;
 }
 
+function ARFEpercent(p){
+     Proj4js.transform(srcProj, rfeProj, p);
+     p.x += (4237357/8000);
+     p.y = (4272328/8000) - p.y;
+     p.x = p.x / 994;
+     p.y = p.y / 1089;
+     return p;
+}
+
 
 function plotGraph(retdata){
 
   var vals = dijit.byId('rainForm').getValues();
   var period = vals.period;
 
-  var data;
+  //var data;
   var settings;
   
   if(period == 'day'){
-    data = retdata.dekadrain;
-    for(var i in data){
-       data[i][1][0] = data[i][1][0]/10.0;
-       data[i][1][1] = data[i][1][1]/10.0;
-       data[i][1][2] = data[i][1][2]/10.0;
+    graphData = retdata.dekadrain;
+    for(var i in graphData){
+       graphData[i][1][0] = graphData[i][1][0]/10.0;
+       graphData[i][1][1] = graphData[i][1][1]/10.0;
+       graphData[i][1][2] = graphData[i][1][2]/10.0;
     }
     settings =  {labels:['date','avg daily rain'],customBars:true,errorBars:true};
   }
   else if(period == 'dekad'){
-    data = retdata.dekadrain;
+    graphData = retdata.dekadrain;
     settings =  {labels:['date','dekad rain'],customBars:true,errorBars:true};
   }
   else{
-    data = retdata.monthrain;
+    graphData = retdata.monthrain;
     settings =  {labels:['date','month rain']};
   }
 
-  for(var i in data){
-     data[i][0] = new Date( data[i][0] );
+  for(var i in graphData){
+     var d = new Date();
+     var e = graphData[i][0].split("-");
+     d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
+     graphData[i][0] = d;
   } 
-
-  graph = new Dygraph(document.getElementById("graphdiv"), data,settings);  
+  settings.clickCallback =  function(e, x, pts) {
+                addOverlay(new Date(x), last_latlng);
+              };
+  graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData,settings);  
   // Or keep graph and update using -
   //graph.updateOptions( { 'file': graphData } );
   
@@ -246,20 +300,79 @@ function plotGraph(retdata){
   return 0;
 }
 
+function addOverlay(date, posn){
+    var swBound = new google.maps.LatLng(posn.lat()-2, posn.lng()-2);
+    var neBound = new google.maps.LatLng(posn.lat()+2, posn.lng()+2);
+    var bounds = new google.maps.LatLngBounds(swBound, neBound);
+
+    var topLeft = ARFEpercent({y:neBound.lat(),x:swBound.lng()});
+    var bottomRight = ARFEpercent({y:swBound.lat(),x:neBound.lng()});
+
+    var dek = Math.floor(date.getDate()/10) + 1; 
+    var args = {
+      dek:dek,mon:date.getMonth()+1,year:date.getFullYear(),
+      left:topLeft.x,top:topLeft.y,right:bottomRight.x,bottom:bottomRight.y
+    };
+ 
+    var query = dojo.objectToQuery(args);
+    var tile = '/arfeimg?' + query;
+    if(overlay){overlay.setMap(null)};
+    overlay = new ImageOverlay(bounds, tile, map);
+}
+
 function unzoom(){
-  graph.updateOptions({dateWindow: null,valueRange: null});
+  graphhi.updateOptions({dateWindow: null,valueRange: null});
+  graphlo.updateOptions({dateWindow: null,valueRange: null});
   return 0;
 }  
 
+// If settings are changed, e.g. year or daily,dekad,month then we need to
+// re-plot for the last map position selected.  
 function fetchData(){
   return fetchDataByPosn(last_latlng);
 }
+
+function temperatureGraph( resp ){
+  var temData = resp.table.rows;
+  var settings =  {labels:['date','mean max temperature']};
+
+  for(var i in temData){
+     var d = new Date();
+     var e = temData[i][0].split("-");
+     d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
+     temData[i][0] = d;
+  } 
+
+  graphlo = new Dygraph(document.getElementById("graphdivlo"), temData,settings);  
+}
+
+function stationGraph( resp ){
+  var data = resp.table.rows;
+  var dekrain = new Array();
+  for(var i in data){
+    var e = data[i][0].split("-");
+    dekrain[e[1]-1] = Number(data[i][1])/3;
+  }
+  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true};
+  for(var i in graphData){
+     mnth =  graphData[i][0].getMonth();
+     graphData[i][2] = new Array();
+     rain = dekrain[mnth];
+     graphData[i][2][0] = rain;
+     graphData[i][2][1] = rain;
+     graphData[i][2][2] = rain;
+  } 
+  graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);
+  return 0;
+}
+
 
 // Map click listener
 function fetchDataByPosn(latlng) {
 
      last_latlng = latlng;
-     document.getElementById("graphdiv").innerHTML="Loading...";
+     document.getElementById("graphdivhi").innerHTML="";
+     document.getElementById("graphdivlo").innerHTML="";
      mylatlng = latlng;
      drawCircle(latlng);
      dijit.byId('locationForm').set('value',{lat:latlng.lat(),lng:latlng.lng()});
@@ -276,44 +389,93 @@ function fetchDataByPosn(latlng) {
      dojo.byId("info").innerHTML = text;
      */
      p = ARFExy({y:latlng.lat(),x:latlng.lng()});
+
      /*
+     // Can use xhrGet when this page served from map.wepoco.com
+     // Otherwise must use jsonp call.
      var xhrArgs = {
-        url: "arfe",
-        content: {x:p.x,y:p.y,year:year,dekad:1,count:36},
-        handleAs: "json",
-        load: function(data) {
-                    plotGraph(data);
-                },
-                error: function(error) {
-                    alert("Error " + error);
-                }
- 
-        };
+        url:"arfe", content:{x:p.x,y:p.y,year:year,dekad:1,count:36},handleAs:"json",
+        load: function(data) {plotGraph(data);},
+        error: function(error) {alert("Error " + error);}};
      var deferred = dojo.xhrGet(xhrArgs);
      */
-
-
 
      // See http://docs.dojocampus.org/dojo/io/script
      var jsonpArgs = {
         //Cross domain works - use this URL 
-        url: "/arfe",
-        content: {x:p.x,y:p.y,year:year,dekad:1,count:36},  
+        url: "http://map.wepoco.com/arfe",content:{x:p.x,y:p.y,year:year,dekad:1,count:36},  
         callbackParamName: "callback",
-        load: function(data) {
-                    plotGraph( data );
-		    return 0;
-	},
-        error: function(error) {
-                   alert("Error " + error);
-		   return 0;
-        }
-        };
-
+        load: function(data) {plotGraph(data);return 0;},
+        error: function(error) {alert("Error " + error);return 0;}};
      dojo.io.script.get(jsonpArgs);
+
+     var lat = latlng.lat();
+     var lng = latlng.lng();
+     var latc = ((lat/2) - ((lat/2)%1))*2;
+     var lngc = ((lng/2) - ((lng/2)%1))*2;
+     fusionQuery("SELECT date, temperature FROM 539667 WHERE date STARTS WITH '" + year + "' " +
+      "AND ST_INTERSECTS(location,CIRCLE(LATLNG("+latc+","+lngc+"),100000)) ORDER BY date",temperatureGraph);
      return 0;
   }
 
+function stationGraph( resp ){
+  var data = resp.table.rows; 
+  if(data.length == 0){
+    // no data for this station,year
+    return 0;
+  }
+  var dekrain = new Array();
+  for(var i in data){
+    var e = data[i][0].split("-");
+    dekrain[e[1]-1] = Number(data[i][1])/3;
+  }
+  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true};
+  for(var i in graphData){
+     mnth =  graphData[i][0].getMonth();
+     graphData[i][2] = new Array();
+     rain = dekrain[mnth];
+     graphData[i][2][0] = rain;
+     graphData[i][2][1] = rain;
+     graphData[i][2][2] = rain;
+  } 
+  graph = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);
+  return 0;
+}
+
+function stationMarkers( data ){
+  var rows = data.table.rows;
+  for(var i in rows){
+    var latlng = rows[i][2].split(',');
+    var posn = new google.maps.LatLng(latlng[0],latlng[1]);
+    var marker = new google.maps.Marker({
+            map: map,
+            title: rows[i][0] + " " + rows[i][1],
+	    wmo: rows[i][0], // WMO station ID and date used as index in rainfall table 
+            position: posn
+        });
+    google.maps.event.addListener(marker, 'click', function() {
+	 var vals = dijit.byId('rainForm').getValues();
+	 var year = vals['year'];
+         if(graphData.length == 0){ fetchDataByPosn(this.position); }
+         fusionQuery("SELECT date, rain FROM 522347 WHERE date STARTS WITH '"+year+"' AND id="+this.wmo,stationGraph);
+        });
+    markers.push(marker);
+  }
+  return 0;
+}
+
+function fusionQuery(sql,fn,errfn) {
+  var jsonpArgs = {
+        url: "https://www.google.com/fusiontables/api/query",
+        content: {sql:sql},  
+        callbackParamName: "jsonCallback",
+        load: function(data) {fn(data); return 0;},
+        error: function(error) {
+              if(errfn){errfn(error);}
+        }
+        };
+   dojo.io.script.get(jsonpArgs);
+}
 
 function clearMap() {
    for (var m=0; m<markers.length; m++){
@@ -336,23 +498,23 @@ function setup() {
     <img src="met_logo.gif" alt="Met Office logo" title="Met Office alpha"/><b>alpha</b>
     -->
     <h1>RFE map</h1>
+    <p><a href="https://docs.google.com/document/pub?id=1CBaaZRCVDcGiuVuoM3XY14jNEXJO_QjlWv4n8KSGi5A">Help</a></p>
   </div>
 
-
 <div  class="span-12">
-  <div id="map_canvas" style="width:460px;height:460px"></div>
-</div>
-<div  class="span-12 last" style="background-color:white">
-<div>
 <form  dojoType="dijit.form.Form" id="locationForm">
 lat<input type="text" name="lat" class="short" dojoType="dijit.form.NumberTextBox" readonly />N
 &nbsp;
 lng<input type="text" name="lng" class="short" dojoType="dijit.form.NumberTextBox" readonly />E
 <input type="text" name="alt" class="medium" dojoType="dijit.form.ValidationTextBox" readonly />
 </form>
-<p>Rainfall estimate (mm)</p>
+  <div id="map_canvas" style="width:460px;height:460px"></div>
 </div>
-<div id="graphdiv" style="width:455px;height:420px" ></div>
+<div  class="span-12 last" style="background-color:white">
+<p>Rainfall estimate (mm)</p>
+<div id="graphdivhi" style="width:455px;height:220px" ></div>
+<p>Mean max temperature (&deg;C)</p>
+<div id="graphdivlo" style="width:455px;height:220px" ></div>
 <form dojoType="dijit.form.Form" id="rainForm">
     <button type="button"  dojoType="dijit.form.Button" onClick="unzoom();">
     unzoom

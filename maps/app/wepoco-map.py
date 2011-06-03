@@ -26,22 +26,26 @@ import wsgiref.handlers
 from google.appengine.ext import webapp
 from adminlistblobs import ListBlobs, DelBlobs
 from arfe import ARfe, ANdvi
+from arean import ARean
 from arfeimg import ARfeImg, ANdviImg
 from upload import *
-from uploadrfe import *
+from uploadpic import *
+from uploadrean import *
 
 application = webapp.WSGIApplication([  
   ('/listblobs', ListBlobs),
   ('/delblobs', DelBlobs),
   ('/arfe', ARfe),
+  ('/arean', ARean),
   ('/arfeimg', ARfeImg),
   ('/andvi', ANdvi),
   ('/andviimg', ANdviImg),
+  ('/upload', UploadHandler),
   ('/uploadform', FormHandler),
   ('/uploadurl', UploadUrlHandler),
-  ('/upload', UploadHandler),
-  ('/rfeuploadurl', RfeUploadUrlHandler),
-  ('/rfeupload', RfeUploadHandler),
+  ('/uploadrean', UploadReanHandler),
+  ('/picuploadurl', PicUploadUrlHandler),
+  ('/picupload', PicUploadHandler),
   ('/serve/([^/]+)?', ServeHandler),
 ], debug=True)
 
