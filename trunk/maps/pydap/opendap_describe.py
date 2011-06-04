@@ -13,6 +13,11 @@
 # Use time_bnds and give start and end date
 
 
+"""
+Could try reading directory, eg.
+"http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets/20thC_ReanV2/catalog.xml"
+"""
+
 from pydap.client import open_url
 import sys
 from datetime import datetime, tzinfo, timedelta 
