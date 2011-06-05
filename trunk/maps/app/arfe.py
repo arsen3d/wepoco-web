@@ -33,6 +33,56 @@ class Dekad:
     def str(self):
         dy = [99,1,11,21]
         return "%4d/%02d/%02d" % (self.yr, self.mo, dy[self.dk])
+
+
+class RainfallEstimate:
+    def __init__(self,paramname,year,yrs,x,y):
+        self.paramname = paramname
+        self.xtile = int(x/100)
+        self.ytile = int(y/100)
+        self.xoff = int(x - (100*self.xtile))
+        self.yoff = int(y - (100*self.ytile))
+        self.data = array('h')
+        self.dmin = array('h')
+        self.dmax = array('h')
+        for iyr in range(yrs):
+            if self.findBlobkey(year + iyr,self.xtile,self.ytile,self.paramname):
+                self.readBlob()
+                pass
+            pass
+        return
+
+    def getData(self):
+        return(self.dmin,self.data,self.dmax)
+
+    def findBlobkey(self, year, xtile, ytile, paramname):
+        q = db.GqlQuery("SELECT * FROM DekadTile WHERE year=:1 AND x=:2 AND y=:3 AND param=:4",
+                         year,xtile,ytile,paramname)
+        results = q.fetch(1)
+        if len(results):
+            self.datakey=results[0].data
+            self.dminkey=results[0].dmin
+            self.dmaxkey=results[0].dmax
+            return True
+        return False
+
+    def readBlob(self):
+        # Data stored in blocks of 100x100
+        # Will need to seek to (y*100+x)*ob_size then read ob_size bytes
+        # ob_size is 36*2
+        # See http://code.google.com/appengine/docs/python/blobstore/blobreaderclass.html
+        x = self.xoff
+        y = self.yoff
+        ob_size = 36*2
+        pos =  (y*100+x)*ob_size
+        blob_reader = blobstore.BlobReader(self.datakey,position=pos,buffer_size=ob_size*2)
+        self.data.fromstring(blob_reader.read(ob_size))
+        blob_reader = blobstore.BlobReader(self.dminkey,position=pos,buffer_size=ob_size*2)
+        self.dmin.fromstring(blob_reader.read(ob_size))
+        blob_reader = blobstore.BlobReader(self.dmaxkey,position=pos,buffer_size=ob_size*2)
+        self.dmax.fromstring(blob_reader.read(ob_size))
+        return
+    
         
 #
 # HTTP GET with query ?x=ddd.dd&y=ddd.dd&year=yyyy 
@@ -46,18 +96,10 @@ class ARfe(webapp.RequestHandler):
 
     def get(self):
         self.getArgs()
-        self.xtile = int(self.x/100)
-        self.ytile = int(self.y/100)
-        self.xoff = int(self.x - (100*self.xtile))
-        self.yoff = int(self.y - (100*self.ytile))
-        self.data = array('h')
-        self.dmin = array('h')
-        self.dmax = array('h')
-        for iyr in range(self.yrs):
-            if self.findBlobkey(self.year + iyr,self.xtile,self.ytile,self.paramname):
-                self.readBlob()
-                pass
-            pass
+        (dmin,data,dmax) = RainfallEstimate(self.paramname,self.year,self.yrs,self.x,self.y).getData()
+        self.dmin = dmin
+        self.data = data
+        self.dmax = dmax
         if len(self.data) >0:
             self.scaleData()
             self.returnJson()
@@ -75,6 +117,9 @@ class ARfe(webapp.RequestHandler):
             self.yrs = 1
             pass
         self.callback = self.request.get("callback")
+        return
+
+    def scaleData(self):
         return
 
     def makeMonth(self):
@@ -127,36 +172,6 @@ class ARfe(webapp.RequestHandler):
             pass
         return
 
-    def findBlobkey(self, year, xtile, ytile, paramname):
-        q = db.GqlQuery("SELECT * FROM DekadTile WHERE year=:1 AND x=:2 AND y=:3 AND param=:4",
-                         year,xtile,ytile,paramname)
-        results = q.fetch(1)
-        if len(results):
-            self.datakey=results[0].data
-            self.dminkey=results[0].dmin
-            self.dmaxkey=results[0].dmax
-            return True
-        return False
-
-    def scaleData(self):
-        return
-
-    def readBlob(self):
-        # Data stored in blocks of 100x100
-        # Will need to seek to (y*100+x)*ob_size then read ob_size bytes
-        # ob_size is 36*2
-        # See http://code.google.com/appengine/docs/python/blobstore/blobreaderclass.html
-        x = self.xoff
-        y = self.yoff
-        ob_size = 36*2
-        pos =  (y*100+x)*ob_size
-        blob_reader = blobstore.BlobReader(self.datakey,position=pos,buffer_size=ob_size*2)
-        self.data.fromstring(blob_reader.read(ob_size))
-        blob_reader = blobstore.BlobReader(self.dminkey,position=pos,buffer_size=ob_size*2)
-        self.dmin.fromstring(blob_reader.read(ob_size))
-        blob_reader = blobstore.BlobReader(self.dmaxkey,position=pos,buffer_size=ob_size*2)
-        self.dmax.fromstring(blob_reader.read(ob_size))
-        return
     pass
 
 class ANdvi(ARfe):

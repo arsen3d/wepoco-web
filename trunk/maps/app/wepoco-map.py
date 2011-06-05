@@ -25,6 +25,7 @@
 import wsgiref.handlers
 from google.appengine.ext import webapp
 from adminlistblobs import ListBlobs, DelBlobs
+from adata import AData
 from arfe import ARfe, ANdvi
 from arean import ARean
 from arfeimg import ARfeImg, ANdviImg
@@ -35,6 +36,7 @@ from uploadrean import *
 application = webapp.WSGIApplication([  
   ('/listblobs', ListBlobs),
   ('/delblobs', DelBlobs),
+  ('/adata', AData),
   ('/arfe', ARfe),
   ('/arean', ARean),
   ('/arfeimg', ARfeImg),

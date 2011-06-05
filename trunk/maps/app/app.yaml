@@ -69,6 +69,10 @@ handlers:
 - url: /del.*
   script: wepoco-map.py
 
+
+- url: /adata
+  script: wepoco-map.py
+
 - url: /arfe
   script: wepoco-map.py
 

@@ -11,6 +11,35 @@ from array import array
 from django.utils import simplejson
 import logging
 
+class Reanalysis:
+    startYear = 2000
+    def __init__(self,paramname,year,yrs,x,y):
+        q = db.GqlQuery("SELECT * FROM ReanalysisMonth WHERE startDate=DATE(:1,1,1) AND x=:2 AND y=:3",
+                         self.startYear,x,y)
+        result = q.fetch(1)
+        if len(result):
+            rawList = getattr(result[0],paramname)
+            outarr=[]
+            date = result[0].startDate
+            date = date.replace(year=year)
+            offsetyrs = year - self.startYear
+            selected = rawList[12*offsetyrs:12*(yrs+offsetyrs)]
+            for entry in selected:
+                outarr.append([date.strftime("%Y/%m/%d"),entry])
+                if date.month < 12:
+                    month = date.month + 1
+                    year = date.year
+                else:
+                    month = 1
+                    year = date.year + 1
+                    pass
+                date = date.replace(year,month,1)
+            pass
+            self.data = outarr
+        else:
+            self.data = []
+        pass
+
 #
 # HTTP GET with query ?x=ddd.dd&y=ddd.dd&year=yyyy 
 # return is json text or jsonp if callback=somefnname
@@ -20,8 +49,8 @@ class ARean(webapp.RequestHandler):
     startYear = 2000
     def get(self):
         self.getArgs()
-        self.data = self.findData(self.year, self.yrs,self.x,self.y)
-        if self.data != None:
+        self.data = Reanalysis(self.paramname,self.year,self.yrs,self.x,self.y).data
+        if len(self.data) >0:
             self.returnJson()
         else:
             self.error(204) # No content. (205, or 500 might be more appropriate)
@@ -45,24 +74,8 @@ class ARean(webapp.RequestHandler):
         else:
             self.response.headers['Content-type'] = 'text/json'
             pass
-        
-
-        outarr=[]
-        date = self.data.startDate
-        for entry in getattr(self.data, self.paramname):
-            outarr.append([date.strftime("%Y/%m/%d"),entry])
-            if date.month < 12:
-                month = date.month + 1
-                year = date.year
-            else:
-                month = 1
-                year = date.year + 1
-                pass
-            date = date.replace(year,month,1)
-            pass
-        
         self.retdata = {}
-        self.retdata[self.paramname] = outarr
+        self.retdata[self.paramname] = self.data
         self.retdata['message'] = ""
         if self.callback:
             self.response.out.write("%s(" % self.callback)
@@ -72,16 +85,5 @@ class ARean(webapp.RequestHandler):
             self.response.out.write(");")
             pass
         return
-
-    def findData(self, year, yrs, x, y):
-        q = db.GqlQuery("SELECT * FROM ReanalysisMonth WHERE startDate=DATE(:1,1,1) AND x=:2 AND y=:3",
-                         self.startYear,x,y)
-        result = q.fetch(1)
-        if len(result):
-            rawList = getattr(result[0],self.paramname)
-            return result[0]
-        else:
-            return None
-        pass
     pass
 
