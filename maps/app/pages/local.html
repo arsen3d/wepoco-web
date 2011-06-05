@@ -116,12 +116,13 @@ fieldset label {
   dojo.require('dijit.form.Button');
   dojo.require('dijit.form.Select');
   dojo.require('dijit.form.ValidationTextBox');
+  dojo.require('dijit.form.TextBox');
   dojo.require('dijit.form.NumberTextBox');
   dojo.require('dijit.form.FilteringSelect');
 
   dojo.addOnLoad(setup);
 
-  Proj4js.reportError = function(msg) {alert(msg);}
+  Proj4js.reportError = function(msg) {my_alert(msg);}
   
   // Brand colours
   var bcols = {green:"#CCFF33",blue:"#031F73",cyan:"#00ADD0", olive:"#878800"};
@@ -130,25 +131,65 @@ fieldset label {
   var outDiv;
   var map;
   var circle;
-  var clock;
-  var dispStyle = 0;  // Default to 12 hour clock style.
-  var sites = [];
-  var selectedSite;  // look like this - {latlng:latlng, id:id, lb:lb, min:minzoom}
-  var siteForecast = [];
-  var siteForecastDays = [];
-  var forecastTimes = [];
   var markers = [];
-  var typeMap = [];
   var graphData = [];
+  var ndviData = [];
   var srcProj;
   var dstProj;
-  var graph;  // The Dygraph
+  var graphhi, graphlo;  // The Dygraphs
+  var overlay;  // The image overlay
+
+function ImageOverlay(bounds, image, map) {
+  this.bounds_ = bounds;
+  this.image_ = image;
+  this.map_ = map;
+  this.div_ = null;
+  this.setMap(map);
+}
+
+ImageOverlay.prototype = new google.maps.OverlayView();
+
+ImageOverlay.prototype.onAdd = function() {
+  var div = document.createElement('DIV');
+  div.style.border = "none";
+  div.style.borderWidth = "0px";
+  div.style.position = "absolute";
+
+  var img = document.createElement("img");
+  img.src = this.image_;
+  img.style.width = "100%";
+  img.style.height = "100%";
+  div.appendChild(img);
+  this.div_ = div;
+  var panes = this.getPanes();
+  panes.overlayLayer.appendChild(div);
+}
+
+ImageOverlay.prototype.draw = function() {
+  var overlayProjection = this.getProjection();
+  var sw = overlayProjection.fromLatLngToDivPixel(this.bounds_.getSouthWest());
+  var ne = overlayProjection.fromLatLngToDivPixel(this.bounds_.getNorthEast());
+  var div = this.div_;
+  div.style.left = sw.x + 'px';
+  div.style.top = ne.y + 'px';
+  div.style.width = (ne.x - sw.x) + 'px';
+  div.style.height = (sw.y - ne.y) + 'px';
+}
+
+ImageOverlay.prototype.onRemove = function() {
+  this.div_.parentNode.removeChild(this.div_);
+  this.div_ = null;
+}
+
+function my_alert(msg){
+  dojo.byId("info").innerHTML = msg;
+}
 
   function initialise() {
-     Proj4js.defs["AFRRFE"] = "+proj=aea +lat_1=-19 +lat_2=21 +lat_0=1 +lon_0=20 +x_0=0 +y_0=0 +units=m +ellps=clrk66 +to_meter=8000 +no_defs";
+    Proj4js.defs["AFRAEA"] = "+proj=aea +lat_1=-19 +lat_2=21 +lat_0=1 +lon_0=20 +x_0=0 +y_0=0 +units=m +ellps=clrk66 +to_meter=8000 +no_defs";
     Proj4js.defs["LONGLAT"] = "+proj=longlat +ellps=intl +towgs84=-637,-549,-203,0,0,0,0, +no_defs";
     srcProj = new Proj4js.Proj('LONGLAT');    //source coordinates will be in Longitude/Latitude
-    rfeProj = new Proj4js.Proj('AFRRFE');     //destination coordinates
+    dstProj = new Proj4js.Proj('AFRAEA');     //destination coordinates
 
     outDiv = dojo.byId("out_div");
     var myOptions = {
@@ -169,7 +210,7 @@ fieldset label {
    var wxMapOptions = {
     map: map,
     name: "Wx",
-    minZoom: 5,
+    minZoom: 3,
     maxZoom: 10
    }
 
@@ -177,6 +218,10 @@ fieldset label {
   
   map.mapTypes.set('wx', wxMapType);
   map.setMapTypeId('wx');
+
+  // Load CLIMAT stations
+  fusionQuery('SELECT id, name, location FROM 522056',stationMarkers);
+
   return 0;
   }
 
@@ -193,127 +238,384 @@ fieldset label {
    return 0;
  }
 
+/*
 function ARFEll(p){
      p.x -= (4237357/8000);
      p.y = (4272328/8000) - p.y;
-     Proj4js.transform(rfeProj, srcProj, p);
+     Proj4js.transform(dstProj, srcProj, p);
      return p;
 }
+*/
 
 function ARFExy(p){
-     Proj4js.transform(srcProj, rfeProj, p);
+     Proj4js.transform(srcProj, dstProj, p);
      p.x += (4237357/8000);
      p.y = (4272328/8000) - p.y;
      return p;
 }
 
+function ARFEpercent(p){
+     Proj4js.transform(srcProj, dstProj, p);
+     p.x += (4237357/8000);
+     p.y = (4272328/8000) - p.y;
+     p.x = p.x / 994;
+     p.y = p.y / 1089;
+     return p;
+}
 
-function plotGraph(retdata){
+/*
+function ANDVIll(p){
+     p.x -= (4607990/8000);
+     p.y = (4608032/8000) - p.y;
+     Proj4js.transform(dstProj, srcProj, p);
+     return p;
+}
+*/
 
+function ANDVIxy(p){
+     Proj4js.transform(srcProj, dstProj, p);
+     p.x += (4607990/8000);
+     p.y = (4608032/8000) - p.y;
+     return p;
+}
+
+function ANDVIpercent(p){
+     Proj4js.transform(srcProj, dstProj, p);
+     p.x += (4607990/8000);
+     p.y = (4608032/8000) - p.y;
+     p.x = p.x / 1152;
+     p.y = p.y / 1152;
+     return p;
+}
+
+function AREANxy(p){
+     p.y = 90 - p.y;
+     if(p.x < 0){p.x += 360;}
+     p.x /= 1.875;
+     p.y /= 1.9;
+     p.x = Math.round(p.x);
+     p.y = Math.round(p.y - 0.5);
+     return p;
+}
+
+var selected_date;
+
+function graphHighlightCb(canvas, area, g) {
+              var posn = g.toDomCoords(selected_date, 0);
+              var left = posn[0]-1;
+              var right = posn[0]+2;
+              canvas.fillStyle = "rgba(204, 255, 51, 1.0)";
+              canvas.fillRect(left, area.y, right - left, area.h);
+            };
+
+function rainGraph(retdata){
   var vals = dijit.byId('rainForm').getValues();
   var period = vals.period;
+  var settings = {customBars:true,errorBars:true,colors:['cyan','blue']};
 
-  var data;
-  var settings;
-  
   if(period == 'day'){
-    data = retdata.dekadrain;
-    for(var i in data){
-       data[i][1][0] = data[i][1][0]/10.0;
-       data[i][1][1] = data[i][1][1]/10.0;
-       data[i][1][2] = data[i][1][2]/10.0;
+    graphData = retdata.dekadrain;
+    for(var i in graphData){
+       graphData[i][1][0] = graphData[i][1][0]/10.0;
+       graphData[i][1][1] = graphData[i][1][1]/10.0;
+       graphData[i][1][2] = graphData[i][1][2]/10.0;
     }
-    settings =  {labels:['date','avg daily rain'],customBars:true,errorBars:true};
+    settings.labels=['date','avg daily rain'];
   }
   else if(period == 'dekad'){
-    data = retdata.dekadrain;
-    settings =  {labels:['date','dekad rain'],customBars:true,errorBars:true};
+    graphData = retdata.dekadrain;
+    settings.labels=['date','dekad rain'];
   }
-  else{
-    data = retdata.monthrain;
-    settings =  {labels:['date','month rain']};
+  else if(period == 'month') {
+    graphData = retdata.monthrain;
+    settings.labels=['date','month rain'];
   }
 
-  for(var i in data){
-     data[i][0] = new Date( data[i][0] );
-  } 
+  for(var i in graphData){
+     //var e = graphData[i][0].split("/");
+     //var d = new Date();
+     //d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
+     var d = new Date(graphData[i][0]);
+     graphData[i][0] = d;
+  }
 
-  graph = new Dygraph(document.getElementById("graphdiv"), data,settings);  
+  settings.clickCallback =  function(e, x, pts) {
+                selected_date = new Date(x);
+                graphlo.updateOptions( {underlayCallback: null } );
+                graphhi.updateOptions( {underlayCallback: graphHighlightCb } );
+                addOverlay(new Date(x), last_latlng);
+              };
+
+  graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData,settings);  
   // Or keep graph and update using -
-  //graph.updateOptions( { 'file': graphData } );
-  
-  dojo.byId("info").innerHTML = retdata.message;
+  //graphhi.updateOptions( { 'file': graphData } );
   return 0;
+}
+
+function reanGraph(retdata){
+  var vals = dijit.byId('rainForm').getValues();
+  var period = vals.period;
+  var settings = {colors:['gray','blue']};
+  settings.labels=['date','month rain'];
+  graphData = retdata.monthRain;
+
+  for(var i in graphData){
+     //var e = graphData[i][0].split("/");
+     //var d = new Date();
+     //d.setFullYear(e[0]); d.setMonth(e[1]-1);d.setDate(e[2]);
+     var d = new Date(graphData[i][0]);
+     graphData[i][0] = d;
+  }
+
+  settings.clickCallback =  function(e, x, pts) {
+                selected_date = new Date(x);
+                graphlo.updateOptions( {underlayCallback: null } );
+                graphhi.updateOptions( {underlayCallback: graphHighlightCb } );
+                addOverlay(new Date(x), last_latlng);
+              };
+
+  graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);  
+  // Or keep graph and update using -
+  //graphhi.updateOptions( { 'file': graphData } );
+  return 0;
+}
+
+function addOverlay(date, posn){
+    var swBound = new google.maps.LatLng(posn.lat()-2, posn.lng()-2);
+    var neBound = new google.maps.LatLng(posn.lat()+2, posn.lng()+2);
+    var bounds = new google.maps.LatLngBounds(swBound, neBound);
+
+    var topLeft = ARFEpercent({y:neBound.lat(),x:swBound.lng()});
+    var bottomRight = ARFEpercent({y:swBound.lat(),x:neBound.lng()});
+
+    var dek = Math.floor(date.getDate()/10) + 1; 
+    var args = { param:'rfe',
+      dek:dek,mon:date.getMonth()+1,year:date.getFullYear(),
+      left:topLeft.x,top:topLeft.y,right:bottomRight.x,bottom:bottomRight.y
+    };
+ 
+    var query = dojo.objectToQuery(args);
+    var tile = '/arfeimg?' + query;
+    if(overlay){overlay.setMap(null)};
+    overlay = new ImageOverlay(bounds, tile, map);
+}
+
+function addNdviOverlay(date, posn){
+    var swBound = new google.maps.LatLng(posn.lat()-2, posn.lng()-2);
+    var neBound = new google.maps.LatLng(posn.lat()+2, posn.lng()+2);
+    var bounds = new google.maps.LatLngBounds(swBound, neBound);
+
+    var topLeft = ANDVIpercent({y:neBound.lat(),x:swBound.lng()});
+    var bottomRight = ANDVIpercent({y:swBound.lat(),x:neBound.lng()});
+
+    var dek = Math.floor(date.getDate()/10) + 1; 
+    var args = { param:'ndvi',
+      dek:dek,mon:date.getMonth()+1,year:date.getFullYear(),
+      left:topLeft.x,top:topLeft.y,right:bottomRight.x,bottom:bottomRight.y
+    };
+ 
+    var query = dojo.objectToQuery(args);
+    var tile = 'http://map.wepoco.com/andviimg?' + query;
+    if(overlay){overlay.setMap(null)};
+    overlay = new ImageOverlay(bounds, tile, map);
 }
 
 function unzoom(){
-  graph.updateOptions({dateWindow: null,valueRange: null});
+  graphhi.updateOptions({dateWindow: null,valueRange: null});
+  graphlo.updateOptions({dateWindow: null,valueRange: null});
   return 0;
 }  
 
+// If settings are changed, e.g. year or daily,dekad,month then we need to
+// re-plot for the last map position selected.  
 function fetchData(){
   return fetchDataByPosn(last_latlng);
 }
+
+
+function temperatureGraph( resp ){
+  var temData = resp.table.rows;
+  var settings =  {labels:['date','mean max temperature']};
+
+  for(var i in temData){
+     temData[i][0] = new Date(temData[i][0]);
+  } 
+
+  graphlo = new Dygraph(document.getElementById("graphdivlo"), temData,settings);  
+}
+
+
+function ndviGraph( retdata ){
+
+  var vals = dijit.byId('rainForm').getValues();
+  var period = vals.period;
+  var settings;
+
+  if(period == 'dekad'){
+    ndviData = retdata.dekadndvi;
+    settings =  {labels:['date','dekad NDVI'],customBars:true,errorBars:true};
+  }
+  else if(period == 'month'){
+    ndviData = retdata.monthndvi;
+    settings =  {labels:['date','month NDVI'],customBars:true,errorBars:true};
+  }
+
+  for(var i in ndviData){
+     ndviData[i][0] = new Date(ndviData[i][0]);
+  } 
+  settings.clickCallback =  function(e, x, pts) {
+                selected_date = new Date(x);
+                graphhi.updateOptions( {underlayCallback: null } );
+                graphlo.updateOptions( { 'underlayCallback': graphHighlightCb } );
+                addNdviOverlay(new Date(x), last_latlng);
+              };
+
+  graphlo = new Dygraph(document.getElementById("graphdivlo"), ndviData,settings);  
+  return 0;
+}
+
+
+function stationGraph( resp ){
+  var data = resp.table.rows;
+  var dekrain = new Array();
+  for(var i in data){
+    var e = data[i][0].split("-");
+    dekrain[e[1]-1] = Number(data[i][1])/3;
+  }
+  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true};
+  for(var i in graphData){
+     mnth =  graphData[i][0].getMonth();
+     graphData[i][2] = new Array();
+     rain = dekrain[mnth];
+     graphData[i][2][0] = rain;
+     graphData[i][2][1] = rain;
+     graphData[i][2][2] = rain;
+  } 
+  graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);
+  return 0;
+}
+
 
 // Map click listener
 function fetchDataByPosn(latlng) {
 
      last_latlng = latlng;
-     document.getElementById("graphdiv").innerHTML="Loading...";
+     if(overlay){overlay.setMap(null)};
+     document.getElementById("graphdivhi").innerHTML="";
+     document.getElementById("graphdivlo").innerHTML="";
      mylatlng = latlng;
      drawCircle(latlng);
      dijit.byId('locationForm').set('value',{lat:latlng.lat(),lng:latlng.lng()});
-     var p;
      var vals = dijit.byId('rainForm').getValues();
      var year = vals['year'];
+     var yrs = vals['yrs'];
 
-     var text = "";
+
+     var zp = AREANxy({y:latlng.lat(),x:latlng.lng()});
+     //alert("posn " + zp.x + ", " + zp.y); 
+     var rp = ARFExy({y:latlng.lat(),x:latlng.lng()});
+     var np = ANDVIxy({y:latlng.lat(),x:latlng.lng()});
+     
+     // Can use xhrGet when this page served from map.wepoco.com
+     // Otherwise must use jsonp call.
+     dojo.xhrGet({
+        url:"/arean", content:{x:zp.x,y:zp.y,year:year,yrs:yrs},handleAs:"json",
+        load: function(data) {reanGraph(data);},
+        error: function(error) {my_alert("Error " + error);}});
+/*     dojo.xhrGet({
+        url:"/arfe", content:{x:rp.x,y:rp.y,year:year,yrs:yrs},handleAs:"json",
+        load: function(data) {rainGraph(data);},
+        error: function(error) {my_alert("Error " + error);}});
+*/
+/*
+    dojo.xhrGet({
+        url:"/andvi", content:{x:np.x,y:np.y,year:year,yrs:yrs},handleAs:"json",
+        load: function(data) {ndviGraph(data);},
+        error: function(error) {my_alert("Error " + error);}});
+*/     
+
      /*
-     p = ARFEll({x:0,y:0});
-     text += "<br> hdr top left lng:" + p.x + " lat:" + p.y;
-     p = ARFEll({x:994,y:1089});
-     text += "<br> hdr top left lng:" + p.x + " lat:" + p.y;
-     dojo.byId("info").innerHTML = text;
-     */
-     p = ARFExy({y:latlng.lat(),x:latlng.lng()});
-     /*
-     var xhrArgs = {
-        url: "arfe",
-        content: {x:p.x,y:p.y,year:year,dekad:1,count:36},
-        handleAs: "json",
-        load: function(data) {
-                    plotGraph(data);
-                },
-                error: function(error) {
-                    alert("Error " + error);
-                }
- 
-        };
-     var deferred = dojo.xhrGet(xhrArgs);
-     */
-
-
+     // See http://docs.dojocampus.org/dojo/io/script
+     var jsonpArgs = {
+        //Cross domain works - use this URL 
+        url: "http://map.wepoco.com/arfe",content:{x:rp.x,y:rp.y,year:year,yrs:yrs},  
+        callbackParamName: "callback",
+        load: function(data) {rainGraph(data);return 0;},
+        error: function(error) {alert("Error " + error);return 0;}};
+     dojo.io.script.get(jsonpArgs);
 
      // See http://docs.dojocampus.org/dojo/io/script
      var jsonpArgs = {
         //Cross domain works - use this URL 
-        url: "/arfe",
-        content: {x:p.x,y:p.y,year:year,dekad:1,count:36},  
+        url: "http://map.wepoco.com/andvi",content:{x:np.x,y:np.y,year:year,yrs:yrs},  
         callbackParamName: "callback",
-        load: function(data) {
-                    plotGraph( data );
-		    return 0;
-	},
-        error: function(error) {
-                   alert("Error " + error);
-		   return 0;
-        }
-        };
-
+        load: function(data) {ndviGraph(data);return 0;},
+        error: function(error) {alert("Error " + error);return 0;}};
      dojo.io.script.get(jsonpArgs);
+     */
+
      return 0;
   }
 
+function stationGraph( resp ){
+  var data = resp.table.rows; 
+  if(data.length == 0){
+    // no data for this station,year
+    return 0;
+  }
+  var dekrain = new Array();
+  for(var i in data){
+    var e = data[i][0].split("-");
+    dekrain[e[1]-1] = Number(data[i][1])/3;
+  }
+  var settings =  {labels:['date','dekad rain','station'],customBars:true,errorBars:true,
+  colors:['cyan','blue']};
+  for(var i in graphData){
+     mnth =  graphData[i][0].getMonth();
+     graphData[i][2] = new Array();
+     rain = dekrain[mnth];
+     graphData[i][2][0] = rain;
+     graphData[i][2][1] = rain;
+     graphData[i][2][2] = rain;
+  } 
+  graph = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);
+  return 0;
+}
+
+function stationMarkers( data ){
+  var rows = data.table.rows;
+  for(var i in rows){
+    var latlng = rows[i][2].split(',');
+    var posn = new google.maps.LatLng(latlng[0],latlng[1]);
+    var marker = new google.maps.Marker({
+            map: map,
+            title: rows[i][0] + " " + rows[i][1],
+	    wmo: rows[i][0], // WMO station ID and date used as index in rainfall table 
+            position: posn
+        });
+    google.maps.event.addListener(marker, 'click', function() {
+	 var vals = dijit.byId('rainForm').getValues();
+	 var year = vals['year'];
+         if(graphData.length == 0){ fetchDataByPosn(this.position); }
+         fusionQuery("SELECT date, rain FROM 522347 WHERE date STARTS WITH '"+year+"' AND id="+this.wmo,stationGraph);
+        });
+    markers.push(marker);
+  }
+  return 0;
+}
+
+function fusionQuery(sql,fn,errfn) {
+  var jsonpArgs = {
+        url: "https://www.google.com/fusiontables/api/query",
+        content: {sql:sql},  
+        callbackParamName: "jsonCallback",
+        load: function(data) {fn(data); return 0;},
+        error: function(error) {
+              if(errfn){errfn(error);}
+        }
+        };
+   dojo.io.script.get(jsonpArgs);
+}
 
 function clearMap() {
    for (var m=0; m<markers.length; m++){
@@ -336,23 +638,23 @@ function setup() {
     <img src="met_logo.gif" alt="Met Office logo" title="Met Office alpha"/><b>alpha</b>
     -->
     <h1>RFE map</h1>
+    <p><a href="https://docs.google.com/document/pub?id=1CBaaZRCVDcGiuVuoM3XY14jNEXJO_QjlWv4n8KSGi5A">Help</a></p>
   </div>
 
-
 <div  class="span-12">
-  <div id="map_canvas" style="width:460px;height:460px"></div>
-</div>
-<div  class="span-12 last" style="background-color:white">
-<div>
 <form  dojoType="dijit.form.Form" id="locationForm">
 lat<input type="text" name="lat" class="short" dojoType="dijit.form.NumberTextBox" readonly />N
 &nbsp;
 lng<input type="text" name="lng" class="short" dojoType="dijit.form.NumberTextBox" readonly />E
 <input type="text" name="alt" class="medium" dojoType="dijit.form.ValidationTextBox" readonly />
 </form>
-<p>Rainfall estimate (mm)</p>
+  <div id="map_canvas" style="width:460px;height:460px"></div>
 </div>
-<div id="graphdiv" style="width:455px;height:420px" ></div>
+<div  class="span-12 last" style="background-color:white">
+<p>Rainfall estimate (mm)</p>
+<div id="graphdivhi" style="width:455px;height:220px" ></div>
+<p>NDVI</p>
+<div id="graphdivlo" style="width:455px;height:220px" ></div>
 <form dojoType="dijit.form.Form" id="rainForm">
     <button type="button"  dojoType="dijit.form.Button" onClick="unzoom();">
     unzoom
@@ -373,18 +675,49 @@ lng<input type="text" name="lng" class="short" dojoType="dijit.form.NumberTextBo
     <label for="radioMonth">
         Month
     </label>
-    &nbsp;&nbsp;
+    &nbsp;
     <label for="selectYear">Year</label>
-    <div id="selectYear" style="width: 150px;" name="year" dojoType="dijit.form.Select"
+    <div id="selectYear" style="width: 110px;" name="year" dojoType="dijit.form.Select"
      onchange="fetchData()">
-      <span value="2008">
-      2008
+      <span value="2011">
+      2011
+      </span>
+      <span value="2010">
+      2010
       </span>
       <span value="2009">
       2009
       </span>
-      <span value="2010">
-      2010
+      <span value="2008">
+      2008
+      </span>
+      <span value="2007">
+      2007
+      </span>
+      <span value="2006">
+      2006
+      </span>
+      <span value="2005">
+      2005
+      </span>
+    </div>
+    <label for="selectYrs">Years</label>
+    <div id="selectYrs" style="width: 50px;" name="yrs" dojoType="dijit.form.Select"
+     onchange="fetchData()">
+      <span value="1">
+      1
+      </span>
+      <span value="2">
+      2
+      </span>
+      <span value="3">
+      3
+      </span>
+      <span value="4">
+      4
+      </span>
+      <span value="5">
+      5
       </span>
     </div>
     <!--
