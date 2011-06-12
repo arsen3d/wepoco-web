@@ -11,6 +11,7 @@ from array import array
 from django.utils import simplejson
 import logging
 from arean import Reanalysis
+from arfe import RainfallEstimate
 
 #
 # HTTP GET with query ?x=ddd.dd&y=ddd.dd&year=yyyy 
@@ -19,19 +20,33 @@ from arean import Reanalysis
 class AData(webapp.RequestHandler):
     def get(self):
         self.getArgs()
-        rean = Reanalysis('monthRain',self.year,self.yrs,self.x,self.y).data
+        rean = Reanalysis('monthRain',self.year,self.yrs,int(self.reanx),int(self.reany)).data
+        satrain = RainfallEstimate('rfe',self.year,self.yrs,self.satx,self.saty).getData()
+        month = self.mergeMonth(rean, satrain)
         if len(rean) >0:
             retdata = {}
-            retdata['monthRain'] = rean
+            retdata['monthRain'] = month
             retdata['message'] = ""
             self.returnJson(retdata)
         else:
             self.error(204) # No content. (205, or 500 might be more appropriate)
         return
 
+    
+    def mergeMonth(self, r, s):
+        # if either array empty then insert None for all entries
+        # if both empty return None
+        merged = []
+        for i in range(len(r)):
+            merged.append([r[i][0],[r[i][1],r[i][1],r[i][1]],s[i][1]])
+            pass
+        return merged
+
     def getArgs(self):
-        self.x = int(self.request.get("x"))
-        self.y = int(self.request.get("y"))
+        self.reanx = float(self.request.get("rx"))
+        self.reany = float(self.request.get("ry"))
+        self.satx = float(self.request.get("sx"))
+        self.saty = float(self.request.get("sy"))
         self.year = int(self.request.get("year"))
         if self.request.get("yrs"):
             self.yrs = int(self.request.get("yrs"))

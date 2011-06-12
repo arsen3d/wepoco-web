@@ -36,8 +36,10 @@ class Dekad:
 
 
 class RainfallEstimate:
+    missing = -1024
     def __init__(self,paramname,year,yrs,x,y):
         self.paramname = paramname
+        self.year = year
         self.xtile = int(x/100)
         self.ytile = int(y/100)
         self.xoff = int(x - (100*self.xtile))
@@ -49,11 +51,36 @@ class RainfallEstimate:
             if self.findBlobkey(year + iyr,self.xtile,self.ytile,self.paramname):
                 self.readBlob()
                 pass
+            else:
+                for dk in range(36):
+                    self.data.append(self.missing)
+                    self.dmin.append(self.missing)
+                    self.dmax.append(self.missing)
+                    pass
             pass
+        self.month = self.makeMonth()
         return
 
     def getData(self):
-        return(self.dmin,self.data,self.dmax)
+        return self.month
+
+    def makeMonth(self):
+        monthrain = []
+        dk = Dekad(self.year,1,1)
+        for i in range(len(self.data)/3):
+            if self.data[i*3] == self.missing:
+               monthrain.append([dk.str(),[None,None,None]])
+            else:
+                edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
+                #emin = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
+                #emax = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
+                emin = edat
+                emax = edat
+                monthrain.append([dk.str(),[emin,edat,emax]])
+                pass
+            dk.incr(3)
+            pass
+        return monthrain
 
     def findBlobkey(self, year, xtile, ytile, paramname):
         q = db.GqlQuery("SELECT * FROM DekadTile WHERE year=:1 AND x=:2 AND y=:3 AND param=:4",
@@ -96,10 +123,12 @@ class ARfe(webapp.RequestHandler):
 
     def get(self):
         self.getArgs()
-        (dmin,data,dmax) = RainfallEstimate(self.paramname,self.year,self.yrs,self.x,self.y).getData()
-        self.dmin = dmin
-        self.data = data
-        self.dmax = dmax
+        rainEst = RainfallEstimate(self.paramname,self.year,self.yrs,self.x,self.y)
+        self.missing = rainEst.missing
+        self.dmin = rainEst.dmin
+        self.data = rainEst.data
+        self.dmax = rainEst.dmax
+        self.month = rainEst
         if len(self.data) >0:
             self.scaleData()
             self.returnJson()
@@ -126,9 +155,15 @@ class ARfe(webapp.RequestHandler):
         monthrain = []
         dk = Dekad(self.year,1,1)
         for i in range(len(self.data)/3):
-            edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
-            emin = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
-            emax = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
+            if edat < 0:
+                edat = None
+            else:
+                edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
+                pass
+            #emin = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
+            #emax = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
+            emin = edat
+            emax = edat
             monthrain.append([dk.str(),[emin,edat,emax]])
             dk.incr(3)
             pass
@@ -184,21 +219,27 @@ class ANdvi(ARfe):
         nmin = []
         nmax = []
         for i in range(len(self.data)):
-            if self.data[i] > 250:
+            if self.data[i] == self.missing:
+                ndata.append(None)
+            elif self.data[i] > 250:
                 ndata.append(None)
             else:
                 ndata.append(self.data[i] / 250.0)
                 pass
             pass
         for i in range(len(self.dmin)):
-            if self.dmin[i] > 250:
+            if self.dmin[i] == self.missing:
+                nmin.append(None)
+            elif self.dmin[i] > 250:
                 nmin.append(None)
             else:
                 nmin.append(self.dmin[i] / 250.0)
                 pass
             pass
         for i in range(len(self.dmax)):
-            if self.dmax[i] > 250:
+            if self.dmax[i] == self.missing:
+                nmax.append(None)
+            elif self.dmax[i] > 250:
                 nmax.append(None)
             else:
                 nmax.append(self.dmax[i] / 250.0)
@@ -216,11 +257,13 @@ class ANdvi(ARfe):
         for i in range(len(self.data)/3):
             if (self.data[i*3] == None) or (self.data[i*3+1] == None) or (self.data[i*3+2] == None):
                 mean = None
+                minval = None
+                maxval = None
             else:
                 mean = (self.data[i*3]+self.data[i*3+1]+self.data[i*3+2])/3
+                minval = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]])
+                maxval = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]])
                 pass
-            minval = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]])
-            maxval = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]])
             month.append([dk.str(),[minval,mean,maxval]])
             dk.incr(3)
             pass

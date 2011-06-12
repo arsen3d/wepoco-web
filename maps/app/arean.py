@@ -35,9 +35,20 @@ class Reanalysis:
                     pass
                 date = date.replace(year,month,1)
             pass
+            while len(outarr) < (yrs*12):
+                outarr.append([date.strftime("%Y/%m/%d"),None])
+                if date.month < 12:
+                    month = date.month + 1
+                    year = date.year
+                else:
+                    month = 1
+                    year = date.year + 1
+                    pass
+                date = date.replace(year,month,1)                
+                pass
             self.data = outarr
-        else:
-            self.data = []
+        else: 
+            self.data = None
         pass
 
 #

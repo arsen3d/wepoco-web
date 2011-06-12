@@ -2,6 +2,7 @@ application: wepoco-map
 version: 1
 runtime: python
 api_version: 1
+default_expiration: "5m"
 
 builtins:
 
@@ -79,6 +80,9 @@ handlers:
 - url: /arean
   script: wepoco-map.py
 
+- url: /astnrain
+  script: wepoco-map.py
+
 - url: /arfeimg
   script: wepoco-map.py
 
@@ -86,12 +90,6 @@ handlers:
   script: wepoco-map.py
 
 - url: /andviimg
-  script: wepoco-map.py
-
-- url: /uploadform
-  script: wepoco-map.py
-
-- url: /uploadurl
   script: wepoco-map.py
 
 - url: /upload.*
@@ -105,7 +103,3 @@ handlers:
 
 - url: /serve/.*
   script: wepoco-map.py
- 
-
-
-
