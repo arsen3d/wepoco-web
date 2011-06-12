@@ -28,10 +28,12 @@ from adminlistblobs import ListBlobs, DelBlobs
 from adata import AData
 from arfe import ARfe, ANdvi
 from arean import ARean
+from astation import AStnRain
 from arfeimg import ARfeImg, ANdviImg
 from upload import *
 from uploadpic import *
 from uploadrean import *
+from uploadstnrain import *
 
 application = webapp.WSGIApplication([  
   ('/listblobs', ListBlobs),
@@ -39,13 +41,15 @@ application = webapp.WSGIApplication([
   ('/adata', AData),
   ('/arfe', ARfe),
   ('/arean', ARean),
-  ('/arfeimg', ARfeImg),
+  ('/astnrain', AStnRain),
   ('/andvi', ANdvi),
+  ('/arfeimg', ARfeImg),
   ('/andviimg', ANdviImg),
   ('/upload', UploadHandler),
   ('/uploadform', FormHandler),
   ('/uploadurl', UploadUrlHandler),
   ('/uploadrean', UploadReanHandler),
+  ('/uploadstnrain', UploadStnRainHandler),
   ('/picuploadurl', PicUploadUrlHandler),
   ('/picupload', PicUploadHandler),
   ('/serve/([^/]+)?', ServeHandler),
