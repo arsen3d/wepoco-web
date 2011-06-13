@@ -5,18 +5,30 @@ import json
 import sys
 
 
-# define a Python data dictionary
-#data = {'first_name': 'Devin', 'last_name': 'Fee', 'url': 'http://devinfee.com/blog'}
-#data_json = json.dumps(data)
 
 obj = json.load(file(sys.argv[1],'rb'))
 
-#data_json = json.dumps(obj)
+#rstart = 0
+#rend = 20
 
-data_json = urllib.urlencode({'jsonData' : json.dumps(obj)})
+rstart = 440
+rend = 460
 
-host = "http://localhost:8080/uploadrean"
-req = urllib2.Request(host, data_json)#, {'content-type': 'application/json'})
-response_stream = urllib2.urlopen(req)
-response = response_stream.read()
-print response
+while rstart < len(obj['rainrecs']): 
+    print rstart
+    a = obj['rainrecs'][rstart:rend]
+    rstart += 20
+    rend += 20
+    uploaddata={}
+    uploaddata['lats']=obj['lats']
+    uploaddata['lons']=obj['lons']
+    uploaddata['rainrecs']=a
+    data_json = urllib.urlencode({'jsonData' : json.dumps(uploaddata)})
+    #host = "http://localhost:8080/uploadrean"
+    host = "http://map.wepoco.com/uploadrean"
+    req = urllib2.Request(host, data_json)
+    response_stream = urllib2.urlopen(req)
+    response = response_stream.read()
+    #print response
+    pass
+
