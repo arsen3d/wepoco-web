@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
@@ -193,7 +194,7 @@ function my_alert(msg){
 
     outDiv = dojo.byId("out_div");
     var myOptions = {
-      zoom: 7,
+      zoom: 5,
       center: new google.maps.LatLng(settings.centre.lat, settings.centre.lon),
       mapTypeControl: false, 
       mapTypeId: google.maps.MapTypeId.TERRAIN,
@@ -300,6 +301,7 @@ function AREANxy(p){
 }
 
 var selected_date;
+var selected_station;
 
 function graphHighlightCb(canvas, area, g) {
               var posn = g.toDomCoords(selected_date, 0);
@@ -528,12 +530,14 @@ function fetchDataByPosn(latlng) {
         //load: function(data) {alert(data);},
         error: function(error) {my_alert("Error " + error);}});
 
+    /*
     dojo.xhrGet({
         url:"/andvi", content:{x:np.x,y:np.y,year:year,yrs:yrs},
         handleAs:"json",
         load: ndviGraph,
         error: function(error) {my_alert("Error " + error);}});
-     
+     */
+
 
      /*
      // See http://docs.dojocampus.org/dojo/io/script
@@ -587,9 +591,15 @@ function stationMarkers( data ){
 	 if(this.selected){
 	   this.setIcon("http://maps.google.com/mapfiles/ms/micons/red-dot.png");
            this.selected = 0;
+	   selected_station = null;
          }else{
+	   if(selected_station){
+ 	     selected_station.setIcon("http://maps.google.com/mapfiles/ms/micons/red-dot.png");
+             selected_station.selected = 0;
+	   }
            this.setIcon("http://maps.google.com/mapfiles/ms/micons/green-dot.png");
            this.selected = 1;
+	   selected_station = this;
          }
         });
     marker.setIcon("http://maps.google.com/mapfiles/ms/micons/red-dot.png");

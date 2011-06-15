@@ -1,4 +1,7 @@
-var settings = {centre:{lat:-2,lon:30}};
+// Rwanda
+// var settings = {centre:{lat:-2,lon:30}};
+// Tanzania
+var settings = {centre:{lat:-6,lon:30}};
 
 var wxstyle = [
     {
