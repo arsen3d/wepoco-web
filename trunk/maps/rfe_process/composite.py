@@ -7,10 +7,18 @@ import os, string
 
 # Composite 36 100x100 tiles
 
+empty = array.array('h')
+for i in range (100*100):
+    empty.append(-1024)
+    pass
+
 def readtile(filename):
     matrix = array.array('h')
-    matrix.fromfile( file(filename), 100*100 )
-    return matrix
+    try:
+        matrix.fromfile( file(filename), 100*100 )
+        return matrix
+    except:
+        return empty
 
 def composite(yr,suffix=""):
     for y in range(11):
