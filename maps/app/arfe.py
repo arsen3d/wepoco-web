@@ -72,8 +72,7 @@ class RainfallEstimate:
                monthrain.append([dk.str(),[None,None,None]])
             else:
                 edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
-                #emin = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
-                #emax = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
+                if edat < 0: edat = None
                 emin = edat
                 emax = edat
                 monthrain.append([dk.str(),[emin,edat,emax]])
@@ -155,11 +154,7 @@ class ARfe(webapp.RequestHandler):
         monthrain = []
         dk = Dekad(self.year,1,1)
         for i in range(len(self.data)/3):
-            if edat < 0:
-                edat = None
-            else:
-                edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
-                pass
+            edat = self.data[i*3]+self.data[i*3+1]+self.data[i*3+2]
             #emin = min([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
             #emax = max([self.data[i*3],self.data[i*3+1],self.data[i*3+2]]) * 3
             emin = edat
@@ -180,13 +175,16 @@ class ARfe(webapp.RequestHandler):
         dekadrain = []
         for i in range(len(self.data)):
             edat = self.data[i]
+            if edat < 0: edat = None
             try:
                 emin = self.dmin[i]
+                if emin < 0: emin = None
             except:
-                emax = edat
+                emin = edat
                 pass
             try:
                 emax = self.dmax[i]
+                if emax < 0: emax = None
             except:
                 emax = edat
                 pass
