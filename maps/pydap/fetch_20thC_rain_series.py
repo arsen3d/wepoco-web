@@ -73,8 +73,8 @@ rainrecs = []
 if True:
     #e = e%360
     #if e == 0: e=360
-    laidx = 20
-    loidx = 10
+    laidx = 93
+    loidx = 191
     a = dataset[varname][interval,laidx,loidx]
     x = a.array[:]
     data = numpy.select([x == missing],[None], default = x)
