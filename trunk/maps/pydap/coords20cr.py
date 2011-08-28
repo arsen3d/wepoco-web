@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Michael Saunby.  August 2011.
 #
 # Purpose:
@@ -20,12 +20,15 @@ def toXY(lat,lng):
     return (int(x),int(y))
 
 def main():
-    form=cgi.FieldStorage()
-    lat = float(form["lat"].value)
-    lng = float(form["lng"].value)
-    (x,y) = toXY(lat,lng)
     print "Content-type: text/json\n"
-    print json.dumps({"x":x,"y":y})
+    try:
+        form=cgi.FieldStorage()
+        lat = float(form["lat"].value)
+        lng = float(form["lng"].value)
+        (x,y) = toXY(lat,lng)
+        print json.dumps({"x":x,"y":y})
+    except:
+        print "null"
 
 if __name__ == '__main__':
   main()
