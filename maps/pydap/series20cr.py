@@ -80,6 +80,9 @@ def main():
     data = (data * dataset[varname].scale_factor + dataset[varname].add_offset)
     data *= secs_per_month
     rain = data[:].astype('int')
+    # Not every Python version needs this - not sure which do.
+    # Can get nasty error when converting to JSON.
+    rain = rain.tolist()
 
     plot = []
     i = 0
