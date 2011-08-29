@@ -29,8 +29,6 @@ year_start = 1961
 year_end = 2008
 # Monthly means are assigned to first day of month. That's why the
 # range ends on 1st December.
-firstday = datetime(year_start,1,1, tzinfo=UTC())
-lastday = datetime(year_end,12,1, tzinfo=UTC())
 
 dods = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" 
 monthly_monolevel = dods + "Monthlies/gaussian/monolevel/"
@@ -65,7 +63,9 @@ def main():
     varname = "prate"
     missing = 32766 # Missing value indicator
     secs_per_month = 2592000 # Assume all months 30 days
-    
+
+    firstday = datetime(year_start,1,1, tzinfo=UTC())
+    lastday = datetime(year_end,12,1, tzinfo=UTC())
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
     interval = ((first <= dataset.time) & (dataset.time <= last))
@@ -86,7 +86,7 @@ def main():
 
     plot = []
     i = 0
-    for t in data:
+    for t in times:
         plot.append([udDate(t,dataset),rain[i]])
         i += 1
         pass
