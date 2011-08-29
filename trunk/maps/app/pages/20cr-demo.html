@@ -104,9 +104,9 @@ function loadser(data){
   alert(dojo.toJson(data)); 
 }
 
-function lfn(point){
+function lfn(xy){
   //alert(dojo.toJson(point));
-  series20cr({point:point,load:loadser,error:efn});  
+  series20cr({cell:xy,load:loadser,error:efn});  
 }
 
 function efn(msg){
