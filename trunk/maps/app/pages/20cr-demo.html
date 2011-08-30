@@ -12,7 +12,7 @@
 <script src="http://danvk.org/dygraphs/dygraph-combined.js"></script> 
 
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-<script type="text/javascript" src="http://saunby.net/20cr.js"></script>
+<script type="text/javascript" src="20cr.js"></script>
 <script type="text/javascript">
 </script>
 <script type="text/javascript">
@@ -72,36 +72,22 @@
    return 0;
  }
 
- function reanGraph(retdata){
-  if(retdata == null){
-    return 0;	      
-  }
-  var vals = dijit.byId('rainForm').getValues();
-  var period = vals.period;
-  var settings = {colors:['gray','blue'],customBars:true,errorBars:true};
-  settings.labels=['date','reanalysis','satellite'];
-  graphData = retdata.monthRain;
+function reanGraph(data){
+  //var settings = {colors:['gray','blue'],customBars:true,errorBars:true};
+  //settings.labels=['date','reanalysis','satellite'];
+  var settings = {colors:['gray']};
+  graphData = data.data;
 
   for(var i in graphData){
      var d = new Date(graphData[i][0]);
      graphData[i][0] = d;
   }
-
-  settings.clickCallback =  function(e, x, pts) {
-                selected_date = new Date(x);
-                graphlo.updateOptions( {underlayCallback: null } );
-                graphhi.updateOptions( {underlayCallback: graphHighlightCb } );
-                addOverlay(new Date(x), last_latlng);
-              };
-  graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);  
-  // Or keep graph and update using -
-  //graphhi.updateOptions( { 'file': graphData } );
-  return 0;
- }
+ graphhi = new Dygraph(document.getElementById("graphdivhi"), graphData, settings);  
+}
 
 
 function loadser(data){
-  alert(dojo.toJson(data)); 
+  reanGraph(data);
 }
 
 function lfn(xy){
@@ -129,7 +115,7 @@ function efn(msg){
 </head>
 <body class="tundra" style="background-color:white;margin:0px;padding:0px;">
 <h1>20cr-demo</h1>
-<div id="graphdivlo" style="width:455px;height:220px" ></div>
+<div id="graphdivhi" style="width:455px;height:220px" ></div>
 <div id="map_canvas" style="width:600px;height:460px"></div>
 </body>
 </html>

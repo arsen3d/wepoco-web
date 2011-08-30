@@ -54,10 +54,31 @@ def location_str(data, y, x):
         pass
     return '%f,%f' % (data.lat[y], lng)
 
+def returnJson(obj,callback=None):
+    if callback:
+        print 'Content-type: application/javascript\n'
+    else:
+        print 'Content-type: text/json\n'
+        pass
+
+    if callback:
+        print "%s(" % callback
+        pass
+    print json.dumps(obj)
+    if callback:
+        print ");"
+        pass
+    return
+
+
 def main():
     form=cgi.FieldStorage()
     x = int(form["x"].value)
     y = int(form["y"].value)
+    try:
+        callback = form["callback"].value
+    except:
+        callback = None
 
     dataset = open_url(precip_month_url)
     varname = "prate"
@@ -93,10 +114,8 @@ def main():
 
     report = {}
     report['data'] = plot
-
-    print "Content-type: text/json\n"
-    print json.dumps(report)
-
+    returnJson(report,callback)
+    return
 
 if __name__ == '__main__':
   main()
