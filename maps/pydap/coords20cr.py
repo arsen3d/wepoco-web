@@ -19,16 +19,39 @@ def toXY(lat,lng):
     x = ((lng + 0.9375)% 360) / 1.875
     return (int(x),int(y))
 
+def returnJson(obj,callback=None):
+    if callback:
+        print 'Content-type: application/javascript\n'
+    else:
+        print 'Content-type: text/json\n'
+        pass
+
+    if callback:
+        print "%s(" % callback
+        pass
+    print json.dumps(obj)
+    if callback:
+        print ");"
+        pass
+    return
+
 def main():
-    print "Content-type: text/json\n"
+    form=cgi.FieldStorage()
     try:
-        form=cgi.FieldStorage()
+        callback = form["callback"].value
+    except:
+        callback = None
+        pass
+    try:
         lat = float(form["lat"].value)
         lng = float(form["lng"].value)
         (x,y) = toXY(lat,lng)
-        print json.dumps({"x":x,"y":y})
+        data={"x":x,"y":y}
     except:
-        print "null"
+        data=None
+        pass
+
+    returnJson(data,callback)
 
 if __name__ == '__main__':
   main()
