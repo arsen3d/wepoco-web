@@ -15,6 +15,8 @@ import json
 import sys
 import cgi
 
+from config20cr import months20cr
+
 class UTC(tzinfo):
     """UTC"""
     def utcoffset(self, dt):
@@ -30,11 +32,10 @@ year_end = 2008
 # Monthly means are assigned to first day of month. That's why the
 # range ends on 1st December.
 
-dods = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" 
-monthly_monolevel = dods + "Monthlies/gaussian/monolevel/"
-
-precip_rate_url = dods + "gaussian/monolevel/prate.2008.nc"
-precip_month_url = dods + "Monthlies/gaussian/monolevel/prate.mon.mean.nc"
+#dods = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" 
+#monthly_monolevel = dods + "Monthlies/gaussian/monolevel/"
+#precip_rate_url = dods + "gaussian/monolevel/prate.2008.nc"
+#precip_month_url = dods + "Monthlies/gaussian/monolevel/prate.mon.mean.nc"
 
 def udDate(time, dataset):
     date = from_udunits(time, dataset.time.units.replace('GMT', '+0:00'))
@@ -73,17 +74,23 @@ def returnJson(obj,callback=None):
 
 def main():
     form=cgi.FieldStorage()
-    x = int(form["x"].value)
-    y = int(form["y"].value)
+    try:
+        x = int(form["x"].value)
+        y = int(form["y"].value)
+    except:
+        returnJson({"msg":"x and y must be integers"})
+        return
     try:
         callback = form["callback"].value
     except:
         callback = None
+        pass
+        
+    config = months20cr['prate_mon_mean']
 
-    dataset = open_url(precip_month_url)
-    varname = "prate"
+    dataset = open_url(config['url'])
+    varname = config['var']
     missing = 32766 # Missing value indicator
-    secs_per_month = 2592000 # Assume all months 30 days
 
     firstday = datetime(year_start,1,1, tzinfo=UTC())
     lastday = datetime(year_end,12,1, tzinfo=UTC())
@@ -99,16 +106,13 @@ def main():
 
     data = numpy.select([seq == missing],[None], default = seq)
     data = (data * dataset[varname].scale_factor + dataset[varname].add_offset)
-    data *= secs_per_month
-    rain = data[:].astype('int')
-    # Not every Python version needs this - not sure which do.
-    # Can get nasty error when converting to JSON.
-    rain = rain.tolist()
+    values = config['convert'](data)
+
 
     plot = []
     i = 0
     for t in times:
-        plot.append([udDate(t,dataset),rain[i]])
+        plot.append([udDate(t,dataset),values[i]])
         i += 1
         pass
 
