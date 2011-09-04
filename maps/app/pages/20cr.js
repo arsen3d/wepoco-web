@@ -27,17 +27,19 @@ function series20cr(vals) {
 /*
    dojo.xhrGet({
         url:"/cgi-bin/py/series20cr.py", 
-	content:{x:vals.cell.x,y:vals.cell.y},
+	content:{x:vals.cell.x,y:vals.cell.y,q:vals.quantity},
 	handleAs:"json",
         load: vals.load,
         error: vals.error});
 */
    dojo.io.script.get({
         url:"http://saunby.net/cgi-bin/py/series20cr.py", 
-	content:{x:vals.cell.x,y:vals.cell.y},
+       content:{x:vals.cell.x,y:vals.cell.y,q:vals.quantity},
         callbackParamName: "callback",
 	handleAs:"json",
         load: vals.load,
         error: vals.error});
 }
+
+
 
