@@ -12,6 +12,8 @@ from coards import from_udunits, to_udunits
 import numpy
 import csv
 import json
+from json import encoder
+encoder.FLOAT_REPR = lambda o: format(o, '.1f')
 import sys
 import cgi
 
@@ -81,13 +83,18 @@ def main():
         returnJson({"msg":"x and y must be integers"})
         return
     try:
+        q = form["q"].value
+        config = months20cr[q]
+    except:
+        k =  months20cr.keys()
+        returnJson({"msg":"q must be one of " + str(k)})
+        return
+    try:
         callback = form["callback"].value
     except:
         callback = None
         pass
         
-    config = months20cr['prate_mon_mean']
-
     dataset = open_url(config['url'])
     varname = config['var']
     missing = 32766 # Missing value indicator

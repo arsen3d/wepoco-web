@@ -16,25 +16,27 @@ months20cr = {};
 # to month total.
 secs_per_month = 2592000 # Assume all months 30 days
 
-def conv_prate(data):   
-    # Not every Python version needs the 'tolist()'- not sure which do.
-    # Can get nasty error when converting to JSON otherwise.
-    return (data*secs_per_month)[:].astype('int').tolist()
+
+# Not every Python version needs the 'tolist()'- not sure which do.
+# Can get nasty error when converting to JSON otherwise.
 
 months20cr['prate_mon_mean']={
     'url': monthly_monolevel + 'prate.mon.mean.nc',
     'var': 'prate',
-    'convert':  conv_prate
+    'convert':  lambda data: (data*secs_per_month)[:].astype('float').tolist() 
     }
 months20cr['air_2m_mon_mean']={
     'url': monthly_monolevel + 'air.2m.mon.mean.nc',
-    'var': 'air'
+    'var': 'air',
+    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
     }
 months20cr['tmin_2m_mon_mean']={
     'url': monthly_monolevel + 'tmin.2m.mon.mean.nc',
-    'var': 'tmin'
+    'var': 'tmin',
+    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
     }
 months20cr['tmax_2m_mon_mean']={
     'url': monthly_monolevel + 'tmax.2m.mon.mean.nc',
-    'var': 'tmax'
+    'var': 'tmax',
+    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
     }
