@@ -93,7 +93,6 @@ def main():
         
     dataset = open_url(config['url'])
     varname = config['var']
-    missing = 32766 # Missing value indicator
 
     firstday = datetime(year_start,1,1, tzinfo=UTC())
     lastday = datetime(year_end,12,31, tzinfo=UTC())
@@ -107,6 +106,7 @@ def main():
     times = a.time[:]
     
 
+    missing =  dataset[varname].missing_value
     data = numpy.select([seq == missing],[None], default = seq)
     data = (data * dataset[varname].scale_factor + dataset[varname].add_offset)
     values = config['convert'](data)
