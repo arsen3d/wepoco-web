@@ -7,7 +7,7 @@
 
 
 from pydap.client import open_url
-from datetime import datetime, tzinfo, timedelta
+from datetime import datetime, tzinfo, timedelta, date
 from coards import from_udunits, to_udunits
 import numpy
 import csv
@@ -29,8 +29,8 @@ class UTC(tzinfo):
         return timedelta(0)
     pass
 
-year_start = 1961
-year_end = 2008
+default_year_start = 1961
+
 # Monthly means are assigned to first day of month. That's why the
 # range ends on 1st December.
 
@@ -42,20 +42,6 @@ year_end = 2008
 def udDate(time, dataset):
     date = from_udunits(time, dataset.time.units.replace('GMT', '+0:00'))
     return '%d/%02d/%02d' % (date.year, date.month, date.day)
-
-def code(n):
-    if n < 10:
-        return chr(ord('0')+n)
-    else:
-        return chr(ord('A')+n-10)
-    pass
-
-def location_str(data, y, x):
-    lng =  data.lon[x]
-    if lng > 180:
-        lng = lng - 360
-        pass
-    return '%f,%f' % (data.lat[y], lng)
 
 def returnJson(obj,callback=None):
     if callback:
@@ -90,6 +76,16 @@ def main():
         returnJson({"msg":"q must be one of " + str(k)})
         return
     try:
+        year_start = int(form["yr0"].value)
+    except:
+        year_start = default_year_start
+        pass
+    try:
+        year_end = int(form["yr1"].value)
+    except:
+        year_end = date.today().year
+        pass    
+    try:
         callback = form["callback"].value
     except:
         callback = None
@@ -100,7 +96,7 @@ def main():
     missing = 32766 # Missing value indicator
 
     firstday = datetime(year_start,1,1, tzinfo=UTC())
-    lastday = datetime(year_end,12,1, tzinfo=UTC())
+    lastday = datetime(year_end,12,31, tzinfo=UTC())
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
     interval = ((first <= dataset.time) & (dataset.time <= last))

@@ -25,14 +25,18 @@ from coards import from_udunits, to_udunits
 import numpy
 
 dods = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets/" 
-monthly = dods + "20thC_ReanV2/Monthlies/"
+#monthly = dods + "20thC_ReanV2/Monthlies/"
 
-monthly_monolevel = dods + "20thC_ReanV2/Monthlies/gaussian/monolevel/"
-air_sfc_mon_mean_url = monthly_monolevel + "air.sfc.mon.mean.nc"
-air_2m_mon_mean_url = monthly_monolevel + "air.2m.mon.mean.nc"
+#monthly_monolevel = dods + "20thC_ReanV2/Monthlies/gaussian/monolevel/"
+#air_sfc_mon_mean_url = monthly_monolevel + "air.sfc.mon.mean.nc"
+#air_2m_mon_mean_url = monthly_monolevel + "air.2m.mon.mean.nc"
 
+dods = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets/"
 
-dataset = open_url(monthly + sys.argv[1])
+#try this "20thC_ReanV2/Monthlies/gaussian/monolevel/air.2m.mon.mean.nc"
+# or this "ncep.reanalysis.derived/surface_gauss/prate.sfc.mon.mean.nc"
+
+dataset = open_url(dods + sys.argv[1])
 print dataset.keys()
 
 time = dataset['time']
