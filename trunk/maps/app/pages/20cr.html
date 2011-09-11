@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <!--
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    -->
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+    <title>saunby.net - reanalysis</title>
+
+    <link href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojox/mobile/themes/iphone/iphone.css" rel="stylesheet"></link>
+    <link href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojox/mobile/themes/domButtons.css" rel="stylesheet"></link>
+ 
+<!--[if IE]>
+  <script src="http://danvk.org/dygraphs/excanvas.js"></script>
+<![endif]-->
+   <script src="http://danvk.org/dygraphs/dygraph-combined.js"></script> 
+   <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript">
+      djConfig = { parseOnLoad:true, isDebug:false };
+    </script>
+    <script src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('dojo', '1.6');  
+    </script>
+    <script language="JavaScript" type="text/javascript">
+      //dojo.require("dojo.parser"); // Use the lightweight parser.
+      dojo.require("dojox.mobile");
+      dojo.require("dojox.mobile.parser");
+      dojo.require("dojox.mobile.compat"); 
+      dojo.require("dojo.io.script");
+      dojo.require("dojo.DeferredList");
+      dojo.require("dojox.mobile.TabBar");
+      dojo.require("dojox.mobile.app.TextBox");
+      dojo.require("dojox.mobile.ScrollableView");
+      dojo.requireIf(!dojo.isWebKit, "dojox.mobile.compat");
+      dojo.addOnLoad(function(){
+        buildList();
+        initmap();
+      });
+
+   
+  var map;
+  var graphhi;  // The Dygraph
+
+function initmap() {
+    var myOptions = {
+      zoom: 2,
+      center: new google.maps.LatLng(0, 0),
+      mapTypeControl: false, 
+      mapTypeId: google.maps.MapTypeId.TERRAIN,
+      streetViewControl: false
+    }
+    map = new google.maps.Map(document.getElementById("map"), myOptions);
+      google.maps.event.addListener(map, 'click', function(event) {
+      fetchDataByPosn(event.latLng);
+    }); 
+
+   var wxMapOptions = {
+    map: map,
+    name: "Wx",
+    minZoom: 3,
+    maxZoom: 10
+   }
+   var wxstyle = [
+    {featureType:"all",stylers:[{hue: 000000},{saturation: -10},{lightness: 30}]},
+    {featureType:"road",elementType:"all",stylers:[{visibility:"off"}]},
+    {featureType:"administrative",elementType:"labels",stylers:[{visibility:"on"}]}];
+   var wxMapType =  new google.maps.StyledMapType(wxstyle,wxMapOptions);
+   map.mapTypes.set('wx', wxMapType);
+   map.setMapTypeId('wx');
+   return 0;
+ }
+
+var params = [{q:"prate_mon_mean",en:"monthly rainfall",u:"mm"},
+{q:"air_2m_mon_mean",en:"month mean temperature 2m",u:"C"},
+{q:"tmin_2m_mon_mean",en:"month mean min temp 2m",u:"C"},
+{q:"tmax_2m_mon_mean",en:"month mean max temp 2m",u:"C"},
+{q:"ncep_prate_sfc_mon_mean",en:"NCEP monthly rainfall",u:"mm"},
+{q:"ncep_air_2m_mon_mean",en:"NCEP month mean temp 2m",u:"C"}]
+
+var paramSelection = [params[0],params[1]];
+
+function plotData(arr){
+  // first need to merge the arrays
+  var combined = new Array();
+  for(var i in arr[0]){
+    var d = new Date(arr[0][i][0]);
+    combined.push([d,arr[0][i][1],arr[1][i][1]]);
+  }
+  
+  // 'Temperature':{axis:{yAxisLabelFormatter:function(x){return x}}}
+  var settings = {labels:["Date",paramSelection[0].en,paramSelection[1].en]};
+  // If parameters have different units, then give them separate scales 
+  if( paramSelection[0].u != paramSelection[1].u ){
+      settings[paramSelection[1].en] = {axis:{}};
+  }
+  graphhi = new Dygraph(document.getElementById("graphdivhi"), combined, settings);
+}
+
+
+function lfnn(xy){
+      var yr0 = dojo.byId("tbyr0").value;
+      var yr1 = dojo.byId("tbyr1").value;
+
+      var p1 = {quantity:paramSelection[0].q};
+      var fetch_param1 =  dojo.io.script.get({
+      url:"http://saunby.net/cgi-bin/py/series20cr.py", 
+      content:{yr0:yr0,yr1:yr1,x:xy.x,y:xy.y,q:p1.quantity},
+      callbackParamName: "callback", handleAs:"json"});
+      var p2 = {quantity:paramSelection[1].q};
+      var fetch_param2 =  dojo.io.script.get({
+      url:"http://saunby.net/cgi-bin/py/series20cr.py", 
+      content:{yr0:yr0,yr1:yr1,x:xy.x,y:xy.y,q:p2.quantity},
+      callbackParamName: "callback", handleAs:"json"});
+      
+      var defs = new dojo.DeferredList([fetch_param1,fetch_param2]);
+      
+      // defs.then() sets the function called when all calls in the deferred list have
+      // returned.  See http://dojotoolkit.org/documentation/tutorials/1.6/deferreds/
+      defs.then(function(res){
+      plotData([res[0][1].data,res[1][1].data]);
+      });
+}
+      
+function efn(msg){
+      alert(msg);
+}
+
+function coords20cr(vals) {
+   dojo.io.script.get({
+        //Cross domain works - use this URL
+        url: "http://saunby.net/cgi-bin/py/coords20cr.py",
+	content:{lat:vals.latlng.lat(),lng:vals.latlng.lng()},
+        callbackParamName: "callback",
+        load: vals.load,
+        error: vals.error});
+}
+
+ // Map click listener
+ function fetchDataByPosn(latlng) {
+   mylatlng = latlng;
+   coords20cr({latlng:mylatlng,load:lfnn,error:efn});
+   return 0;
+ }
+
+function mytest() {
+      var yr0 = dojo.byId("tbyr0").value;
+      var yr1 = dojo.byId("tbyr1").value;
+      alert("from " + yr0 + " to " + yr1);
+}
+
+function refresh() {
+      //var mapdiv = document.getElementById("map");
+      //mapdiv.style.width = '100%';
+      //mapdiv.style.height = '400px';
+      google.maps.event.trigger(map, "resize");
+}
+
+var selectedP;
+var selectedPId;
+
+function myclick(d){
+      paramSelection[ selectedP ] = d;
+      selectedPId.set("RightText", d.en);
+      //selectedPId.set("label", d.en);
+}
+
+function selP(data){
+      n = data[0];
+      selectedPId = data[1];
+      selectedP = n-1;
+}
+
+function buildList(){
+      param1 = new dojox.mobile.ListItem({label:"parameter 1",rightText:paramSelection[0].en,moveTo:"selectionView"}).placeAt(dojo.byId("paramList"), "last");
+      dojo.connect(param1.containerNode, "onclick", dojo.hitch(null, selP, [1, param1])); 
+      param2 = new dojox.mobile.ListItem({label:"parameter 2",rightText:paramSelection[1].en,moveTo:"selectionView"}).placeAt(dojo.byId("paramList"), "last");
+      dojo.connect(param2.containerNode, "onclick", dojo.hitch(null, selP, [2, param2])); 
+      for( var li in params){ 
+        var item = new dojox.mobile.ListItem({label:params[li].en,moveTo:"paramView"});
+        dojo.connect(item.containerNode, "onclick", dojo.hitch(null, myclick, params[li]));  
+        item.placeAt(dojo.byId("selList"), "last");
+      }
+}
+      
+    </script>
+  </head>
+  <body>
+    <div id="graphView" dojoType="dojox.mobile.View" selected="true">
+      <h1 dojoType="dojox.mobile.Heading" label="Reanalysis">
+	<!-- <div dojoType="dojox.mobile.ToolBarButton" label="Settings" style="visibility:hidden;"></div> -->
+	<div dojoType="dojox.mobile.ToolBarButton" label="Parameters" moveTo="paramView" style="float:right;"></div>
+	<div dojoType="dojox.mobile.ToolBarButton" label="Map" onClick="refresh()" moveTo="mapView" style="float:right;"></div>
+      </h1>
+
+      <div dojoType="dojox.mobile.RoundRect"> 
+	  <label for="tbyr0">First year</label> 
+	  <input dojoType="dojox.mobile.app.TextBox" id="tbyr0" name="yr0" value="1961"></input>
+	  <label for="tbyr1">Last year</label> 
+	  <input dojoType="dojox.mobile.app.TextBox" id="tbyr1" name="yr1" value="2011"></input>
+	<!-- </form> -->
+	<div id="graphdivhi" style="width:90%;height:220px;" ></div>
+      </div>
+    </div>
+    <div id="mapView" dojoType="dojox.mobile.View">
+       <h1 dojoType="dojox.mobile.Heading" label="Reanalysis" back="graph" transition="slide"  moveTo="graphView" ></h1>
+<button dojoType="dojox.mobile.Button" onClick="refresh()">Refresh</button>
+      <div dojoType="dojox.mobile.RoundRect"> 
+	<div id="map" style="width:100%;height:400px;"></div>
+      </div>
+    </div>
+
+    <div id="paramView" dojoType="dojox.mobile.ScrollableView">
+      <h1 dojoType="dojox.mobile.Heading" label="Parameters" back="graph" transition="slide"  moveTo="graphView" ></h1>
+      <ul dojoType="dojox.mobile.RoundRectList" id="paramList"> 
+      </ul> 
+    </div>
+
+    <div id="selectionView" dojoType="dojox.mobile.ScrollableView">
+      <h1 dojoType="dojox.mobile.Heading" label="Parameters" back="cancel" transition="slide"  moveTo="paramView" ></h1>
+      <ul dojoType="dojox.mobile.RoundRectList" id="selList"></ul> 
+    </div>
+
+  </body>
+</html>
