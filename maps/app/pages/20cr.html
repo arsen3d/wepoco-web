@@ -74,6 +74,7 @@ function initmap() {
  }
 
 var params = [{q:"prate_mon_mean",en:"monthly rainfall",u:"mm"},
+{q:"sprd_prate_mon_mean",en:"monthly rainfall spread",u:"mm"},
 {q:"air_2m_mon_mean",en:"month mean temperature 2m",u:"C"},
 {q:"tmin_2m_mon_mean",en:"month mean min temp 2m",u:"C"},
 {q:"tmax_2m_mon_mean",en:"month mean max temp 2m",u:"C"},
@@ -138,9 +139,23 @@ function coords20cr(vals) {
         error: vals.error});
 }
 
+function showPosn(latlng){
+      dojo.byId("tblocn").value = latlng.lat() + "N," + latlng.lng() + "E";
+}
+
+var marker = null;
+
  // Map click listener
  function fetchDataByPosn(latlng) {
    mylatlng = latlng;
+   showPosn(latlng);
+
+   if(marker){marker.setMap(null);}
+   marker = new google.maps.Marker({
+            map: map,
+            title:  latlng.lat() + "N," + latlng.lng() + "E",
+            position: latlng
+        });
    coords20cr({latlng:mylatlng,load:lfnn,error:efn});
    return 0;
  }
@@ -161,10 +176,10 @@ function refresh() {
 var selectedP;
 var selectedPId;
 
-function myclick(d){
+function selSet(d){
       paramSelection[ selectedP ] = d;
       selectedPId.set("RightText", d.en);
-      //selectedPId.set("label", d.en);
+      dojo.byId("graphdivhi").innerHTML = "<p>" + paramSelection[0].en + "<br>" +   paramSelection[1].en + "</p>";
 }
 
 function selP(data){
@@ -180,7 +195,7 @@ function buildList(){
       dojo.connect(param2.containerNode, "onclick", dojo.hitch(null, selP, [2, param2])); 
       for( var li in params){ 
         var item = new dojox.mobile.ListItem({label:params[li].en,moveTo:"paramView"});
-        dojo.connect(item.containerNode, "onclick", dojo.hitch(null, myclick, params[li]));  
+        dojo.connect(item.containerNode, "onclick", dojo.hitch(null, selSet, params[li]));  
         item.placeAt(dojo.byId("selList"), "last");
       }
 }
@@ -190,17 +205,17 @@ function buildList(){
   <body>
     <div id="graphView" dojoType="dojox.mobile.View" selected="true">
       <h1 dojoType="dojox.mobile.Heading" label="Reanalysis">
-	<!-- <div dojoType="dojox.mobile.ToolBarButton" label="Settings" style="visibility:hidden;"></div> -->
 	<div dojoType="dojox.mobile.ToolBarButton" label="Parameters" moveTo="paramView" style="float:right;"></div>
 	<div dojoType="dojox.mobile.ToolBarButton" label="Map" onClick="refresh()" moveTo="mapView" style="float:right;"></div>
       </h1>
-
+      
       <div dojoType="dojox.mobile.RoundRect"> 
-	  <label for="tbyr0">First year</label> 
-	  <input dojoType="dojox.mobile.app.TextBox" id="tbyr0" name="yr0" value="1961"></input>
-	  <label for="tbyr1">Last year</label> 
-	  <input dojoType="dojox.mobile.app.TextBox" id="tbyr1" name="yr1" value="2011"></input>
-	<!-- </form> -->
+	<label for="tbyr0">First year</label> 
+	<input dojoType="dojox.mobile.app.TextBox" id="tbyr0" name="yr0" size="4" value="1961"></input>
+	<label for="tbyr1">Last year</label> 
+	<input dojoType="dojox.mobile.app.TextBox" id="tbyr1" name="yr1" size="4" value="2011"></input>
+	<label for="tblocn">Location</label>
+	<input dojoType="dojox.mobile.app.TextBox" id="tblocn" name="locn" value="0N,0E"></input>
 	<div id="graphdivhi" style="width:90%;height:220px;" ></div>
       </div>
     </div>
