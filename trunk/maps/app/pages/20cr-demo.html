@@ -7,7 +7,7 @@
     -->
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 
-    <title>saunby.net - reanalysis</title>
+    <title>20th century reanalysis demo</title>
 
     <link href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojox/mobile/themes/iphone/iphone.css" rel="stylesheet"></link>
     <link href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojox/mobile/themes/domButtons.css" rel="stylesheet"></link>
@@ -20,7 +20,7 @@
     <script type="text/javascript">
       djConfig = { parseOnLoad:true, isDebug:false };
     </script>
-    <script src="https://www.google.com/jsapi"></script>
+    <script src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
       google.load('dojo', '1.6');  
     </script>
@@ -73,30 +73,49 @@ function initmap() {
    return 0;
  }
 
-var params = [{q:"prate_mon_mean",en:"monthly rainfall",u:"mm"},
-{q:"sprd_prate_mon_mean",en:"monthly rainfall spread",u:"mm"},
-{q:"air_2m_mon_mean",en:"month mean temperature 2m",u:"C"},
-{q:"tmin_2m_mon_mean",en:"month mean min temp 2m",u:"C"},
-{q:"tmax_2m_mon_mean",en:"month mean max temp 2m",u:"C"},
-{q:"ncep_prate_sfc_mon_mean",en:"NCEP monthly rainfall",u:"mm"},
-{q:"ncep_air_2m_mon_mean",en:"NCEP month mean temp 2m",u:"C"}]
+var params = [{q:"prate_mon_mean",en:"monthly rainfall",u:"mm",spr:0},
+{q:"sprd_prate_mon_mean",en:"monthly rainfall spread",u:"mm",spr:1},
+{q:"air_2m_mon_mean",en:"month mean temperature 2m",u:"C",spr:0},
+{q:"sprd_air_2m_mon_mean",en:"month mean temperature 2m spread",u:"C",spr:1},
+{q:"tmin_2m_mon_mean",en:"month mean min temp 2m",u:"C",spr:0},
+{q:"tmax_2m_mon_mean",en:"month mean max temp 2m",u:"C",spr:0},
+{q:"ncep_prate_sfc_mon_mean",en:"NCEP monthly rainfall",u:"mm",spr:0},
+{q:"ncep_air_2m_mon_mean",en:"NCEP month mean temp 2m",u:"C",spr:0}]
 
 var paramSelection = [params[0],params[1]];
 
 function plotData(arr){
   // first need to merge the arrays
+
+  // 'Temperature':{axis:{yAxisLabelFormatter:function(x){return x}}}
+
   var combined = new Array();
-  for(var i in arr[0]){
-    var d = new Date(arr[0][i][0]);
-    combined.push([d,arr[0][i][1],arr[1][i][1]]);
+  var settings;
+
+  if(paramSelection[1].spr == 1){
+    for(var i in arr[0]){
+      var d = new Date(arr[0][i][0]);
+      var v = arr[0][i][1];
+      var e = arr[1][i][1]/2.0;
+      var lo = v-e;
+      var hi = v+e;
+      if(lo<0){lo=0;hi=e;}
+      combined.push([d,[lo,v,hi]]);
+    }
+    settings = {labels:["Date",paramSelection[0].en],customBars:true,errorBars:true};
+  }
+  else{
+    for(var i in arr[0]){
+      var d = new Date(arr[0][i][0]);
+      combined.push([d,arr[0][i][1],arr[1][i][1]]);
+      }
+    settings = {labels:["Date",paramSelection[0].en,paramSelection[1].en]};
+    // If parameters have different units, then give them separate scales 
+    if( paramSelection[0].u != paramSelection[1].u ){
+        settings[paramSelection[1].en] = {axis:{}};
+    }
   }
   
-  // 'Temperature':{axis:{yAxisLabelFormatter:function(x){return x}}}
-  var settings = {labels:["Date",paramSelection[0].en,paramSelection[1].en]};
-  // If parameters have different units, then give them separate scales 
-  if( paramSelection[0].u != paramSelection[1].u ){
-      settings[paramSelection[1].en] = {axis:{}};
-  }
   graphhi = new Dygraph(document.getElementById("graphdivhi"), combined, settings);
 }
 
