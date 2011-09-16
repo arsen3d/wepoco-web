@@ -7,6 +7,7 @@
 
 dods = "http://www.esrl.noaa.gov/psd/thredds/dodsC/" 
 monthly_monolevel = dods + "Datasets20thC_ReanV2/Monthlies/gaussian/monolevel/"
+monthly_sprd = dods + "Datasets20thC_ReanV2/Monthlies/gaussian_sprd/monolevel/"
 ncep_derived = dods + "Datasets/ncep.reanalysis.derived/surface_gauss/"
 
 
@@ -35,6 +36,11 @@ months20cr['prate_mon_mean']={
     'var': 'prate',
     'convert':  lambda data: (data*secs_per_month)[:].astype('float').tolist() 
     }
+months20cr['sprd_prate_mon_mean']={
+    'url': monthly_sprd + 'prate.mon.mean.nc',
+    'var': 'prate',
+    'convert':  lambda data: (data*secs_per_month)[:].astype('float').tolist() 
+    }
 months20cr['ncep_air_2m_mon_mean']={
     'url': ncep_derived + 'air.2m.mon.mean.nc',
     'var': 'air',
@@ -42,6 +48,11 @@ months20cr['ncep_air_2m_mon_mean']={
     }
 months20cr['air_2m_mon_mean']={
     'url': monthly_monolevel + 'air.2m.mon.mean.nc',
+    'var': 'air',
+    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
+    }
+months20cr['sprd_air_2m_mon_mean']={
+    'url': monthly_sprd + 'air.2m.mon.mean.nc',
     'var': 'air',
     'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
     }
