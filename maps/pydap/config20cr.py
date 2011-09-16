@@ -54,7 +54,7 @@ months20cr['air_2m_mon_mean']={
 months20cr['sprd_air_2m_mon_mean']={
     'url': monthly_sprd + 'air.2m.mon.mean.nc',
     'var': 'air',
-    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
+    'convert':  lambda data: data[:].astype('float').tolist()
     }
 months20cr['tmin_2m_mon_mean']={
     'url': monthly_monolevel + 'tmin.2m.mon.mean.nc',
