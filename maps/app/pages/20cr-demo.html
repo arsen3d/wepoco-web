@@ -1,11 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
-    <!--
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no"/>
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    -->
+
+    <!--
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    -->
 
     <title>20th century reanalysis demo</title>
 
@@ -99,7 +100,7 @@ function plotData(arr){
       var e = arr[1][i][1]/2.0;
       var lo = v-e;
       var hi = v+e;
-      if(lo<0){lo=0;hi=e;}
+      if((paramSelection[1].u == "mm")&&(lo<0)){lo=0;hi=2*e;}
       combined.push([d,[lo,v,hi]]);
     }
     settings = {labels:["Date",paramSelection[0].en],customBars:true,errorBars:true};
@@ -123,16 +124,17 @@ function plotData(arr){
 function lfnn(xy){
       var yr0 = dojo.byId("tbyr0").value;
       var yr1 = dojo.byId("tbyr1").value;
+      var mo = dojo.byId("tbmo").value;
 
       var p1 = {quantity:paramSelection[0].q};
       var fetch_param1 =  dojo.io.script.get({
       url:"http://saunby.net/cgi-bin/py/series20cr.py", 
-      content:{yr0:yr0,yr1:yr1,x:xy.x,y:xy.y,q:p1.quantity},
+      content:{yr0:yr0,yr1:yr1,x:xy.x,y:xy.y,q:p1.quantity,mo:mo},
       callbackParamName: "callback", handleAs:"json"});
       var p2 = {quantity:paramSelection[1].q};
       var fetch_param2 =  dojo.io.script.get({
       url:"http://saunby.net/cgi-bin/py/series20cr.py", 
-      content:{yr0:yr0,yr1:yr1,x:xy.x,y:xy.y,q:p2.quantity},
+      content:{yr0:yr0,yr1:yr1,x:xy.x,y:xy.y,q:p2.quantity,mo:mo},
       callbackParamName: "callback", handleAs:"json"});
       
       var defs = new dojo.DeferredList([fetch_param1,fetch_param2]);
@@ -170,6 +172,7 @@ function replot(){
 
 function showPosn(latlng){
       dojo.byId("tblocn").value = latlng.lat().toFixed(2) + "N," + latlng.lng().toFixed(2) + "E";
+      dojo.byId("graphdivhi").innerHTML = "<p>" + paramSelection[0].en + "<br>" +   paramSelection[1].en + "</p>";
 }
 
 var marker = null;
@@ -242,6 +245,8 @@ function buildList(){
 	<input dojoType="dojox.mobile.app.TextBox" id="tbyr0" name="yr0" size="4" value="1871"></input>
 	<label for="tbyr1">Last year</label> 
 	<input dojoType="dojox.mobile.app.TextBox" id="tbyr1" name="yr1" size="4" value="2011"></input>
+	<label for="tbmo">Month</label>
+	<input dojoType="dojox.mobile.app.TextBox" id="tbmo" name="mo" size="2" value=""></input>
 	<label for="tblocn">Location</label>
 	<input dojoType="dojox.mobile.app.TextBox" id="tblocn" name="locn" value="0N,0E"></input>
 <button dojoType="dojox.mobile.Button" onClick="replot()">Plot</button>
