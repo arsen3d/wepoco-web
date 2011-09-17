@@ -6,6 +6,9 @@
 #
 
 
+
+import pydap.lib
+pydap.lib.CACHE = "/tmp/pydap-cache/"
 from pydap.client import open_url
 from datetime import datetime, tzinfo, timedelta, date
 from coards import from_udunits, to_udunits
@@ -86,15 +89,29 @@ def main():
         year_end = date.today().year
         pass    
     try:
+        month = int(form["mo"].value)
+    except:
+        month = 0  # i.e. default is all months
+        pass
+    try:
         callback = form["callback"].value
     except:
         callback = None
         pass
         
+
     dataset = open_url(config['url'])
     varname = config['var']
 
-    firstday = datetime(year_start,1,1, tzinfo=UTC())
+    if month != 0:
+        month_start = month
+        skip = 12
+    else:
+        month_start = 1
+        skip = 1
+        pass
+
+    firstday = datetime(year_start,month_start,1, tzinfo=UTC())
     lastday = datetime(year_end,12,31, tzinfo=UTC())
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
@@ -102,8 +119,8 @@ def main():
 
     rainrecs = []
     a = dataset[varname][interval,y,x]
-    seq = a.array[:]
-    times = a.time[:]
+    seq = a.array[::skip]
+    times = a.time[::skip]
     
 
     missing =  dataset[varname].missing_value
