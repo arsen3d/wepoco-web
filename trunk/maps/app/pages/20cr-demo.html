@@ -1,14 +1,13 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML>
 <html>
   <head>
+
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no"/>
     <meta name="apple-mobile-web-app-capable" content="yes" />
-
-    <!--
+<!--
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    -->
-
-    <title>20th century reanalysis demo</title>
+-->
+   <title>20th century reanalysis demo</title>
 
     <link href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojox/mobile/themes/iphone/iphone.css" rel="stylesheet"></link>
     <link href="http://ajax.googleapis.com/ajax/libs/dojo/1.6/dojox/mobile/themes/domButtons.css" rel="stylesheet"></link>
@@ -21,26 +20,40 @@
     <script type="text/javascript">
       djConfig = { parseOnLoad:true, isDebug:false };
     </script>
-    <script src="http://www.google.com/jsapi"></script>
+    <script src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
       google.load('dojo', '1.6');  
     </script>
-    <script language="JavaScript" type="text/javascript">
+<script language="JavaScript" type="text/javascript">
+
       //dojo.require("dojo.parser"); // Use the lightweight parser.
       dojo.require("dojox.mobile");
       dojo.require("dojox.mobile.parser");
-      dojo.require("dojox.mobile.compat"); 
+      dojo.requireIf(!dojo.isWebKit, "dojox.mobile.compat");
       dojo.require("dojo.io.script");
       dojo.require("dojo.DeferredList");
       dojo.require("dojox.mobile.TabBar");
       dojo.require("dojox.mobile.app.TextBox");
-      dojo.require("dojox.mobile.ScrollableView");
-      dojo.requireIf(!dojo.isWebKit, "dojox.mobile.compat");
+      //dojo.require("dojox.mobile.ScrollableView");
+
       dojo.addOnLoad(function(){
         buildList();
         initmap();
       });
 
+/*
+      // Use the lightweight parser.
+      dojo.require("dojox.mobile");
+      dojo.require("dojox.mobile.parser");
+      dojo.require("dojo.io.script");
+      dojo.require("dojo.DeferredList");
+      dojo.require("dojox.mobile.TabBar");
+      dojo.require("dojox.mobile.app.TextBox");
+      dojo.requireIf(!dojo.isWebKit, "dojox.mobile.compat");
+      dojo.addOnLoad(function(){
+        initmap();
+      });
+*/
    
   var map;
   var graphhi;  // The Dygraph
@@ -81,9 +94,9 @@ var params = [{q:"prate_mon_mean",en:"monthly rainfall",u:"mm",spr:0},
 {q:"tmin_2m_mon_mean",en:"month mean min temp 2m",u:"C",spr:0},
 {q:"tmax_2m_mon_mean",en:"month mean max temp 2m",u:"C",spr:0},
 {q:"ncep_prate_sfc_mon_mean",en:"NCEP monthly rainfall",u:"mm",spr:0},
-{q:"ncep_air_2m_mon_mean",en:"NCEP month mean temp 2m",u:"C",spr:0}]
+{q:"ncep_air_2m_mon_mean",en:"NCEP month mean temp 2m",u:"C",spr:0}];
 
-var paramSelection = [params[0],params[1]];
+var paramSelection = [params[0],params[2]];
 
 function plotData(arr){
   // first need to merge the arrays
@@ -117,9 +130,15 @@ function plotData(arr){
     }
   }
   
-  graphhi = new Dygraph(document.getElementById("graphdivhi"), combined, settings);
+  graphhi = new Dygraph(dojo.byId("graphdivhi"), combined, settings);
 }
 
+function  showAttrs(res){
+   if(res[0][0]){
+     dojo.byId("attrtxt").innerHTML = "<a href=\"20cr-about.html\">" +
+     res[0][1].attributes.NC_GLOBAL.title +"<\a>";
+   }
+}
 
 function lfnn(xy){
       var yr0 = dojo.byId("tbyr0").value;
@@ -143,6 +162,7 @@ function lfnn(xy){
       // returned.  See http://dojotoolkit.org/documentation/tutorials/1.6/deferreds/
       defs.then(function(res){
       plotData([res[0][1].data,res[1][1].data]);
+      showAttrs(res);
       });
 }
       
@@ -160,7 +180,6 @@ function coords20cr(vals) {
         error: vals.error});
 }
 
-
 function replot(){
       // get position
       var posntxt = dojo.byId("tblocn").value;
@@ -173,6 +192,7 @@ function replot(){
 function showPosn(latlng){
       dojo.byId("tblocn").value = latlng.lat().toFixed(2) + "N," + latlng.lng().toFixed(2) + "E";
       dojo.byId("graphdivhi").innerHTML = "<p>" + paramSelection[0].en + "<br>" +   paramSelection[1].en + "</p>";
+      dojo.byId("attrtxt").innerHTML = "";
 }
 
 var marker = null;
@@ -221,6 +241,9 @@ function selP(data){
 }
 
 function buildList(){
+
+      dojo.byId("graphdivhi").innerHTML = "<p>" + paramSelection[0].en + "<br>" +   paramSelection[1].en + "</p>";
+
       param1 = new dojox.mobile.ListItem({label:"parameter 1",rightText:paramSelection[0].en,moveTo:"selectionView"}).placeAt(dojo.byId("paramList"), "last");
       dojo.connect(param1.containerNode, "onclick", dojo.hitch(null, selP, [1, param1])); 
       param2 = new dojox.mobile.ListItem({label:"parameter 2",rightText:paramSelection[1].en,moveTo:"selectionView"}).placeAt(dojo.byId("paramList"), "last");
@@ -230,16 +253,16 @@ function buildList(){
         dojo.connect(item.containerNode, "onclick", dojo.hitch(null, selSet, params[li]));  
         item.placeAt(dojo.byId("selList"), "last");
       }
-}
-      
-    </script>
+}   
+</script>
   </head>
   <body>
     <div id="graphView" dojoType="dojox.mobile.View" selected="true">
-      <h1 dojoType="dojox.mobile.Heading" label="20th Century Reanalysis demo">
+      <h1 dojoType="dojox.mobile.Heading" label="20th century reanalysis demo">
+        <div dojoType="dojox.mobile.ToolBarButton" label="Download" moveTo="downloadView" style="float:right;"></div>
 	<div dojoType="dojox.mobile.ToolBarButton" label="Parameters" moveTo="paramView" style="float:right;"></div>
       </h1>
-      
+
       <div dojoType="dojox.mobile.RoundRect"> 
 	<label for="tbyr0">First year</label> 
 	<input dojoType="dojox.mobile.app.TextBox" id="tbyr0" name="yr0" size="4" value="1871"></input>
@@ -249,28 +272,25 @@ function buildList(){
 	<input dojoType="dojox.mobile.app.TextBox" id="tbmo" name="mo" size="2" value=""></input>
 	<label for="tblocn">Location</label>
 	<input dojoType="dojox.mobile.app.TextBox" id="tblocn" name="locn" value="0N,0E"></input>
-<button dojoType="dojox.mobile.Button" onClick="replot()">Plot</button>
-	<div id="graphdivhi" style="width:90%;height:220px;" ></div>
+        <button dojoType="dojox.mobile.Button" onClick="replot()">Plot</button>
+	<div id="graphdivhi" style="width:95%;height:220px;" ></div>
+        <p id="attrtxt"></p>
       </div>
       <div dojoType="dojox.mobile.RoundRect"> 
-	<div id="map" style="width:100%;height:400px;"></div>
+        <div id="map" style="width:100%;height:400px;"></div>
       </div>
     </div>
-    <div id="mapView" dojoType="dojox.mobile.View">
-       <h1 dojoType="dojox.mobile.Heading" label="Reanalysis" back="graph" transition="slide"  moveTo="graphView" ></h1>
-<button dojoType="dojox.mobile.Button" onClick="refresh()">Refresh</button>
+    <div id="paramView" dojoType="dojox.mobile.View">
+      <h1 dojoType="dojox.mobile.Heading" label="Parameters" back="graph" moveTo="graphView" ></h1>
+      <div dojoType="dojox.mobile.RoundRect"><ul id="paramList"></ul></div> 
     </div>
-
-    <div id="paramView" dojoType="dojox.mobile.ScrollableView">
-      <h1 dojoType="dojox.mobile.Heading" label="Parameters" back="graph" transition="slide"  moveTo="graphView" ></h1>
-      <ul dojoType="dojox.mobile.RoundRectList" id="paramList"> 
-      </ul> 
+   <div id="selectionView" dojoType="dojox.mobile.View">
+      <h1 dojoType="dojox.mobile.Heading" label="Parameters" back="cancel" moveTo="paramView" ></h1>
+      <div dojoType="dojox.mobile.RoundRectList"><ul id="selList"></ul></div> 
     </div>
-
-    <div id="selectionView" dojoType="dojox.mobile.ScrollableView">
-      <h1 dojoType="dojox.mobile.Heading" label="Parameters" back="cancel" transition="slide"  moveTo="paramView" ></h1>
-      <ul dojoType="dojox.mobile.RoundRectList" id="selList"></ul> 
+   <div id="downloadView" dojoType="dojox.mobile.View">
+      <h1 dojoType="dojox.mobile.Heading" label="Download" back="graph" moveTo="graphView" ></h1>
+         <p>add something here</p>
     </div>
-
   </body>
 </html>

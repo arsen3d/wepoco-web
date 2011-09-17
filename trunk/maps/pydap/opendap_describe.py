@@ -37,6 +37,7 @@ dods = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets/"
 # or this "ncep.reanalysis.derived/surface_gauss/prate.sfc.mon.mean.nc"
 
 dataset = open_url(dods + sys.argv[1])
+print dataset.attributes
 print dataset.keys()
 
 time = dataset['time']
