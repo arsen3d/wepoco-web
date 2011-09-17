@@ -123,6 +123,8 @@ def main():
     times = a.time[::skip]
     
 
+
+
     missing =  dataset[varname].missing_value
     data = numpy.select([seq == missing],[None], default = seq)
     data = (data * dataset[varname].scale_factor + dataset[varname].add_offset)
@@ -137,6 +139,7 @@ def main():
         pass
 
     report = {}
+    report['attributes'] = dataset.attributes
     report['data'] = plot
     returnJson(report,callback)
     return
