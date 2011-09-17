@@ -11,10 +11,9 @@ monthly_sprd = dods + "Datasets20thC_ReanV2/Monthlies/gaussian_sprd/monolevel/"
 ncep_derived = dods + "Datasets/ncep.reanalysis.derived/surface_gauss/"
 
 
-
+# Would like to extend this to other data, e.g.
 precip_rate_url = dods + "Datasets20thC_ReanV2/gaussian/monolevel/prate.2008.nc"
 
-months20cr = {};
 
 # Conversion from monthly mean rainfall rate in mm/s  (or (kg/m2)/s if you like)
 # to month total.
@@ -25,6 +24,7 @@ secs_per_month = 2592000 # Assume all months 30 days
 # Can get nasty error when converting to JSON otherwise.
 
 
+months20cr = {}
 
 months20cr['ncep_prate_sfc_mon_mean']={
     'url': ncep_derived + 'prate.sfc.mon.mean.nc',
@@ -66,3 +66,14 @@ months20cr['tmax_2m_mon_mean']={
     'var': 'tmax',
     'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
     }
+months20cr['wspd_10m_mon_mean']={
+    'url': monthly_monolevel + 'wspd.10m.mon.mean.nc',
+    'var': 'wspd',
+    'convert':  lambda data: data[:].astype('float').tolist()
+    }
+months20cr['sprd_wspd_10m_mon_mean']={
+    'url': monthly_sprd + 'wspd.10m.mon.mean.nc',
+    'var': 'wspd',
+    'convert':  lambda data: data[:].astype('float').tolist()
+    }
+
