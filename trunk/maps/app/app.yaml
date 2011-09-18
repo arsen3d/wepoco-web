@@ -101,5 +101,8 @@ handlers:
 - url: /picupload.*
   script: wepoco-map.py
 
+- url: /getcsv.*
+  script: wepoco-map.py
+
 - url: /serve/.*
   script: wepoco-map.py
