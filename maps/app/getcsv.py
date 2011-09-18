@@ -13,11 +13,14 @@ from django.utils import simplejson as json
 
 import logging
 
+dsets=[]
+
 def handle_result(rpc):
     result = rpc.get_result()
     if result.status_code == 200:
-        data = json.loads(result.content)
-        logging.debug(data.keys())
+        content = json.loads(result.content)
+        logging.debug(content.keys())
+        dsets.append(content['data'])
     return
 
 # Use a helper function to define the scope of the callback.
@@ -30,11 +33,16 @@ class GetCSV(webapp.RequestHandler):
             self.getArgs()
             logging.debug("x,y " + x + "," +y) 
             self.download()
+            self.returnCSV()
         except:
             logging.debug("download failed")
             pass
         return
-    
+
+    def returnCSV(self):
+        self.response.headers['Content-type'] = 'text/plain'
+        self.response.out.write(json.dumps(dsets))
+
     def getArgs(self):
         global x, y, q0, q1, yr0, yr1, mo
         # treat all as strings
@@ -57,7 +65,6 @@ class GetCSV(webapp.RequestHandler):
             rpcs.append(rpc)
             pass
         # Finish all RPCs, and let callbacks process the results.
-        logging.debug("Waiting...")
         for rpc in rpcs:
             rpc.wait()
             pass
