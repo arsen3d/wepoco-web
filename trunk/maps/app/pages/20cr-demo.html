@@ -99,6 +99,10 @@ var params = [{q:"prate_mon_mean",en:"monthly rainfall",u:"mm",spr:0},
 {q:"ncep_air_2m_mon_mean",en:"NCEP month mean temp 2m",u:"C",spr:0}];
 
 var paramSelection = [params[0],params[2]];
+var locationSelection = {x:-1,y:-1};
+var yearStart = 1871;
+var yearEnd = 2011;
+
 
 function plotData(arr){
   // first need to merge the arrays
@@ -146,6 +150,9 @@ function lfnn(xy){
       var yr0 = dojo.byId("tbyr0").value;
       var yr1 = dojo.byId("tbyr1").value;
       var mo = dojo.byId("tbmo").value;
+      locationSelection = xy;
+      dojo.byId("dl_x").innerHTML = locationSelection.x;
+      dojo.byId("dl_y").innerHTML = locationSelection.y;
 
       var p1 = {quantity:paramSelection[0].q};
       var fetch_param1 =  dojo.io.script.get({
@@ -230,10 +237,28 @@ function refresh() {
 var selectedP;
 var selectedPId;
 
+
+
+function updateInfo(){
+     dojo.byId("graphdivhi").innerHTML = "<p>" + paramSelection[0].en + "<br>" +   paramSelection[1].en + "</p>";
+
+      yearStart = dojo.byId("tbyr0").value; 
+      yearEnd = dojo.byId("tbyr1").value;
+
+      dojo.byId("dl_yr0").innerHTML = yearStart;
+      dojo.byId("dl_yr1").innerHTML = yearEnd;
+      dojo.byId("dl_q0").innerHTML = paramSelection[0].q;
+      dojo.byId("dl_q1").innerHTML = paramSelection[1].q;
+      dojo.byId("dl_x").innerHTML = locationSelection.x;
+      dojo.byId("dl_y").innerHTML = locationSelection.y;
+}
+
+
 function selSet(d){
       paramSelection[ selectedP ] = d;
       selectedPId.set("RightText", d.en);
-      dojo.byId("graphdivhi").innerHTML = "<p>" + paramSelection[0].en + "<br>" +   paramSelection[1].en + "</p>";
+
+      updateInfo();
 }
 
 function selP(data){
@@ -243,8 +268,8 @@ function selP(data){
 }
 
 function buildList(){
-
-      dojo.byId("graphdivhi").innerHTML = "<p>" + paramSelection[0].en + "<br>" +   paramSelection[1].en + "</p>";
+      dojo.byId("tbyr0").value = yearStart; 
+      dojo.byId("tbyr1").value = yearEnd;
 
       param1 = new dojox.mobile.ListItem({label:"parameter 1",rightText:paramSelection[0].en,moveTo:"selectionView"}).placeAt(dojo.byId("paramList"), "last");
       dojo.connect(param1.containerNode, "onclick", dojo.hitch(null, selP, [1, param1])); 
@@ -255,7 +280,17 @@ function buildList(){
         dojo.connect(item.containerNode, "onclick", dojo.hitch(null, selSet, params[li]));  
         item.placeAt(dojo.byId("selList"), "last");
       }
+      updateInfo();
 }   
+
+function download(){
+  var dlURL = "?yr0=" + yearStart + "&yr1=" + yearEnd + "&mo=0" + "&q0=" + paramSelection[0].q + "&q1=" + paramSelection[1].q +
+  "&x=" +  locationSelection.x + "&y=" + locationSelection.y;
+  window.location = "http://map.wepoco.com/getcsv" + dlURL;
+}
+
+
+
 </script>
   </head>
   <body>
@@ -267,9 +302,9 @@ function buildList(){
 
       <div dojoType="dojox.mobile.RoundRect"> 
 	<label for="tbyr0">First year</label> 
-	<input dojoType="dojox.mobile.app.TextBox" id="tbyr0" name="yr0" size="4" value="1871"></input>
+	<input dojoType="dojox.mobile.app.TextBox" id="tbyr0" name="yr0" size="4" value="" onchange="updateInfo()"></input>
 	<label for="tbyr1">Last year</label> 
-	<input dojoType="dojox.mobile.app.TextBox" id="tbyr1" name="yr1" size="4" value="2011"></input>
+	<input dojoType="dojox.mobile.app.TextBox" id="tbyr1" name="yr1" size="4" value="" onchange="updateInfo()"></input>
 	<label for="tbmo">Month</label>
 	<input dojoType="dojox.mobile.app.TextBox" id="tbmo" name="mo" size="2" value=""></input>
 	<label for="tblocn">Location</label>
@@ -292,7 +327,17 @@ function buildList(){
     </div>
    <div id="downloadView" dojoType="dojox.mobile.View">
       <h1 dojoType="dojox.mobile.Heading" label="Download" back="graph" moveTo="graphView" ></h1>
-         <p>add something here</p>
+         <div dojoType="dojox.mobile.RoundRect"> 
+	  Download data series in spreadsheet compatible format 
+	  <p>
+	  Date range: <span id="dl_yr0"></span>-<span id="dl_yr1"></span><br>
+	  Grid cell: <span id="dl_x"></span>,<span id="dl_y"></span><br>
+	  Parameter 1: <span id="dl_q0"></span><br>
+	  Parameter 2: <span id="dl_q1"></span><br>
+          </p>
+	  <p>Return to graph to change the selection.</p>
+	  <button dojoType="dojox.mobile.Button" onClick="download()">Download as CSV</button>
+	 </div>
     </div>
   </body>
 </html>
