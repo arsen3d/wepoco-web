@@ -5,8 +5,6 @@
 # Fetch rainfall time series for single grid box. 
 #
 
-
-
 import pydap.lib
 pydap.lib.CACHE = "/tmp/pydap-cache/"
 from pydap.client import open_url
@@ -140,6 +138,8 @@ def main():
 
     report = {}
     report['attributes'] = dataset.attributes
+    report['data-url'] = config['url']
+    report['data-en'] = config['en']
     report['data'] = plot
     returnJson(report,callback)
     return
