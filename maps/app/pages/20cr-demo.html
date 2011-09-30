@@ -146,6 +146,8 @@ function  showAttrs(res){
    }
 }
 
+var okToClick = true;
+
 function lfnn(xy){
       var yr0 = dojo.byId("tbyr0").value;
       var yr1 = dojo.byId("tbyr1").value;
@@ -170,6 +172,7 @@ function lfnn(xy){
       // defs.then() sets the function called when all calls in the deferred list have
       // returned.  See http://dojotoolkit.org/documentation/tutorials/1.6/deferreds/
       defs.then(function(res){
+      okToClick = true;
       plotData([res[0][1].data,res[1][1].data]);
       showAttrs(res);
       });
@@ -177,6 +180,7 @@ function lfnn(xy){
       
 function efn(msg){
       alert(msg);
+      okToClick = true;
 }
 
 function coords20cr(vals) {
@@ -206,8 +210,16 @@ function showPosn(latlng){
 
 var marker = null;
 
+
 // Map click listener
 function fetchDataByPosn(latlng) {
+
+   if( !okToClick ){
+     //alert("sorry you can't get another graph right now");
+     return;					      
+   }
+
+   okToClick = false;					      
    mylatlng = latlng;
    showPosn(latlng);
 
