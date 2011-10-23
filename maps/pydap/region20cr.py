@@ -124,7 +124,7 @@ def main():
     st = StringIO.StringIO()
     w.write(st,s)
     
-    #print "Content-type: image/png\n"
+    print "Content-type: image/png\n"
     print st.getvalue()
     return
 
