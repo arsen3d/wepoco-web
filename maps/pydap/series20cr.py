@@ -126,7 +126,7 @@ def main():
     missing =  dataset[varname].missing_value
     data = numpy.select([seq == missing],[None], default = seq)
     data = (data * dataset[varname].scale_factor + dataset[varname].add_offset)
-    values = config['convert'](data)
+    values = config['convert'](data).astype('float').tolist()
 
 
     plot = []

@@ -110,7 +110,7 @@ def main():
     s = dataset[varname][t,:,:].array[:]
     s = (s * dataset[varname].scale_factor + dataset[varname].add_offset)
     # first select value should be mising value
-    s = config['scale'](s)
+    s = config['convert'](s)
     s = numpy.select([s<-10,
                       s<-5,
                       s<-2, s<0, s<2, s<4, s<6, s<8, s<10, s<12, s<14, s<16, s<18, s<22, s<24, s<26, s<28, s<30, s<32],

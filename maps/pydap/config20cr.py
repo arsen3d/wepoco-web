@@ -30,61 +30,60 @@ months20cr['ncep_prate_sfc_mon_mean']={
     'url': ncep_derived + 'prate.sfc.mon.mean.nc',
     'var': 'prate',
     'en':'precip mm',
-    'convert':  lambda data: (data*secs_per_month)[:].astype('float').tolist() 
+    'convert':  lambda data: (data*secs_per_month)[:]
     }
 months20cr['prate_mon_mean']={
     'url': monthly_monolevel + 'prate.mon.mean.nc',
     'var': 'prate',
     'en':'precip mm',
-    'convert':  lambda data: (data*secs_per_month)[:].astype('float').tolist() 
+    'convert':  lambda data: (data*secs_per_month)[:] 
     }
 months20cr['sprd_prate_mon_mean']={
     'url': monthly_sprd + 'prate.mon.mean.nc',
     'var': 'prate',
     'en':'precip spread mm',
-    'convert':  lambda data: (data*secs_per_month)[:].astype('float').tolist() 
+    'convert':  lambda data: (data*secs_per_month)[:]
     }
 months20cr['ncep_air_2m_mon_mean']={
     'url': ncep_derived + 'air.2m.mon.mean.nc',
     'var': 'air',
     'en':'2m air temp C',
-    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
+    'convert':  lambda data: (data-273.15)[:]
     }
 months20cr['air_2m_mon_mean']={
     'url': monthly_monolevel + 'air.2m.mon.mean.nc',
     'var': 'air',
     'en':'2m air temp C',
-    'scale': lambda data: (data-273.15)[:],
-    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
+    'convert':  lambda data: (data-273.15)[:]
     }
 months20cr['sprd_air_2m_mon_mean']={
     'url': monthly_sprd + 'air.2m.mon.mean.nc',
     'var': 'air',
     'en':'2m air temp spread C',
-    'convert':  lambda data: data[:].astype('float').tolist()
+    'convert':  lambda data: data[:]
     }
 months20cr['tmin_2m_mon_mean']={
     'url': monthly_monolevel + 'tmin.2m.mon.mean.nc',
     'var': 'tmin',
     'en':'2m t-min C', 
-    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
+    'convert':  lambda data: (data-273.15)[:]
     }
 months20cr['tmax_2m_mon_mean']={
     'url': monthly_monolevel + 'tmax.2m.mon.mean.nc',
     'var': 'tmax',
     'en':'2m t-max C',
-    'convert':  lambda data: (data-273.15)[:].astype('float').tolist()
+    'convert':  lambda data: (data-273.15)[:]
     }
 months20cr['wspd_10m_mon_mean']={
     'url': monthly_monolevel + 'wspd.10m.mon.mean.nc',
     'var': 'wspd',
     'en':'10m wind speed m/s',
-    'convert':  lambda data: data[:].astype('float').tolist()
+    'convert':  lambda data: data[:]
     }
 months20cr['sprd_wspd_10m_mon_mean']={
     'url': monthly_sprd + 'wspd.10m.mon.mean.nc',
     'var': 'wspd',
     'en':'10m wind speed spread m/s',
-    'convert':  lambda data: data[:].astype('float').tolist()
+    'convert':  lambda data: data[:]
     }
 
