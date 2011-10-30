@@ -2,7 +2,8 @@
 # Michael Saunby.  August 2011.
 #
 # Purpose:
-# Fetch data from OPeNDAP server
+# Fetch data from OPeNDAP server.
+# Either PNG image or JSONP return depending on args.
 #
 
 import pydap.lib
@@ -66,24 +67,40 @@ from config20cr import months20cr
 def main():
     form=cgi.FieldStorage()
     try:
+      callback = form["callback"].value
+    except:
+      callback = None
+      pass 
+    try:
         t = int(form["t"].value)
     except:
-        returnJson({"msg":"t must be integer"})
+        returnJson({"msg":"t must be integer"},callback)
         return
     try:
         q = form["q"].value
         config = months20cr[q]
     except:
         k =  months20cr.keys()
-        returnJson({"msg":"q must be one of " + str(k)})
+        returnJson({"msg":"q must be one of " + str(k)},callback)
         return
-
-    #monkey_patch()
+    try:
+      info = form["info"].value
+    except:
+      info = None
+      pass
 
     from pydap.client import open_url
 
     dataset = open_url(config['url'])
     varname = config['var']
+
+    if info:
+      data = {}
+      data["shape"] = dataset[varname].shape
+      for k in dataset.keys():
+        data[k] = dataset[k].attributes
+      returnJson(data,callback)
+      return
 
     palette = [
       [150,150,60],
@@ -107,10 +124,10 @@ def main():
       [216,20,47],
       [0,0,0]]
     
-    s = dataset[varname][t,:,:].array[:]
-    s = (s * dataset[varname].scale_factor + dataset[varname].add_offset)
-    # first select value should be mising value
+    s = dataset[varname][t,:,:].array[:] * dataset[varname].scale_factor + dataset[varname].add_offset
     s = config['convert'](s)
+    # first select value should be mising value but above rescaling might have messed this up
+    # - Investigate!!
     s = numpy.select([s<-10,
                       s<-5,
                       s<-2, s<0, s<2, s<4, s<6, s<8, s<10, s<12, s<14, s<16, s<18, s<22, s<24, s<26, s<28, s<30, s<32],
