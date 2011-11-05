@@ -119,9 +119,10 @@ def main():
     a = dataset[varname][interval,y,x]
     seq = a.array[::skip]
     times = a.time[::skip]
-    
-
-
+    #latitude = a.lat
+    #longitude = a.lon
+    latitude = dataset['lat'][y]
+    longitude =  dataset['lon'][x]
 
     missing =  dataset[varname].missing_value
     data = numpy.select([seq == missing],[None], default = seq)
@@ -140,6 +141,8 @@ def main():
     report['attributes'] = dataset.attributes
     report['data-url'] = config['url']
     report['data-en'] = config['en']
+    report['lat'] = latitude.astype('float').tolist()
+    report['lon'] = longitude.astype('float').tolist()
     report['data'] = plot
     returnJson(report,callback)
     return
