@@ -40,16 +40,22 @@ def main():
     hdr = infile.next()
     try:
         mch = re.search("'CLIMAT' DATA FOR\ +(\d\d\d\d/\d\d).*", hdr)
-        date = mch.group(1)
+        date = "%s/01" % mch.group(1)
     except:
         print >>sys.stderr, "ERROR: Input format error"
         return 1
     for n in range(5): infile.next()
+
+    writer.writerow(["Date","IndexNbr","StnLP","MSLP","MeanT","VapP","DaysRn",
+  "RainR","Quint","SunHrs","SunPC","MinT","MaxT"])
+
     for row in infile:
         a = row.split()
         a = replace_missing(a,'-32768')
         a = rescale(a, [2,3,4,5,11,12])
         a.insert(0,date)
+        wmoblk = a.pop(1)
+        a[1] = "%s%s" % (wmoblk, a[1])
         writer.writerow(a)
     return 0
 
