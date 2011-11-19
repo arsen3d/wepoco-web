@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!-- 
+    Test of interactive access to data in Fusion Tables with map and graph.
+    Michael Saunby. November 2011
+    http://mike.saunby.net
+    Source code for this, and similar projects at -
+    http://code.google.com/p/wepoco-web/
+-->
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <title>Fusion Tables CLIMAT Demo</title>
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['linechart']});
+  </script>
+  <script type="text/javascript">
+
+  // Id numbers of Google Fusion Tables (all public) containing CLIMAT data.
+  var tableIds = {"2010":"2155155","2009":"2196403","2008":"2196338","2007":"2196340",
+  "2006":"2196342","2005":"2196347","2004":"2196349","2003":"2196352","2002":"2196295",
+  "2001":"2196296","2000":"2196299"};
+
+  var visualization;
+  var map;
+  var yr;
+  var parameters = "MinT,MeanT,MaxT";
+  var layer;
+  var listener;
+  var infowin;
+
+  function setYr() {
+    yr = document.getElementById('year').value;
+    drawMap();
+  }
+
+  function setParam() {
+    parameters = document.getElementById('param').value;
+  }
+  
+
+  function drawMap(){
+    var tableId = tableIds[yr];
+    if(layer){layer.setMap(null);}
+    // Note.  Could use the supplied FusionTables InfoWindow but here
+    // I choose not to, as it has too much information and only relates
+    // to first month of data, as this is what the map will show.
+    // Instead create my own InfoWindow for each click. 
+    layer = new google.maps.FusionTablesLayer(Number(tableId),{
+      query:"select 'LatLng' from " + tableId + " WHERE Date='"+yr+"/01/01'",
+      suppressInfoWindows:true});
+    layer.setMap(map);
+    google.maps.event.addListener(layer, 'click', function(arg) {
+      try{infowin.close();}catch(err){}
+      infowin = new google.maps.InfoWindow(
+       {content:"<div><b>"+arg.row['IndexNbr'].value+"</b></div>",
+        position:arg.latLng});
+      infowin.open(map);
+      drawVisualization(arg.row['IndexNbr'].value, tableId);
+    });
+    console.log(listener);
+  }
+
+  function initialize() {
+    var my_centre = new google.maps.LatLng(0,0);
+    map = new google.maps.Map(document.getElementById('map_canvas'), {
+      center: my_centre, zoom: 2,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+    // Calling setYr will also draw the map.
+    setYr();
+  }
+
+  function drawVisualization(indexNbr, tableId) {
+      var  queryText = encodeURIComponent("SELECT Date,"+parameters+" FROM " + tableId +" WHERE IndexNbr="+indexNbr);
+      var query = new google.visualization.Query("http://www.google.com/fusiontables/gvizdata?tq="  + queryText); 
+      // Send the query with a callback function.
+      document.getElementById('visualization').innerHTML = "Loading " + parameters + " for station "+indexNbr+"...";
+      query.send(handleQueryResponse);
+  }
+    
+  function handleQueryResponse(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+      var data = response.getDataTable();
+      visualization = new google.visualization.LineChart(document.getElementById('visualization'));
+      visualization.draw(data, {legend: 'bottom'});
+  }
+  </script>
+</head>
+<body onload="initialize()">
+<div style="width:100%">
+ <select id="year" onchange="javascript:setYr()">
+    <option value="2000">2000</option>
+    <option value="2001">2001</option>
+    <option value="2002">2002</option>
+    <option value="2003">2003</option>
+    <option value="2004">2004</option>
+    <option value="2005">2005</option>
+    <option value="2006">2006</option>
+    <option value="2007">2007</option>
+    <option value="2008">2008</option>
+    <option value="2009">2009</option>
+     <option value="2010" selected>2010</option>
+    </select>
+  <select id="param" onchange="javascript:setParam()">
+        <option value="RainR">rainfall</option>
+        <option value="MinT,MeanT,MaxT" selected>temperature</option>
+        <option value="SunHrs">sunshine</option>
+        <option value="MSLP">pressure</option>
+  </select>
+</div>
+<div style="float:left">
+  <div id="map_canvas" style="height: 400px; width: 600px;"></div>
+ </div>
+  <div  style="float:left;">
+    <div id="visualization" style="height: 400px; width: 600px;"></div>
+  </div>
+</body>
+</html>
