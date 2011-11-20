@@ -18,6 +18,7 @@ encoder.FLOAT_REPR = lambda o: format(o, '.1f')
 import sys
 import cgi
 import gviz_api
+from coords20cr import toXY
 
 from config20cr import months20cr
 
@@ -41,46 +42,28 @@ default_year_start = 1961
 #precip_rate_url = dods + "gaussian/monolevel/prate.2008.nc"
 #precip_month_url = dods + "Monthlies/gaussian/monolevel/prate.mon.mean.nc"
 
-def udDate(time, dataset):
-    date = from_udunits(time, dataset.time.units.replace('GMT', '+0:00'))
-    return '%d/%02d/%02d' % (date.year, date.month, date.day)
-
 def dDate(time, dataset):
     date = from_udunits(time, dataset.time.units.replace('GMT', '+0:00'))
-    #d = datetime.strptime("2010/01/23","%Y/%m/%d").date()
     return date
 
-def returnJson(obj,callback=None):
-    if callback:
-        print 'Content-type: application/javascript\n'
-    else:
-        print 'Content-type: text/json\n'
-        pass
-
-    if callback:
-        print "%s(" % callback
-        pass
-    print json.dumps(obj)
-    if callback:
-        print ");"
-        pass
-    return
-
+def warn(msg):
+    print 'Content-type: text/plain\n'
+    print msg
 
 def main():
     form=cgi.FieldStorage()
     try:
-        x = int(form["x"].value)
-        y = int(form["y"].value)
+        lat = float(form["lat"].value)
+        lng = float(form["lng"].value)
     except:
-        returnJson({"msg":"x and y must be integers"})
+        warn("lat and lng must be floats")
         return
     try:
         q = form["q"].value
         config = months20cr[q]
     except:
         k =  months20cr.keys()
-        returnJson({"msg":"q must be one of " + str(k)})
+        warn("q must be one of " + str(k))
         return
     try:
         year_start = int(form["yr0"].value)
@@ -96,13 +79,7 @@ def main():
         month = int(form["mo"].value)
     except:
         month = 0  # i.e. default is all months
-        pass
-    try:
-        callback = form["callback"].value
-    except:
-        callback = None
-        pass
-        
+        pass        
 
     dataset = open_url(config['url'])
     varname = config['var']
@@ -122,6 +99,7 @@ def main():
     interval = ((first <= dataset.time) & (dataset.time <= last))
 
     rainrecs = []
+    (x,y) = toXY(lat,lng)
     a = dataset[varname][interval,y,x]
     seq = a.array[::skip]
     times = a.time[::skip]
