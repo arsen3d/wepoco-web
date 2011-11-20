@@ -121,7 +121,7 @@ def main():
         pass
 
     description = {"date": ("date", "Date"),
-                   "value": ("number", "Value")}
+                   "value": ("number", config['en'])}
     
   # Loading it into gviz_api.DataTable
     data_table = gviz_api.DataTable(description)
