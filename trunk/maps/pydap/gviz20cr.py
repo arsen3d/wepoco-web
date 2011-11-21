@@ -55,8 +55,9 @@ def main():
     try:
         lat = float(form["lat"].value)
         lng = float(form["lng"].value)
+        reqId = form["reqId"].value
     except:
-        warn("lat and lng must be floats")
+        warn("lat and lng must be floats. reqId required.")
         return
     try:
         q = form["q"].value
@@ -128,7 +129,7 @@ def main():
     data_table.LoadData(data)
 
  # Creating a JSon string
-    json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date")
+    json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date", req_id=reqId)
     print 'Content-type: text/plain\n'
     print json
     return
