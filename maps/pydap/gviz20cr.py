@@ -52,12 +52,22 @@ def warn(msg):
 
 def main():
     form=cgi.FieldStorage()
+    tqx={}
+    tqx['reqId']=0
+    try:
+        tqxa=form["tqx"].value
+        tqxa=tqx.split(';')
+        for kv in tqxa:
+          (k,v)=kv.split(':')
+          tqx[k]=v
+          pass
+    except:
+        pass
     try:
         lat = float(form["lat"].value)
         lng = float(form["lng"].value)
-        reqId = form["reqId"].value
     except:
-        warn("lat and lng must be floats. reqId required.")
+        warn("lat and lng must be floats.")
         return
     try:
         q = form["q"].value
@@ -129,7 +139,8 @@ def main():
     data_table.LoadData(data)
 
  # Creating a JSon string
-    json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date", req_id=reqId)
+    json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date", 
+                                     req_id=tqx['reqId'])
     print 'Content-type: text/plain\n'
     print json
     return
