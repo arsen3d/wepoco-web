@@ -56,7 +56,7 @@ def main():
     tqx['reqId']=0
     try:
         tqxa=form["tqx"].value
-        tqxa=tqx.split(';')
+        tqxa=tqxa.split(';')
         for kv in tqxa:
           (k,v)=kv.split(':')
           tqx[k]=v
