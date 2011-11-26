@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<!-- 
+    Test of interactive access to data in Fusion Tables and OPeNDAP.
+
+    Michael Saunby. November 2011
+    http://mike.saunby.net  email: mike[at]saunby[dot]net
+ 
+    Source code for this, and similar projects at -
+    http://code.google.com/p/wepoco-web/
+
+    Most of the real work is done by various APIs.  Follow these links to learn more
+    For the use of Google maps, see
+    http://code.google.com/apis/maps/documentation/javascript/basics.html
+    http://code.google.com/apis/maps/documentation/staticmaps/
+    For line charts see 
+    http://code.google.com/apis/chart/interactive/docs/reference.html
+    http://code.google.com/apis/chart/interactive/docs/gallery/linechart.html
+    Note that the data ploted is extracted from Google Fusion Tables.  This is only possible for
+    tables with PUBLIC sharing.
+    For Fusion Tables see
+    http://code.google.com/apis/chart/interactive/docs/fusiontables.html
+-->
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <title>Fusion Tables/OPeNDAP CLIMAT example</title>
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+  </script>
+  <script type="text/javascript">
+
+  // Id numbers of Google Fusion Tables (all public) containing CLIMAT data.
+  var tableIds = {"2011":"2257587","2010":"2155155","2009":"2196403","2008":"2196338","2007":"2196340",
+  "2006":"2196342","2005":"2196347","2004":"2196349","2003":"2196352","2002":"2196295",
+  "2001":"2196296","2000":"2196299"};
+
+  var help="<div style='height:250px;overflow:scroll'><h3>Important - please read</h3><p>This web page is an example of interactive access to climate records.  The data presented is monthly mean values from actual observations and processed model output.</p>" +
+"<p><b>To view data</b></p><p>Select a marker on the map; the markers show the location of a selection of climate reporting stations from most countries of the world.</p><p>Or, click anywhere on the map to see the model data for that location.</p>" +
+"<p><b>The data</b></p><p>Observation records were obtained from the <a href='http://www.metoffice.gov.uk/hadobs/crutem3/'>CRUTEM3</a> archive at <a href='http://www.metoffice.gov.uk/hadobs/crutem3/data/station_updates/'/>http://www.metoffice.gov.uk/hadobs/crutem3/data/station_updates/</a> and "+ 
+"model (reanalysis) data from <a href='http://www.esrl.noaa.gov/psd/data/gridded/data.20thC_ReanV2.html'>http://www.esrl.noaa.gov/psd/data/gridded/data.20thC_ReanV2.html</a> and <a href='http://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis.html'>http://www.esrl.noaa.gov/psd/data/gridded/data.ncep.reanalysis.html</a></p>" +
+"<p><b>Re-using this data and software</b></p><p>If you would like to create something similar please view the source of this webpage where you will find further notes and contact information.</p><p><a href='http://mike.saunby.net'>Michael Saunby</a> November 2011.</p></div>";
+
+
+  var visualization1;
+  var vis1Title;
+  var visualization2;
+  var vis2Title;
+  var map;
+  var yr, yr0, yr1;
+  var parameter;
+  var reanParam;
+  var layer;
+  var listener;
+  var infowin;
+  var latLng;
+  var circle;
+  // Brand colours
+  var bcols = {green:"#CCFF33",blue:"#031F73",cyan:"#00ADD0", olive:"#878800"};
+  var loadTxt = "Loading...<image alt='loading...' src='loading11.gif' style='margin-left:auto;margin-right:auto;display:block;'/>";
+
+  function showHelp() {
+    document.getElementById('visualization').innerHTML = help;
+  }
+
+  function setYr() {
+    yr = document.getElementById('year').value;
+    drawMap();
+  }
+
+  function setParam() {
+    parameter = document.getElementById('param').value;
+  }
+  
+  function setRean() {
+    reanParam = document.getElementById('rean').value;
+    yr0 = document.getElementById('yr0').value;
+    yr1 = document.getElementById('yr1').value;
+  }
+
+
+   function drawCircle(latlng){
+     if(circle){circle.setMap(null)};
+     circle = new google.maps.Circle({center:latlng,radius:100000,
+		strokeColor:bcols.cyan,strokeOpacity:1,strokeWeight:2,
+                fillColor:bcols.cyan,fillOpacity:0.5});
+     draw20crVis([latlng.lat(),latlng.lng()],yr);
+     circle.setMap(map);
+     google.maps.event.addListener(circle, 'click', function(event) {
+        draw20crVis([event.latLng.lat(),event.latLng.lng()],yr);
+     }); 
+     return 0;
+   }
+
+// Map click listener
+  function fetchDataByPosn(latlng) {
+     drawCircle(latlng);
+  }
+
+  function drawMap(){
+    var tableId = tableIds[yr];
+    if(layer){layer.setMap(null);}
+    // Note.  Could use the supplied FusionTables InfoWindow but here
+    // I choose not to, as it has too much information and only relates
+    // to first month of data, as this is what the map will show.
+    // Instead create my own InfoWindow for each click. 
+    layer = new google.maps.FusionTablesLayer(Number(tableId),{
+      query:"select 'LatLng' from " + tableId + " WHERE Date='"+yr+"/01/01'",
+      suppressInfoWindows:true});
+    layer.setMap(map);
+    google.maps.event.addListener(layer, 'click', function(arg) {
+      try{infowin.close();}catch(err){}
+      var mapsrc = "https://maps.googleapis.com/maps/api/staticmap?center="+arg.row['LatLng'].value+"&sensor=false&maptype=hybrid&size=196x196&zoom=15";
+      infowin = new google.maps.InfoWindow(
+       {content:"<div><b>"+arg.row['IndexNbr'].value+"</b><br><img style='width:196px;height:196px' src='"+mapsrc+"' /></div>",
+        position:arg.latLng});
+      infowin.open(map);
+      drawVisualization(arg.row['IndexNbr'].value, tableId);
+      latLng = arg.row['LatLng'].value.split(',');
+      draw20crVis(latLng, yr);
+    });
+    console.log(listener);
+  }
+
+  function initialize() {
+    var my_centre = new google.maps.LatLng(0,0);
+    showHelp();
+    setRean();
+    setParam();
+    map = new google.maps.Map(document.getElementById('map_canvas'), {
+      center: my_centre, zoom: 2,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+    google.maps.event.addListener(map, 'click', function(event) {
+      fetchDataByPosn(event.latLng);
+    });
+    // Calling setYr will also draw the map.
+    setYr();
+  }
+
+  function drawVisualization(indexNbr, tableId) {
+      var  queryText = encodeURIComponent("SELECT Date,"+parameter+" FROM " + tableId +" WHERE IndexNbr="+indexNbr);
+      var query = new google.visualization.Query("http://www.google.com/fusiontables/gvizdata?tq="  + queryText); 
+      vis1Title = "monthly observations at " + indexNbr; 
+      document.getElementById('visualization').innerHTML=loadTxt;
+      // Send the query with a callback function.
+      query.send(handleQueryResponse);
+  }
+
+  function draw20crVis(latlng, yr) {
+      var queryUri = "http://saunby.net/cgi-bin/py/gviz20cr.py?lat="+latlng[0]+"&lng="+latlng[1]+"&q="+reanParam+"&yr0="+yr0+"&yr1="+yr1;
+      var query =  new google.visualization.Query(queryUri);
+      vis2Title = "reanalysis at " + +latlng[0]+"N,"+latlng[1] +"E";
+      document.getElementById('visualization2').innerHTML=loadTxt;
+      //document.getElementById('visualization2').innerHTML = queryUri;
+      query.send(handleQueryResponse20cr);
+  }
+
+  function handleQueryResponse(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+      // See http://code.google.com/apis/chart/interactive/docs/gallery/linechart.html
+      visualization1 = new google.visualization.LineChart(document.getElementById('visualization'));
+      visualization1.draw(response.getDataTable(), {legend: 'bottom', 
+        title: vis1Title});
+  }
+
+  function handleQueryResponse20cr(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+      visualization2 = new google.visualization.LineChart(document.getElementById('visualization2'));
+      visualization2.draw(response.getDataTable(), {legend: 'bottom',
+        title: vis2Title});
+  }
+
+  </script>
+</head>
+<body onload="initialize()">
+<div style="width:100%">
+  CLIMAT data
+  <select id="param" onchange="javascript:setParam()">
+        <option value="RainR">rainfall</option>
+        <option value="MeanT" selected>temperature</option>
+        <option value="SunHrs">sunshine</option>
+        <option value="MSLP">pressure</option>
+  </select>
+ <select id="year" onchange="javascript:setYr()">
+    <option value="2000">2000</option>
+    <option value="2001">2001</option>
+    <option value="2002">2002</option>
+    <option value="2003">2003</option>
+    <option value="2004">2004</option>
+    <option value="2005">2005</option>
+    <option value="2006">2006</option>
+    <option value="2007">2007</option>
+    <option value="2008">2008</option>
+    <option value="2009">2009</option>
+    <option value="2010">2010</option>
+    <option value="2011" selected>2011</option>
+    </select>
+  |
+  Reanalysis
+  <select id="rean" onchange="javascript:setRean()">
+        <option value="ncep_prate_sfc_mon_mean">NCEP rainfall</option>
+        <option value="prate_mon_mean">20CR rainfall</option>
+        <option value="ncep_air_2m_mon_mean" selected>NCEP temperature</option>
+        <option value="air_2m_mon_mean">20CR temperature</option>
+        <!--
+        <option value="">sunshine</option>
+        <option value="">pressure</option>
+        -->
+        <option value="wspd_10m_mon_mean">20CR wind speed</option>
+  </select>
+  <input id="yr0" type="text" value="2000" onchange="javascript:setRean()" /> to <input id="yr1" type="text" value="2011" onchange="javascript:setRean()" />
+  |
+  <input type="button" value="help" onclick="javascript:showHelp()"/>
+</div>
+<div style="float:left">
+  <div id="map_canvas" style="height:505px;width:500px;margin:3px;border:1px solid #000000;">
+  </div>
+ </div>
+  <div  style="float:left;">
+    <div id="visualization" style="height:250px;width:600px;margin:3px;border:1px solid #000000;">
+    <p   
+    <image src="loading11.gif" style="margin-left:auto;margin-right:auto;display:block;"/>
+    </div>
+    <div id="visualization2" style="height:250px;width:600px;margin:3px;border:1px solid #000000;"></div>
+  </div>
+</body>
+</html>
