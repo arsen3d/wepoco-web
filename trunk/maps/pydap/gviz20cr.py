@@ -70,13 +70,6 @@ def main():
         warn("lat and lng must be floats.")
         return
     try:
-        q = form["q"].value
-        config = months20cr[q]
-    except:
-        k =  months20cr.keys()
-        warn("q must be one of " + str(k))
-        return
-    try:
         year_start = int(form["yr0"].value)
     except:
         year_start = default_year_start
@@ -91,17 +84,37 @@ def main():
     except:
         month = 0  # i.e. default is all months
         pass        
+    try:
+        q = form["q"].value
+        config = months20cr[q]
+        if month != 0:
+            month_start = month
+            skip = 12
+        else:
+            month_start = 1
+            skip = 1
+            pass
+    except:
+        try:
+            fi = form["fi"].value
+            config = {}
+            config['url'] = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" + \
+            "gaussian/monolevel/" + fi + "." + str(year_start) + ".nc"
+            config['var'] = fi
+            config['en'] = 'rain rate'
+            config['convert'] = lambda data: data[:]
+            month_start = 1
+            skip = 8
+        except:
+            k =  months20cr.keys()
+            warn("q must be one of " + str(k))
+            return
+        pass
+    
 
     dataset = open_url(config['url'])
     varname = config['var']
 
-    if month != 0:
-        month_start = month
-        skip = 12
-    else:
-        month_start = 1
-        skip = 1
-        pass
 
     firstday = datetime(year_start,month_start,1, tzinfo=UTC())
     lastday = datetime(year_end,12,31, tzinfo=UTC())
