@@ -54,6 +54,7 @@ def main():
     form=cgi.FieldStorage()
     tqx={}
     tqx['reqId']=0
+    tqx['out']='json'
     try:
         tqxa=form["tqx"].value
         tqxa=tqxa.split(';')
@@ -151,12 +152,20 @@ def main():
     data_table = gviz_api.DataTable(description)
     data_table.LoadData(data)
 
- # Creating a JSon string
-    json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date", 
-                                     req_id=tqx['reqId'])
-    print 'Content-type: text/plain\n'
-    print json
+    if tqx['out'] == 'json':
+        # Creating a JSon string
+        json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date", 
+                                         req_id=tqx['reqId'])
+        print 'Content-type: text/plain\n'
+        print json
+    elif tqx['out'] == 'csv':
+        print 'Content-type: text/plain\n'
+        csv = data_table.ToCsv(columns_order=("date", "value"), order_by="date",
+                                       separator=", ")
+        print csv
+        pass
     return
+    
 
 if __name__ == '__main__':
   main()
