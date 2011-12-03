@@ -145,9 +145,14 @@ def main():
         i += 1
         pass
 
-    description = {"date": ("date", "Date"),
-                   "value": ("number", config['en'])}
-    
+    if tqx['out'] == 'json':
+        description = {"date": ("date", "Date"),
+                       "value": ("number", config['en'])}
+    else:
+        description = {"date": ("string", "Date"),
+                       "value": ("number", config['en'])}
+        pass
+
   # Loading it into gviz_api.DataTable
     data_table = gviz_api.DataTable(description)
     data_table.LoadData(data)
