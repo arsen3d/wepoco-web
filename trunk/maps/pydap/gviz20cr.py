@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# Michael Saunby.  August 2011.
+# Michael Saunby.  December 2011.
 #
 # Purpose:
-# Fetch rainfall time series for single grid box. 
+# Fetch time series for single grid box. 
 #
 
 import pydap.lib
@@ -135,12 +135,8 @@ def main():
         pass
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
-    #interval = ((first <= dataset.time) & (dataset.time <= last))
-    interval = ((dataset.time >= last))
-
-    rainrecs = []
     (x,y) = toXY(lat,lng)
-    a = dataset[varname][interval,y,x]
+    a = dataset[varname][(first <= dataset.time) & (dataset.time <= last),y,x]
     seq = a.array[::skip]
     times = a.time[::skip]
     #latitude = a.lat
