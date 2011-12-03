@@ -130,6 +130,7 @@ def main():
         lastday = datetime(year_end,month_end,31, tzinfo=UTC())
     else:
         lastday = datetime(year_end,month_end+1,1, tzinfo=UTC())
+        print "LAST DAY EARLY", lastday
         pass
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
