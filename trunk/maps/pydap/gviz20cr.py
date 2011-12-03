@@ -149,7 +149,7 @@ def main():
         description = {"date": ("date", "Date"),
                        "value": ("number", config['en'])}
     else:
-        description = {"date": ("string", "Date"),
+        description = {"date": ("date", "Date"),
                        "value": ("number", config['en'])}
         pass
 
