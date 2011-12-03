@@ -105,7 +105,7 @@ def main():
             config['en'] = fi
             config['convert'] = lambda data: data[:]
             month_start = 1
-            skip = 8
+            skip = 2
         except:
             k =  months20cr.keys()
             warn("q must be one of " + str(k))
