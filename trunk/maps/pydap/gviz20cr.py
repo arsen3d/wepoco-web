@@ -127,7 +127,8 @@ def main():
     firstday = datetime(year_start,month_start,1, tzinfo=UTC())
     print "ENDS", month_end
     if month_end == 12:
-        #lastday = datetime(year_end,month_end,31, tzinfo=UTC())
+        lastday = datetime(year_end,month_end,31, tzinfo=UTC())
+        print "LAST DAY DEC", lastday
     else:
         lastday = datetime(year_end,month_end+1,1, tzinfo=UTC())
         print "LAST DAY EARLY", lastday
