@@ -100,8 +100,8 @@ def main():
             config = {}
             config['url'] = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" + \
             "gaussian/monolevel/" + fi + "." + str(year_start) + ".nc"
-            config['var'] = fi
-            config['en'] = 'rain rate'
+            config['var'] = fi.split(".")[0]
+            config['en'] = fi
             config['convert'] = lambda data: data[:]
             month_start = 1
             skip = 8
