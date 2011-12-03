@@ -132,7 +132,7 @@ def main():
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
     (x,y) = toXY(lat,lng)
-    a = dataset[varname][(first <= dataset.time) : (dataset.time <= last),y,x]
+    a = dataset[varname][(first <= dataset.time) & (dataset.time <= last),y,x]
     seq = a.array[::skip]
     times = a.time[::skip]
     #latitude = a.lat
