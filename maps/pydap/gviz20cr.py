@@ -136,7 +136,7 @@ def main():
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
     #interval = ((first <= dataset.time) & (dataset.time <= last))
-    interval = ((dataset.time <= last))
+    interval = ((dataset.time >= last))
 
     rainrecs = []
     (x,y) = toXY(lat,lng)
