@@ -123,20 +123,16 @@ def main():
     dataset = open_url(config['url'])
     varname = config['var']
 
-
     firstday = datetime(year_start,month_start,1, tzinfo=UTC())
-    print "ENDS", month_end
     if month_end == 12:
         lastday = datetime(year_end,month_end,31, tzinfo=UTC())
-        print "LAST DAY DEC", lastday
     else:
         lastday = datetime(year_end,month_end+1,1, tzinfo=UTC())
-        print "LAST DAY EARLY", lastday
         pass
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
     (x,y) = toXY(lat,lng)
-    a = dataset[varname][(first <= dataset.time) & (dataset.time <= last),y,x]
+    a = dataset[varname][(first <= dataset.time) : (dataset.time <= last),y,x]
     seq = a.array[::skip]
     times = a.time[::skip]
     #latitude = a.lat
