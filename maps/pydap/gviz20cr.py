@@ -112,7 +112,7 @@ def main():
             config['var'] = fi.split(".")[0]
             config['en'] = fi
             config['convert'] = lambda data: data[:]
-            skip = 2
+            skip = 1
         except:
             k =  months20cr.keys()
             warn("q must be one of " + str(k))
@@ -125,6 +125,7 @@ def main():
 
 
     firstday = datetime(year_start,month_start,1, tzinfo=UTC())
+    print "ENDS", month_end
     if month_end == 12:
         lastday = datetime(year_end,month_end,31, tzinfo=UTC())
     else:
