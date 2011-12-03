@@ -125,8 +125,11 @@ def main():
 
 
     firstday = datetime(year_start,month_start,1, tzinfo=UTC())
-    # test is day==31 ok if month doesn't have that many days
-    lastday = datetime(year_end,month_end,31, tzinfo=UTC())
+    if month_end == 12:
+        lastday = datetime(year_end,month_end,31, tzinfo=UTC())
+    else:
+        lastday = datetime(year_end,month_end+1,1, tzinfo=UTC())
+        pass
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
     interval = ((first <= dataset.time) & (dataset.time <= last))
