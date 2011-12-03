@@ -141,7 +141,7 @@ def main():
     data = []
     i = 0
     for t in times:
-        data.append({"date":dDate(t,dataset),"value":values[i]})
+        data.append({"date":str(dDate(t,dataset)),"value":values[i]})
         i += 1
         pass
 
