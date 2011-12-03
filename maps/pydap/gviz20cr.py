@@ -64,6 +64,7 @@ def main():
           pass
     except:
         pass
+    month_start = 0
     try:
         lat = float(form["lat"].value)
         lng = float(form["lng"].value)
@@ -81,19 +82,26 @@ def main():
         year_end = date.today().year
         pass    
     try:
-        month = int(form["mo"].value)
+        month_start = int(form["mo"].value)
     except:
-        month = 0  # i.e. default is all months
-        pass        
+        pass
+    try:
+        month_start = int(form["mo0"].value)
+    except:
+        pass
+    try:
+        month_end = int(form["mo1"].value)
+    except:
+        month_end = 12
+        pass
     try:
         q = form["q"].value
         config = months20cr[q]
-        if month != 0:
-            month_start = month
-            skip = 12
-        else:
+        if month_start == 0:
             month_start = 1
             skip = 1
+        else:
+            skip = 12
             pass
     except:
         try:
@@ -104,7 +112,6 @@ def main():
             config['var'] = fi.split(".")[0]
             config['en'] = fi
             config['convert'] = lambda data: data[:]
-            month_start = 1
             skip = 2
         except:
             k =  months20cr.keys()
@@ -118,7 +125,8 @@ def main():
 
 
     firstday = datetime(year_start,month_start,1, tzinfo=UTC())
-    lastday = datetime(year_end,12,31, tzinfo=UTC())
+    # test is day==31 ok if month doesn't have that many days
+    lastday = datetime(year_end,month_end,31, tzinfo=UTC())
     first = to_udunits(firstday, dataset.time.units)
     last =  to_udunits(lastday, dataset.time.units)
     interval = ((first <= dataset.time) & (dataset.time <= last))
@@ -140,15 +148,19 @@ def main():
 
     data = []
     i = 0
-    for t in times:
-        data.append({"date":str(dDate(t,dataset)),"value":values[i]})
-        i += 1
-        pass
 
     if tqx['out'] == 'json':
+        for t in times:
+            data.append({"date":dDate(t,dataset),"value":values[i]})
+            i += 1
+            pass
         description = {"date": ("date", "Date"),
                        "value": ("number", config['en'])}
     else:
+        for t in times:
+            data.append({"date":str(dDate(t,dataset)),"value":values[i]})
+            i += 1
+            pass
         description = {"date": ("string", "Date"),
                        "value": ("number", config['en'])}
         pass
