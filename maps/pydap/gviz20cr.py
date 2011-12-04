@@ -110,7 +110,7 @@ def main():
             config['url'] = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" + \
             "gaussian/monolevel/" + fi + "." + str(year_start) + ".nc"
             config['url2'] = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" + \
-            "gaussian/monolevel/" + fi + "." + str(end_start) + ".nc"
+            "gaussian/monolevel/" + fi + "." + str(year_end) + ".nc"
             config['var'] = fi.split(".")[0]
             config['en'] = fi
             config['convert'] = lambda data: data[:]
