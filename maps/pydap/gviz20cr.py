@@ -109,6 +109,8 @@ def main():
             config = {}
             config['url'] = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" + \
             "gaussian/monolevel/" + fi + "." + str(year_start) + ".nc"
+            config['url2'] = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" + \
+            "gaussian/monolevel/" + fi + "." + str(end_start) + ".nc"
             config['var'] = fi.split(".")[0]
             config['en'] = fi
             config['convert'] = lambda data: data[:]
@@ -119,52 +121,64 @@ def main():
             return
         pass
     
-
-    dataset = open_url(config['url'])
     varname = config['var']
 
     firstday = datetime(year_start,month_start,1, tzinfo=UTC())
-    if month_end == 12:
-        lastday = datetime(year_end,month_end,31, tzinfo=UTC())
+    if (month_end == 12):
+        lastday = datetime(year_end,12,31, tzinfo=UTC())
     else:
         lastday = datetime(year_end,month_end+1,1, tzinfo=UTC())
         pass
-    first = to_udunits(firstday, dataset.time.units)
-    last =  to_udunits(lastday, dataset.time.units)
-    (x,y) = toXY(lat,lng)
-    a = dataset[varname][(first <= dataset.time) & (dataset.time <= last),y,x]
-    seq = a.array[::skip]
-    times = a.time[::skip]
-    #latitude = a.lat
-    #longitude = a.lon
-    latitude = dataset['lat'][y]
-    longitude =  dataset['lon'][x]
-
-    missing =  dataset[varname].missing_value
-    data = numpy.select([seq == missing],[None], default = seq)
-    data = (data * dataset[varname].scale_factor + dataset[varname].add_offset)
-    values = config['convert'](data).astype('float').tolist()
 
     data = []
-    i = 0
+
+    urls = [config['url']]
+    try:
+        urls.append(config['url2'])
+    except:
+        pass
+
+    for dataurl in urls:
+        dataset = open_url(dataurl)
+        first = to_udunits(firstday, dataset.time.units)
+        last =  to_udunits(lastday, dataset.time.units)
+        (x,y) = toXY(lat,lng)
+        a = dataset[varname][(first <= dataset.time) & (dataset.time <= last),y,x]
+        seq = a.array[::skip]
+        times = a.time[::skip]
+        latitude = dataset['lat'][y]
+        longitude =  dataset['lon'][x]
+        
+        missing =  dataset[varname].missing_value
+        data = numpy.select([seq == missing],[None], default = seq)
+        data = (data * dataset[varname].scale_factor + dataset[varname].add_offset)
+        values = config['convert'](data).astype('float').tolist()
+        
+        i = 0
+        if tqx['out'] == 'json':
+            for t in times:
+                data.append({"date":dDate(t,dataset),"value":values[i]})
+                i += 1
+                pass
+            pass
+        else:
+            for t in times:
+                data.append({"date":str(dDate(t,dataset)),"value":values[i]})
+                i += 1
+                pass
+            pass
+        pass
+
+# Loading it into gviz_api.DataTable
 
     if tqx['out'] == 'json':
-        for t in times:
-            data.append({"date":dDate(t,dataset),"value":values[i]})
-            i += 1
-            pass
         description = {"date": ("date", "Date"),
                        "value": ("number", config['en'])}
     else:
-        for t in times:
-            data.append({"date":str(dDate(t,dataset)),"value":values[i]})
-            i += 1
-            pass
         description = {"date": ("string", "Date"),
                        "value": ("number", config['en'])}
         pass
 
-  # Loading it into gviz_api.DataTable
     data_table = gviz_api.DataTable(description)
     data_table.LoadData(data)
 
