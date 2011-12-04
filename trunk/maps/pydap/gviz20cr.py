@@ -172,7 +172,7 @@ def main():
 # Loading it into gviz_api.DataTable
 
     if tqx['out'] == 'json':
-        description = {"date": ("date", "Date"),
+        description = {"date": ("string", "Date"),
                        "value": ("number", config['en'])}
     else:
         description = {"date": ("string", "Date"),
