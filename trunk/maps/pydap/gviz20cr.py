@@ -130,7 +130,7 @@ def main():
         lastday = datetime(year_end,month_end+1,1, tzinfo=UTC())
         pass
 
-    data = []
+    outdata = []
 
     urls = [config['url']]
     try:
@@ -157,13 +157,13 @@ def main():
         i = 0
         if tqx['out'] == 'json':
             for t in times:
-                data.append({"date":dDate(t,dataset),"value":values[i]})
+                outdata.append({"date":dDate(t,dataset),"value":values[i]})
                 i += 1
                 pass
             pass
         else:
             for t in times:
-                data.append({"date":str(dDate(t,dataset)),"value":values[i]})
+                outdata.append({"date":str(dDate(t,dataset)),"value":values[i]})
                 i += 1
                 pass
             pass
@@ -180,7 +180,7 @@ def main():
         pass
 
     data_table = gviz_api.DataTable(description)
-    data_table.LoadData(data)
+    data_table.LoadData(outdata)
 
     if tqx['out'] == 'json':
         # Creating a JSon string
