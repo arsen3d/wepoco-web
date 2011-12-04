@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<!--[if IE]>
+  <script src="http://danvk.org/dygraphs/excanvas.js"></script>
+<![endif]-->
+   <script src="http://danvk.org/dygraphs/dygraph-combined.js"></script> 
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+  </script>
+  <script type="text/javascript">
+
+  var visualizationd;
+  var visdTitle;
+  var yr0 = 2006, yr1 = 2007;
+  var mo0 = 8; mo1 = 9;
+  var reanParam = "prate";
+  var latlng = [13.28,105.88];
+
+  function initialise() {
+    dygraph20crVis();
+  }
+
+  function dygraph20crVis() {
+      var queryText = "lat="+latlng[0]+"&lng="+latlng[1]+"&fi="+reanParam+"&mo0="+mo0+"&yr0="+yr0+"&mo1="+mo1+"&yr1="+yr1;
+      var queryUri = "http://saunby.net/cgi-bin/py/gviz20cr.py?" + queryText;
+      var query =  new google.visualization.Query(queryUri);
+      visdTitle = "reanalysis at " + +latlng[0]+"N,"+latlng[1] +"E";
+      document.getElementById('visdygraph').innerHTML = queryUri;
+      query.send(handleQueryDygraph);
+  }
+
+
+  function handleQueryLineChart(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+      visualization2 = new google.visualization.LineChart(document.getElementById('visualization2'));
+      visualization2.draw(response.getDataTable(), {legend: 'bottom',
+        title: vis2Title});
+  }
+
+  function handleQueryDygraph(response) {
+      if (response.isError()) {
+        alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+        return;
+      }
+     new Dygraph.GVizChart(
+            document.getElementById('visdygraph')).draw(response.getDataTable(), {
+            });
+  }
+
+  </script>
+</head>
+<body onload="initialise()">
+    <div id="visdygraph" style="height:500px;width:1000px;margin:3px;border:1px solid #000000;"></div>
+</body>
+</html>
