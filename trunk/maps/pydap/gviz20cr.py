@@ -157,7 +157,7 @@ def main():
         i = 0
         if tqx['out'] == 'json':
             for t in times:
-                outdata.append({"date":dDate(t,dataset),"value":values[i]})
+                outdata.append({"date":str(dDate(t,dataset)),"value":values[i]})
                 i += 1
                 pass
             pass
