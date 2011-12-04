@@ -173,6 +173,7 @@
     //var mapurl = 'http://b.tiles.mapbox.com/v2/bclc-apec.apec-flood-risk.jsonp';
     var mapurl = 'http://b.tiles.mapbox.com/v2/bclc-apec.apec_flood_points.jsonp';
 
+
     wax.tilejson(mapurl,
       function(tj) {
          console.log(tj.formatter);
@@ -205,7 +206,7 @@
 
   function draw20crVis(latlng, yr) {
       //var queryUri = "http://saunby.net/cgi-bin/py/gviz20cr.py?lat="+latlng[0]+"&lng="+latlng[1]+"&q="+reanParam+"&yr0="+yr0+"&yr1="+yr1;
-      var queryText = "lat="+latlng[0]+"&lng="+latlng[1]+"&fi="+reanParam+"&yr0="+yr0+"&yr1="+yr1;
+      var queryText = "lat="+latlng[0]+"&lng="+latlng[1]+"&fi="+reanParam+"&mo0=1&yr0="+yr0+"&mo1=12&yr1="+yr1;
       var queryUri = "http://saunby.net/cgi-bin/py/gviz20cr.py?" + queryText;
       var query =  new google.visualization.Query(queryUri);
       //vis2Title = "reanalysis at " + +latlng[0]+"N,"+latlng[1] +"E";
@@ -274,7 +275,7 @@
   <input type="button" value="help" onclick="javascript:showHelp()"/>
 </div>
 <div style="float:left">
-  <div id="map_canvas" style="height:505px;width:500px;margin:3px;border:1px solid #000000;">
+  <div id="map_canvas" style="background-color:black;height:505px;width:500px;margin:3px;border:1px solid #000000;">
   </div>
  </div>
   <div  style="float:left;">
