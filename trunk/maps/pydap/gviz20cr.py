@@ -2,7 +2,10 @@
 # Michael Saunby.  December 2011.
 #
 # Purpose:
-# Fetch time series for single grid box. 
+# Fetch time series for single grid box.  This code began its life fetching monthly mean
+# values and has beed adapted to get either these, or sub daily data.  In the case of 
+# sub daily data yr0 and yr1 must be the same, or adjacent.  Modifying to longer runs
+# wouldn't be too hard. 
 #
 
 import pydap.lib
@@ -11,15 +14,15 @@ from pydap.client import open_url
 from datetime import datetime, tzinfo, timedelta, date
 from coards import from_udunits, to_udunits
 import numpy
-import csv
-import json
-from json import encoder
-encoder.FLOAT_REPR = lambda o: format(o, '.1f')
+#import csv
+#import json
+#from json import encoder
+#encoder.FLOAT_REPR = lambda o: format(o, '.1f')
 import sys
 import cgi
+# gviz_api.py available here http://code.google.com/p/google-visualization-python/
 import gviz_api
 from coords20cr import toXY
-
 from config20cr import months20cr
 
 class UTC(tzinfo):
@@ -33,14 +36,6 @@ class UTC(tzinfo):
     pass
 
 default_year_start = 1961
-
-# Monthly means are assigned to first day of month. That's why the
-# range ends on 1st December.
-
-#dods = "http://www.esrl.noaa.gov/psd/thredds/dodsC/Datasets20thC_ReanV2/" 
-#monthly_monolevel = dods + "Monthlies/gaussian/monolevel/"
-#precip_rate_url = dods + "gaussian/monolevel/prate.2008.nc"
-#precip_month_url = dods + "Monthlies/gaussian/monolevel/prate.mon.mean.nc"
 
 def dDate(time, dataset):
     date = from_udunits(time, dataset.time.units.replace('GMT', '+0:00'))
@@ -132,6 +127,9 @@ def main():
 
     outdata = []
 
+    # At present this code has 1 or 2 urls, but the code here could easily be extended 
+    # to cope with more, just add them to the list 'urls', but make sure they're in the
+    # correct order, oldest data first.
     urls = [config['url']]
     try:
         urls.append(config['url2'])
@@ -143,6 +141,8 @@ def main():
         first = to_udunits(firstday, dataset.time.units)
         last =  to_udunits(lastday, dataset.time.units)
         (x,y) = toXY(lat,lng)
+        # Note one or other (or both) of the start or end times could be outside the
+        # range of a given dataset, that's fine and no problems will result.
         a = dataset[varname][(first <= dataset.time) & (dataset.time <= last),y,x]
         seq = a.array[::skip]
         times = a.time[::skip]
@@ -152,47 +152,54 @@ def main():
         missing =  dataset[varname].missing_value
         data = numpy.select([seq == missing],[None], default = seq)
         data = (data * dataset[varname].scale_factor + dataset[varname].add_offset)
+ 
+        # Get the values and loop over them inserting into the outdata list
+        # csv and json require slightly different treatment.
         values = config['convert'](data).astype('float').tolist()
-        
         i = 0
-        if tqx['out'] == 'json':
+        if tqx['out'] == 'csv':
             for t in times:
-                outdata.append({"date":dDate(t,dataset),"value":values[i]})
+                # See comment below.
+                outdata.append({"date":str(dDate(t,dataset)),"value":values[i]})
                 i += 1
                 pass
             pass
         else:
             for t in times:
-                outdata.append({"date":str(dDate(t,dataset)),"value":values[i]})
+                outdata.append({"date":dDate(t,dataset),"value":values[i]})
                 i += 1
                 pass
             pass
         pass
 
 # Loading it into gviz_api.DataTable
+# Default output is 'json'.  Ideally this is specified as tqx=out:json
+# but even when it isn't, that's what is produced.
+# For CSV the date and time is presented as a string, otherwise it would be a
+# javascript "new Date()" object.  
 
-    if tqx['out'] == 'json':
-        description = {"date": ("date", "Date"),
+
+    if tqx['out'] == 'csv':
+        description = {"date": ("string", "Date"),
                        "value": ("number", config['en'])}
     else:
-        description = {"date": ("string", "Date"),
+        description = {"date": ("datetime", "Date"),
                        "value": ("number", config['en'])}
         pass
 
     data_table = gviz_api.DataTable(description)
     data_table.LoadData(outdata)
 
-    if tqx['out'] == 'json':
-        # Creating a JSon string
-        json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date", 
-                                         req_id=tqx['reqId'])
-        print 'Content-type: text/plain\n'
-        print json
-    elif tqx['out'] == 'csv':
+    if tqx['out'] == 'csv':
         print 'Content-type: text/plain\n'
         csv = data_table.ToCsv(columns_order=("date", "value"), order_by="date",
                                        separator=", ")
         print csv
+    else:
+        json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date", 
+                                         req_id=tqx['reqId'])
+        print 'Content-type: text/plain\n'
+        print json
         pass
     return
     
