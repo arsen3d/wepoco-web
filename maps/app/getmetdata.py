@@ -20,6 +20,8 @@ import logging
 # gviz_api.py available here http://code.google.com/p/google-visualization-python/
 import gviz_api
 import StringIO
+from gviz_api import DataTable
+from datetime import datetime
 
 def handle_result(rpc):
     result = rpc.get_result()
@@ -51,9 +53,17 @@ class GetMetData(webapp.RequestHandler):
         return
 
     def returnData(self,tqx):
+        (descr, data) = self.merge(csvlist)
+        descr[0] = ("Date","datetime")
+        for i in range(1,len(descr[1:])):
+            descr[i]=(descr[i],"number")
+            pass
+        for row in data:
+            row[0] = datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S+00:00")
+            pass
+        table = DataTable(descr, data)
         self.response.headers['Content-type'] = 'text/plain'
-        merged = self.merge(csvlist)
-        self.response.out.write(json.dumps(merged))
+        self.response.out.write(table.ToResponse(tqx=tqx))
         return
         
     # Merge will combine all second columns with first column of first dataset
@@ -89,7 +99,7 @@ class GetMetData(webapp.RequestHandler):
             pass
         logging.debug("Merged")
         logging.debug(merged[0])
-        return merged
+        return (merged[0],merged[1:])
 
     def getArgs(self):
         global tqx, lat, lng, fi, start, end
@@ -110,7 +120,7 @@ class GetMetData(webapp.RequestHandler):
         (yr1,mo1,dy1) = end.split('-')
         for q in fi.split(','):
             logging.debug("Fetching " + q)
-            rpc = urlfetch.create_rpc(deadline=30) # 60 secs is max, 5 secs is default see 
+            rpc = urlfetch.create_rpc(deadline=50) # 60 secs is max, 5 secs is default see 
             # http://code.google.com/appengine/docs/python/urlfetch/asynchronousrequests.html
             rpc.callback = create_callback(rpc)
             url = "http://saunby.net/cgi-bin/py/gviz20cr.py?tqx=out:csv&lat=%s&lng=%s&fi=%s&yr0=%s&mo0=%s&yr1=%s&mo1=%s" % (lat,lng,q,yr0,mo0,yr1,mo1)
