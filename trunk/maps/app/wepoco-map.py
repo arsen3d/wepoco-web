@@ -35,6 +35,7 @@ from uploadpic import *
 from uploadrean import *
 from uploadstnrain import *
 from getcsv import *
+from getmetdata import *
 
 application = webapp.WSGIApplication([  
   ('/listblobs', ListBlobs),
@@ -54,6 +55,7 @@ application = webapp.WSGIApplication([
   ('/picuploadurl', PicUploadUrlHandler),
   ('/picupload', PicUploadHandler),
   ('/getcsv', GetCSV),
+  ('/getmetdata', GetMetData),
   ('/serve/([^/]+)?', ServeHandler),
 ], debug=True)
 
