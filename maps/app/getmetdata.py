@@ -55,7 +55,7 @@ class GetMetData(webapp.RequestHandler):
     def returnData(self,tqx):
         (descr, data) = self.merge(csvlist)
         descr[0] = ("Date","datetime")
-        for i in range(1,len(descr[1:])):
+        for i in range(1,1+len(descr[1:])):
             descr[i]=(descr[i],"number")
             pass
         for row in data:
