@@ -192,8 +192,7 @@ def main():
 
     if tqx['out'] == 'csv':
         print 'Content-type: text/plain\n'
-        csv = data_table.ToCsv(columns_order=("date", "value"), order_by="date",
-                                       separator=", ")
+        csv = data_table.ToCsv(columns_order=("date", "value"),order_by="date",separator=",")
         print csv
     else:
         json = data_table.ToJSonResponse(columns_order=("date", "value"), order_by="date", 
