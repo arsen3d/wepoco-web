@@ -104,5 +104,8 @@ handlers:
 - url: /getcsv.*
   script: wepoco-map.py
 
+- url: /getmetdata.*
+  script: getmetdata.py
+
 - url: /serve/.*
   script: wepoco-map.py
